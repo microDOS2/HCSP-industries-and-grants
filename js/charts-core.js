@@ -39,7 +39,7 @@ window.CH = (() => {
   const body = U.frame(host, {
     title: "Fifteen industries, one physics filter — and the ranking is still an economics verdict",
     sub: "WEIGHTED SIX-CRITERION SCORE /10 · COLOR = TIER · RIGHT COLUMN = MODELED PAYBACK · CLICK ANY BAR FOR THE RATIONALE",
-    src: "Research compilation — cross-verified composites of dimension studies D1–D10 + v2 dimensions V2D3/V2D5 (2026-09), v2 league table",
+    src: "Research compilation — cross-verified composites of dimension studies D1–D10 + v2 dimension V2D3 (2026-09), v2 league table",
   });
   const W = 880, rowH = 30, padT = 30, H = padT + rowH * RPT.league.length + 46;
   const mL = 236, mR = 210;

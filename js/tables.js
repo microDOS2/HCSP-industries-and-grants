@@ -100,40 +100,6 @@
   });
 })();
 
-/* ── v2 · credibility audit strip + claim-vs-verified table (§6) ── */
-(function () {
-  const strip = document.getElementById("audit-strip");
-  if (strip) {
-    const M = [
-      { v: "8 / 8", l: "load-bearing inputs fail verification", d: RPT.audit_meta.headline, src: RPT.audit_meta.src },
-      { v: "~1,200×", l: "unit scale vs the largest SCWO plant ever built", d: RPT.audit[3].verified, src: RPT.audit[3].src },
-      { v: "60–160×", l: "CapEx below the most optimistic modeled benchmark", d: RPT.audit[4].verified, src: RPT.audit[4].src },
-      { v: "45–82%", l: "corrected Marcellus-hub IRR — the honest case still works", d: RPT.audit_meta.corrected, src: ["K100", "K94"] },
-    ];
-    strip.innerHTML = M.map((m, i) => `<div class="m" data-i="${i}"><div class="v">${m.v}</div><div class="k">${m.l}</div></div>`).join("");
-    strip.querySelectorAll(".m").forEach(el => {
-      const m = M[+el.dataset.i];
-      el.style.cursor = "pointer"; el.setAttribute("data-drill-keep", "");
-      el.onclick = e => U.showDrill({ title: "CREDIBILITY AUDIT", value: m.v, sub: m.d, source: CH.srcStr(m.src), x: e.clientX, y: e.clientY });
-    });
-  }
-  const t = document.getElementById("audit-table");
-  if (!t) return;
-  const vcls = { contradicted: "vc-contra", unsupported: "vc-unsup", mixed: "vc-mixed" };
-  t.innerHTML = `<thead><tr><th>#</th><th>Claim</th><th>Investor page</th><th>Verified finding</th><th>Verdict</th></tr></thead>` +
-    "<tbody>" + RPT.audit.map((r, i) =>
-      `<tr data-i="${i}" class="${r.verdict === "contradicted" ? "bad" : ""}"><td class="num">${r.n}</td><td><b>${r.claim}</b></td><td>${r.page}</td><td style="font-size:12px">${r.verified}</td><td class="${vcls[r.verdict]}">${r.vlabel}</td></tr>`).join("") + "</tbody>";
-  t.querySelectorAll("tr[data-i]").forEach(tr => {
-    const r = RPT.audit[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
-    tr.onclick = e => U.showDrill({
-      title: `CLAIM ${r.n} · ${r.claim.toUpperCase()}`, value: r.vlabel,
-      sub: `Page: “${r.page}”. Verified: ${r.verified}`,
-      source: CH.srcStr(r.src), x: e.clientX, y: e.clientY,
-    });
-  });
-})();
-
 /* ── v2 · backup-power storage comparison (§3B) ── */
 (function () {
   const t = document.getElementById("storage-table");

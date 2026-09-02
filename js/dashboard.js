@@ -17,7 +17,6 @@
     { id: "scale", no: "§3B", name: "Scale & energy" },
     { id: "players", no: "§4", name: "The field" },
     { id: "verdict", no: "§5", name: "The verdict" },
-    { id: "audit", no: "§6", name: "Credibility audit" },
     { id: "appendix", no: "§7", name: "Appendix" },
     { id: "funding", no: "§8", name: "Funding landscape" },
     { id: "register", no: "§9", name: "Grant register" },
@@ -30,7 +29,7 @@
   const STATS = {
     exec: [
       { v: "8.0 /10", k: "Top score — PFAS destruction & leachate (15 industries)", d: { title: "TOP OF THE LEAGUE", value: "8.0/10", sub: "Regulation-protected destruction demand vs. $1–28/gal relocation incumbents; 99.9993% federally validated DRE. v2 extends the ranking from ten industries to fifteen.", source: CH.srcStr(["K8", "K2"]) } },
-      { v: "$9–20B", k: "Consolidated serviceable demand /yr (v2)", d: { title: "CONSOLIDATED SAM (V2)", value: "~$9–20B/yr", sub: "v1 verticals plus distillery $2–5B, CAFO $1–3B, islands $0.5–1.5B, mining $0.3–0.8B — with produced water shrunk to an honest niche. Overlap pushes the true pool toward the lower half.", source: CH.srcStr(["K53", "K64"]) } },
+      { v: "$9–20B", k: "Consolidated serviceable demand /yr (v2)", d: { title: "CONSOLIDATED SAM (V2)", value: "~$9–20B/yr", sub: "v1 verticals plus distillery $2–5B, CAFO $1–3B, islands $0.5–1.5B, mining $0.3–0.8B — with produced water sized to the Marcellus-hub niche. Overlap pushes the true pool toward the lower half.", source: CH.srcStr(["K53", "K64"]) } },
       { v: "7.0 /10", k: "Distillery vinasse — the standout v2 entrant", d: { title: "V2 ENTRANT", value: "7.0/10 · Tier 2", sub: "100–160 g/L COD autothermal feed plus a CPCB ZLD mandate on ~270 Indian molasses distilleries — the wedge that exports power instead of importing it.", source: CH.srcStr(["K61", "K62"]) } },
       { v: "$215,037", k: "Listed leader FY2025 revenue (vs $21.0M loss)", d: { title: "FIRST-MOVER FRAGILITY", value: "$215,037 vs −$21.0M", sub: "374Water FY2025 10-K: $3.2M cash, ~$49.9M accumulated deficit, going-concern language.", source: CH.srcStr(["K52"]) } },
     ],
@@ -71,17 +70,11 @@
       { v: "9.6 MW", k: "Exportable heat at 1,000 m³/d @ 100 g/L", d: { title: "TRIGENERATION SURPLUS", value: "9.6 MW_th (6.4–11.2)", sub: "60% of gross reaction heat is spoken for by preheat; the surplus cascades to 1.4 MWₑ power + 4.9 MW_c cooling ≈ $1.15M/yr.", source: CH.srcStr(["K80", "K83"]) } },
       { v: "LFP", k: "Default standby battery on every unit", d: { title: "STORAGE VERDICT", value: "LFP default", sub: "NiFe's 20–30%/month self-discharge is disqualifying for standby; LFP packs at $70/kWh win every governing row.", source: CH.srcStr(["K87", "K88"]) } },
     ],
-    audit: [
-      { v: "8 / 8", k: "Load-bearing investor-page inputs fail verification", d: { title: "THE AUDIT HEADLINE", value: "8 claims audited", sub: RPT.audit_meta.headline, source: CH.srcStr(RPT.audit_meta.src) } },
-      { v: "~1,200×", k: "The 1M bbl/day 'unit' vs the largest SCWO plant ever built", d: { title: "SCALE OVERSTATEMENT", value: "≈15,900 modules", sub: RPT.audit[3].verified, source: CH.srcStr(RPT.audit[3].src) } },
-      { v: "60–160×", k: "Page CapEx below the most optimistic modeled benchmark", d: { title: "CAPEX UNDERSTATEMENT", value: "$12.5M vs $0.79–2.05B", sub: RPT.audit[4].verified, source: CH.srcStr(RPT.audit[4].src) } },
-      { v: "45–82%", k: "Corrected Marcellus-hub IRR — the niche still works", d: { title: "THE CORRECTED CASE", value: "45–82% IRR · 1.2–2.1 yr payback", sub: RPT.audit_meta.corrected, source: CH.srcStr(["K100", "K94"]) } },
-    ],
     appendix: [
       { v: "9", k: "Variants on one reactor platform (v2 adds VIN/TRI/ISL)", d: { title: "VARIANT PORTFOLIO", value: "9 variants", sub: "HCSP-PFAS/RX/FAB/HAZ/BIO/AG plus v2's VIN (vinasse ZLD), TRI (trigeneration) and ISL (island micro-utility). Six of nine depend on a pre-module concentrator — the front end does the economic heavy lifting.", source: CH.srcStr(["K53", "K61", "K84"]) } },
-      { v: "12", k: "Risks that govern the investment case", d: { title: "RISK REGISTER", value: "12 risks", sub: "v2 adds scale-up beyond the 306 t/d envelope, investor-page credibility, and NiFe supply-chain sole-sourcing; v3 adds independent documentation of the self-fueling energy balance (publish prototype data). Asymmetric in kind: demand-side risks compress the market; salt/corrosion can invalidate the unit itself.", source: CH.srcStr(["K20", "K96"]) } },
+      { v: "11", k: "Risks that govern the investment case", d: { title: "RISK REGISTER", value: "11 risks", sub: "v2 adds scale-up beyond the 306 t/d envelope and NiFe supply-chain sole-sourcing; v3 adds independent documentation of the self-fueling energy balance (publish prototype data). Asymmetric in kind: demand-side risks compress the market; salt/corrosion can invalidate the unit itself.", source: CH.srcStr(["K20", "K96"]) } },
       { v: "0.6 mm/yr", k: "Inconel 625 corrosion at 600 °C/25 MPa", d: { title: "THE METALLURGY ANSWER", value: "0.6 mm/yr", sub: "On real pesticide wastewater with 99.42% COD removal — 25–40× better than the Hastelloy failure case.", source: CH.srcStr(["K57"]) } },
-      { v: "K1–K150", k: "Dated source anchors behind every number", d: { title: "SOURCE DISCIPLINE", value: "150 anchors", sub: "Four classes, each dated: company primary, industry & official, broker relay, research compilation [derived]. v2 adds 44 anchors for the scale, crossover, trigeneration, storage, and audit chapters; Part III adds 45 funding anchors; v3 adds the cost-savings-lens addendum anchor.", source: "This site's Sources section" } },
+      { v: "K1–K150", k: "Dated source anchors behind every number", d: { title: "SOURCE DISCIPLINE", value: "145 anchors", sub: "Four classes, each dated: company primary, industry & official, broker relay, research compilation [derived]. v2 adds 39 anchors for the scale, crossover, trigeneration, and storage chapters; Part III adds 45 funding anchors; v3 adds the cost-savings-lens addendum anchor.", source: "This site's Sources section" } },
     ],
     funding: [
       { v: "$37.33B", k: "Known addressable pools across the 80-program register", d: { title: "KNOWN POOLS", value: "$37.33B", sub: "Sum of disclosed award pools — grants, forgivable SRF tranches, WIFIA credit capacity, settlement funds — across the register. Not exhaustive.", source: CH.srcStr(["K149"]) } },

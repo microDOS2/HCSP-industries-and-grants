@@ -366,8 +366,6 @@ table.dt tr:hover td { background: var(--paper-hi); }
 table.dt tr.hl td { background: rgba(34,81,255,.05); }
 table.dt tr.bad td { background: rgba(194,47,78,.045); }
 table.dt td.vc-contra, .vc-contra { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--neg); }
-table.dt td.vc-unsup { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--ink-md); }
-table.dt td.vc-mixed { font-family: var(--mono); font-size: 11px; font-weight: 700; color: #8a6d1c; }
 
 /* ── §0.5 three terms · magazine columns (no cards, hover to unfold) ── */
 .term-mag {

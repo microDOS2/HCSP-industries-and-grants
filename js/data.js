@@ -35,7 +35,7 @@ window.RPT = {
       why: "The only vertical where all three outputs price near global maximums — power $0.30–0.52/kWh, desal-parity water $2–5/m³ — but feed is dilute and needs FOG/food-waste blending.",
       src: ["K65"] },
     { rank: 11, key: "og",     name: "Produced water (revised ↑, honest niche)", score: 4.75, tier: 3, payback: "1.2–8.5 yr (Marcellus hub only)",
-      why: "Real only as 50–100k bbl/day salt-first hubs in Marcellus/Utica ($3–15/bbl trucking) or seismicity-constrained Permian pockets; the 1M bbl/day investor-page case fails verification on every load-bearing input. Corrected niche: 45–82% IRR.",
+      why: "Real only as 50–100k bbl/day salt-first hubs in Marcellus/Utica ($3–15/bbl trucking) or seismicity-constrained Permian pockets; Permian pipeline disposal at $0.55–1.81/bbl forecloses any basin-scale oxidation play. Viable niche: 45–82% IRR.",
       src: ["K93", "K94", "K100"] },
     { rank: 12, key: "cea",    name: "Indoor agriculture / CEA (briefing anchor)", score: 4.2, tier: 4, payback: "Service model only",
       why: "~99.8%-water stream far below the autothermal threshold, sold to distressed customers; only 27.3% of US cannabis operators profitable (2024). Cooling/water co-benefits help only at the margin.",
@@ -280,7 +280,6 @@ window.RPT = {
     { r: "Regional grid-price exposure (auxiliary draw & export value)", like: "Medium", impact: "Medium", mit: "Sequence by grid price (TX/MEA first); EU export value contingent on the heat-integrated variant", ev: "US industrial power spans ~6.6 ¢ (TX) to ~24 ¢ (CA commercial) — tripling what auxiliary draw costs and exported kWh earn", src: ["K23", "K24"] },
     { r: "Independent documentation of the self-fueling energy balance", like: "Medium", impact: "Medium", mit: "Publish prototype data — the on-demand hydrogen loop is manufacturer-stated and prototype-backed; independent verification converts the claim into a diligence asset", ev: "Per the manufacturer briefing: fuel generated on demand from process water, negligible net energy cost once started; a working prototype exists", src: ["K1"] },
     { r: "Scale-up beyond the demonstrated envelope (new in v2)", like: "High", impact: "High", mit: "Build the ladder as parallel trains (effective exponent n ≈ 0.85), never giant single vessels; stage-gate each rung on availability data from the rung below", ev: "No SCWO plant above 306 t/d has ever operated; the two largest ever built are both defunct; the LANL 5,000 m³/day design anchoring hub economics is a study, not a plant", src: ["K76", "K96", "K72"] },
-    { r: "Credibility risk from unverifiable investor-page claims (new in v2)", like: "High (present today)", impact: "High (diligence-poisoning)", mit: "Publish the corrected produced-water model proactively; audit every public figure against contracted anchors (OC San $5.2M per 6 t/d) before release", ev: "Every load-bearing number on the $5/bbl, 1M-bbl/day page fails verification — CapEx 60–160× below the most optimistic modeled benchmark, recovery contradicting the manufacturer's own spec", src: ["K99", "K18", "K100"] },
     { r: "Storage/supply-chain sole-sourcing — NiFe (new in v2)", like: "Medium", impact: "Medium", mit: "Default to LFP for standby/black-start on every unit; dual-source NiFe (Chinese TN-series) only for daily-cycled remote variants; track the UCLA nanostructured revival as a 5–10-yr option", ev: "The dominant US NiFe vendor went bankrupt June 2023 leaving a Chinese-only supply base; NiFe self-discharges 20–30%/month and costs ~$400–1,000/kWh against $70/kWh LFP packs", src: ["K91", "K87", "K88"] },
   ],
 
@@ -407,40 +406,6 @@ window.RPT = {
   storage_rule: "Specify LFP as the standard UPS/black-start battery on every unit — default bill of materials, not a site option. NiFe only when most of: daily-cycled off-grid (self-discharge irrelevant); ambient extremes (<−20 °C or >45 °C sustained); replacement logistics dominate lifecycle cost; buyer accepts Chinese-sourced IEC 60623 hardware verified against the 2,000–4,000-cycle benchmark. Where NiFe qualifies, the architecture is hybrid — a small LFP string for instant black-start.",
   storage_src: ["K87", "K88"],
 
-  // ── Ch.7.3 v2 credibility audit: investor webpage, claim by claim (hcsp_v2_dim05) ──
-  audit: [
-    { n: 1, claim: "Disposal benchmark", page: "$5/bbl industry benchmark",
-      verified: "Permian pipeline+disposal $0.55–1.81/bbl; recycling $0.15–0.20; trucking ceiling ~$2.50. $5/bbl holds only as a Marcellus/remote-trucking niche figure ($3–7/bbl hauling, $10–12 all-in).",
-      verdict: "contradicted", vlabel: "CONTRADICTED nationally", src: ["K93", "K94"] },
-    { n: 2, claim: "Basin volumes", page: "Permian 12M · Eagle Ford 3M · Bakken 1.5M · Marcellus 2M bbl/day",
-      verified: "Permian 20.7M bbl/d (2024 — understated ~1.8×); Eagle Ford ~1.0–1.1M (overstated 3–6×); Bakken 1.6–2.0M ✓; Marcellus ~0.1–0.3M (overstated 4–8×).",
-      verdict: "mixed", vlabel: "MIXED — two basins wrong by 2–8×", src: ["K95", "K93"] },
-    { n: 3, claim: "Water recovery", page: "97–99%",
-      verified: "Manufacturer's own briefing: 85–95%. Peer-reviewed SCWO+desalination: 87.1% distillate. 98.9% reached only by a membrane-distillation + crystallizer ZLD hybrid — not SCWO alone.",
-      verdict: "contradicted", vlabel: "CONTRADICTED — vs the company's own spec", src: ["K97", "K1"] },
-    { n: 4, claim: "Unit scale", page: "One 1,000,000 bbl/day unit",
-      verified: "≈15,900 HCSP 10-m³/day modules — ~1,200× the largest SCWO plant ever built (Hanwha 5,500 kg/h; both Hanwha plants defunct). The largest proposed concept (LANL 5,000 m³/d) is still 32× smaller — and unbuilt.",
-      verdict: "contradicted", vlabel: "CONTRADICTED — ~1,200× the largest ever built", src: ["K96", "K72"] },
-    { n: 5, claim: "CapEx", page: "~$12.5M ($10M build + delivery + install)",
-      verified: "LANL modeled floor $785–2,046/bbl-day ⇒ $0.79–2.05B at 1M bbl/day — the page sits 60–160× below the most optimistic modeled benchmark, 25–100× below conventional ZLD, 13–34× below commodity SWRO.",
-      verdict: "contradicted", vlabel: "CONTRADICTED — 60–160× too low", src: ["K96", "K72"] },
-    { n: 6, claim: "Variable OPEX", page: "$1.50/bbl",
-      verified: "Even on the conservative startup/auxiliary bound, HCSP electricity alone is $1.15–4.35/bbl (28.6–36.2 kWh/bbl) — before oxidant, maintenance, labor, solids handling. Achievable only at the theoretical floor, where it roughly equals LANL's all-in modeled cost.",
-      verdict: "unsupported", vlabel: "UNSUPPORTED as stated", src: ["K100", "K72"] },
-    { n: 7, claim: "Salt/metals revenue", page: "$0.10–0.50/bbl ($33–164M/yr)",
-      verified: "SCWO solids are inert mixed sludge; mixed ZLD salts have 'limited or no commercial value' and are landfilled at cost. Lithium requires a separate DLE plant (Smackover DFS: $1.45B CapEx; breakeven ~$16k/t LCE).",
-      verdict: "unsupported", vlabel: "UNSUPPORTED — that is a different industry (DLE)", src: ["K98"] },
-    { n: 8, claim: "Returns", page: "IRR >500% (5-yr), >1,000% (10-yr); payback <12 months; ~$1.31B/yr net",
-      verified: "Mechanically true given the page's inputs (they imply a 3.5-day payback). Corrected 50,000 bbl/d hub: IRR −99% to +82%, payback 1.2 yr–never. Honest niche: 45–82% IRR, 1.2–2.1-yr payback at sustained ≥$2.5–3/bbl.",
-      verdict: "contradicted", vlabel: "CONTRADICTED at any defensible inputs", src: ["K100", "K94"] },
-  ],
-  audit_meta: {
-    artifact: "HCSP investor webpage — 'Investor Economics at $5/bbl Benchmark, 1,000,000 bbl/day scale' (accessed 2026-09)",
-    headline: "The page's internal arithmetic is self-consistent; every load-bearing input is wrong by one to four orders of magnitude.",
-    sources_note: "All six cited sources (NETL, EPA UIC, EIA, Saltworks, Hart Energy, Reuters) are bare homepage links — and Saltworks publicly states that disposal below $1.50/bbl 'is the most economic option,' the opposite of the page's premise.",
-    corrected: "The correction is commercially costless: the honest 50,000–100,000 bbl/day Marcellus-hub model still delivers 45–82% IRR and 1.2–2.1-year paybacks. Publishing it converts a diligence liability into a credibility asset for the verticals where the economics are genuinely sound.",
-    src: ["K99", "K101", "K100"],
-  },
 };
 // ═══ Part III — Funding (compiled from HCSP_Grants_Database.xlsx + HCSP_Grants_Strategy.md, 2026-09) ═══
 Object.assign(window.RPT, {
