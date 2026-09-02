@@ -43,8 +43,8 @@ window.SRCS = [
     fact: "Corrosion and salt precipitation/plugging remain the key unsolved commercialization blockers for SCWO; no economical salt-management solution yet found." },
   { k: "K21", ref: "D4-47/D4-48", cat: "company", date: "2025-09", cite: "374Water investor materials (GlobeNewswire; mziq profile) — vendor source",
     fact: "WDS unit economics: viable service pricing $2–5/gal vs $5–10/gal incineration and $6–10/gal incumbent SCWO; AS6 site capital $4.5–6.0M; claimed 1.5–2.5-yr payback." },
-  { k: "K22", ref: "D4-48/D12-64", cat: "kimi", date: "2025", cite: "Report Ch. 8.2 cost-stack model, calibrated to 374Water power-cost derivation [derived]",
-    fact: "HCSP power cost $0.07–0.09/gal — a conservative bound from the 75–95 kW startup/auxiliary spec (operating energy negligible per manufacturer, self-fueling loop); fully loaded stack $0.53–1.03/gal on a $2.5–4.0M module, 0.925M gal/yr throughput." },
+  { k: "K22", ref: "D4-48/D12-64", cat: "kimi", date: "2025", cite: "Report Ch. 8.2 energy-spec compilation; cost-stack model withdrawn [derived]",
+    fact: "HCSP operating energy is negligible per the manufacturer (self-fueling loop); grid power covers only the 75–95 kW startup/auxiliary spec. HCSP has NO cost benchmark: earlier $/gal figures traced to SCWO industry literature, not the manufacturer, and are withdrawn. All HCSP costs are TBD — manufacturer cost model pending." },
   { k: "K23", ref: "D12-64", cat: "industry", date: "2025", cite: "US EIA, Electricity Explained",
     fact: "US industrial electricity 8.62 ¢/kWh — basis for the 180–228 kWh/m³ × price grid-context calculation (~$15–20/m³-equivalent US average; startup/auxiliary draw and export value)." },
   { k: "K24", ref: "D12-65", cat: "broker",   date: "2025", cite: "EIA state electricity tables (via compilation)",
@@ -105,8 +105,8 @@ window.SRCS = [
     fact: ">99.9999% DRE over ~5,800 hot hours, but titanium/Hastelloy liner life ~110 h on agent hydrolysate → rejected at full scale; hydrolysate trucked to a Veolia incinerator." },
   { k: "K52", ref: "D11-1/D11-2", cat: "company", date: "2026-03-31", cite: "374Water FY2025 Form 10-K (SEC EDGAR); Q1 2026 results",
     fact: "Revenue $215,037; net loss $21.0M; cash $3.2M; accumulated deficit $49.9M; going-concern financing language Q1 2026." },
-  { k: "K53", ref: "Ch.8.2", cat: "kimi",    date: "2026-09", cite: "Report Ch. 8.2 stated assumptions [derived]",
-    fact: "Labor 1.0–1.5 FTE, maintenance 3–5% CapEx/yr, oxidant/residue — analyst assumptions, flagged as the least certain lines of the cost stack." },
+  { k: "K53", ref: "Ch.8.2", cat: "kimi",    date: "2026-09", cite: "Report Ch. 8.2 stated assumptions [derived] — superseded",
+    fact: "The per-module cost stack (labor, maintenance, oxidant/residue, amortization) rested on analyst assumptions, never manufacturer data — superseded: all HCSP cost figures are TBD pending the manufacturer cost model." },
   { k: "K54", ref: "D11-19", cat: "industry", date: "2026-05", cite: "Minnesota 3M-settlement project report (state.mn.us)",
     fact: "AirSCWO 6 field energy 1.12 kWh/gal (~294 kWh/m³) + 0.06 gal IPA/gal on SAFFF; PFAS destruction cost $1.63–4.88/gal — the honest field band vs the 180–228 kWh/m³ spec." },
   { k: "K55", ref: "D11-36", cat: "industry", date: "2026-04-23", cite: "US EPA, Interim Guidance on PFAS Destruction and Disposal, Version 3",
@@ -141,8 +141,8 @@ window.SRCS = [
     fact: "Data-center liquid waste is dominated by inorganic cooling-tower blowdown — a membrane/ZLD problem, not an oxidation feed. The Cheyenne Data Plant co-location at a wastewater facility is the template, inverted." },
   { k: "K69", ref: "V2D3-3/V2D2-29", cat: "broker", date: "2025–2026", cite: "ERCOT large-load queue data (410 GW, 87% data centers); IAEI 2025 data-center electricity analysis",
     fact: "Grid interconnection queues run 4–7 years (Northern Virginia); cooling is 30–40% of data-center electricity — the offtake scarcity that makes data centers creditworthy offtakers, not customers." },
-  { k: "K70", ref: "V2D1-E1", cat: "kimi", date: "2026-09", cite: "Report v2 Ch. 11.2 scale-ladder cost model, hcsp_v2_dim01 §3–4 [derived]",
-    fact: "Ladder 10/100/1,000/1,900 m³/d: CapEx $3.0–4.5M / $12–32M / $48–226M / $70–389M; net energy 130–250 / 80–160 / 45–110 / 35–88 kWh/m³ (dilute feed); fully loaded ~$215–310 / $76–180 / $33–120 / $28–110 per m³. 330 d/yr, $0.086/kWh, CRF 10.2% + 4% fixed O&M." },
+  { k: "K70", ref: "V2D1-E1", cat: "kimi", date: "2026-09", cite: "Report v2 Ch. 11.2 scale-ladder model, hcsp_v2_dim01 §3–4 [derived] — cost figures withdrawn",
+    fact: "Ladder 10/100/1,000/1,900 m³/d: net energy 130–250 / 80–160 / 45–110 / 35–88 kWh/m³ (dilute feed) — energy-balance model outputs. The modeled CapEx and fully loaded $/m³ figures were never manufacturer data and are withdrawn: HCSP cost model pending." },
   { k: "K71", ref: "V2D1-2", cat: "company", date: "2025", cite: "374Water published site-capital figures (AS1/AS6/Nix30)",
     fact: "Site capital $1.5–2.0M / $4.5–6.0M / $7.5–10.0M for 1 / 6 / 30 t/d units implies an early-ladder cost exponent of only 0.32–0.40 — early scale-up is steeply de-bottlenecked, then the curve flattens." },
   { k: "K72", ref: "V2D1-3 / V2D5-18", cat: "industry", date: "2022", cite: "LANL/DOE SCWDO techno-economic model, OSTI 3001291 (5,000 m³/day concept)",
@@ -194,7 +194,7 @@ window.SRCS = [
   { k: "K96", ref: "V2D5-17", cat: "industry", date: "2019", cite: "Springer, 'Reactors for Supercritical Water Oxidation Processes'",
     fact: "The largest full-scale SCWO plants ever built (Hanwha 2,000 and 5,500 kg/h) are both defunct; a 1,000,000 bbl/day facility would require ≈15,900 HCSP 10-m³/day modules — ~1,200× the largest plant ever built." },
   { k: "K100", ref: "V2D5-E1", cat: "kimi", date: "2026-09-02", cite: "Report v2 produced-water hub model, hcsp_v2_dim05 §2 [derived]",
-    fact: "Modeled 50,000 bbl/d salt-first hub: 10-yr IRR −99% to +82% across scenarios; viable only at sustained ≥$2.5–3/bbl avoided cost — Marcellus niche 45–82% IRR and 1.2–2.1-yr payback, negative at Permian pipeline pricing." },
+    fact: "Modeled 50,000 bbl/d salt-first hub: scenario economics depend on HCSP cost inputs that are TBD (manufacturer cost model pending) — IRR/payback figures withdrawn. What stands on market data: the Marcellus/Utica corridor's $3–15/bbl trucking baseline vs Permian pipeline disposal at $0.55–1.81/bbl, which forecloses any basin-scale play." },
   { k: "K102", ref: "V2D3-24", cat: "industry", date: "2017", cite: "PMC peer-reviewed study, 'Bioconversion of Sugarcane Vinasse'",
     fact: "Raw Brazilian sugarcane vinasse independently measured at 77 g/L total COD, 57.6 g/L BOD5, pH 4.1." },
   { k: "K103", ref: "V2D3-26/V2D3-27", cat: "industry", date: "2016–2026", cite: "MDPI bioelectrochemical vinasse/stillage valorization; brewery wastewater reviews",
@@ -296,7 +296,7 @@ window.SRCS = [
 
   // ═══ v3 addendum (K150): the cost-savings lens ═══
   { k: "K150", ref: "V3-SL", cat: "kimi", date: "2026-09", cite: "Report v3 addendum — cost-savings lens, research/hcsp_v3_savings_ladder.md [derived]",
-    fact: "Fifteen verticals re-ranked by incumbent remediation cost per gallon (all values previously sourced in dim research). Elevates chemical/hazmat to #1, defense AFFF #2, CEA-captive #6; demotes distillery vinasse and textiles (regulation + energy plays, ~1¢/gal incumbents). PFAS concentrates stay top-3 under both lenses. Manufacturer HCSP pricing TBD — ranked by addressable savings vs the ~$0.07–0.09/gal conservative energy bound (negligible net energy per manufacturer, self-fueling loop); margin × volume = pool qualifier applies." },
+    fact: "Fifteen verticals re-ranked by incumbent remediation cost per gallon (all values previously sourced in dim research). Elevates chemical/hazmat to #1, defense AFFF #2, CEA-captive #6; demotes distillery vinasse and textiles (regulation + energy plays, ~1¢/gal incumbents). PFAS concentrates stay top-3 under both lenses. Manufacturer HCSP pricing TBD — ranked by gross addressable savings; the HCSP reference is qualitative only (self-fueling loop, negligible net energy per manufacturer), no $/gal attached; margin × volume = pool qualifier applies." },
 ];
 
 // Lookup helper: K("K2") → source object

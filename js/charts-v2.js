@@ -1,16 +1,16 @@
 // ═══ v2 charts: scale ladder (cost curve), energy crossover, trigeneration heat cascade ═══
 
 /* ────────────────────────────────────────────────────────────
-   12 · The scale ladder — net energy and fully loaded cost
-   across four rungs (log capacity axis), model range between
-   the single-train (n≈0.6) and modular-parallel (n≈0.85) branches
+   12 · The scale ladder — net energy across four rungs (log capacity
+   axis); the fully loaded cost panel is withheld — HCSP cost figures
+   came from a modeled stack, manufacturer cost model pending
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("scale-chart");
   if (!host) return;
   const body = U.frame(host, {
     title: "Scale fixes energy first, capital second — but nothing above 306 t/d has ever operated",
-    sub: "FOUR RUNGS, DILUTE-FEED BASE CASE (COD 5–20 G/L) · LOG CAPACITY AXIS · BAND = n≈0.6 SINGLE-TRAIN → n≈0.85 MODULAR-PARALLEL BRANCHES · MANUFACTURER COST INPUTS PENDING — ADDRESSABLE-SAVINGS BASIS · CLICK RUNGS",
+    sub: "FOUR RUNGS, DILUTE-FEED BASE CASE (COD 5–20 G/L) · LOG CAPACITY AXIS · ENERGY BAND = n≈0.6 SINGLE-TRAIN → n≈0.85 MODULAR-PARALLEL BRANCHES · COST PANEL WITHHELD — MANUFACTURER COST MODEL PENDING · CLICK RUNGS",
     src: "Research compilation — report v2 Ch. 11.2 model [derived] · Industry & official — LANL/OSTI 3001291, NETL scaling, Concawe 25-6",
   });
   const W = 880, H = 496;
@@ -22,11 +22,11 @@
 
   // panel geometry: energy on top, cost below
   const p1 = { y0: 46, y1: 200, dom: [0, 260], unit: "NET KWH/M³" };
-  const p2 = { y0: 258, y1: 412, dom: [0, 340], unit: "FULLY LOADED $/M³" };
+  const p2 = { y0: 258, y1: 412, dom: [0, 340], unit: "FULLY LOADED COST — TBD, MFR COST MODEL PENDING" };
   const yS = (p, v) => p.y1 - (v - p.dom[0]) / (p.dom[1] - p.dom[0]) * (p.y1 - p.y0);
 
-  // panel frames + y gridlines
-  [[p1, [0, 50, 100, 150, 200, 250]], [p2, [0, 100, 200, 300]]].forEach(([p, ticks]) => {
+  // panel frames + y gridlines (cost panel: no $ axis — HCSP cost model pending)
+  [[p1, [0, 50, 100, 150, 200, 250]], [p2, []]].forEach(([p, ticks]) => {
     svg.append("line").attr("x1", mL).attr("x2", W - mR).attr("y1", p.y1).attr("y2", p.y1).attr("stroke", ink).attr("stroke-width", 1.2);
     ticks.forEach(v => {
       svg.append("line").attr("x1", mL).attr("x2", W - mR).attr("y1", yS(p, v)).attr("y2", yS(p, v)).attr("stroke", v ? "#eef1f6" : "#dbe2ea");
@@ -46,16 +46,32 @@
     });
   });
 
-  // interpolated bands (log-x linear between rungs)
+  // interpolated band (log-x linear between rungs) — energy only; cost band removed (pending)
   function bandPath(p, key) {
-    const pts = D.map(d => [x(d.m3d), yS(p, key === "kwh" ? d.kwh[0] : d.cost[0]), yS(p, key === "kwh" ? d.kwh[1] : d.cost[1])]);
+    const pts = D.map(d => [x(d.m3d), yS(p, d[key][0]), yS(p, d[key][1])]);
     let dstr = `M${pts[0][0]},${pts[0][2]}`;
     for (let i = 1; i < pts.length; i++) dstr += ` L${pts[i][0]},${pts[i][2]}`;
     for (let i = pts.length - 1; i >= 0; i--) dstr += ` L${pts[i][0]},${pts[i][1]}`;
     return dstr + " Z";
   }
   const b1 = svg.append("path").attr("d", bandPath(p1, "kwh")).attr("fill", "rgba(34,81,255,.13)").attr("stroke", blue).attr("stroke-width", 1).attr("stroke-dasharray", "3 3").style("opacity", 0);
-  const b2 = svg.append("path").attr("d", bandPath(p2, "cost")).attr("fill", "rgba(66,86,106,.12)").attr("stroke", inkMd).attr("stroke-width", 1).attr("stroke-dasharray", "3 3").style("opacity", 0);
+  // cost panel: hatched pending band in place of modeled figures
+  const b2 = svg.append("g").style("opacity", 0);
+  b2.append("rect").attr("x", mL).attr("y", p2.y0 + 18).attr("width", W - mR - mL).attr("height", p2.y1 - p2.y0 - 36).attr("rx", 3)
+    .attr("fill", "rgba(66,86,106,.05)").attr("stroke", inkMd).attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
+  const b2t = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", (p2.y0 + p2.y1) / 2 - 4).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", inkMd)
+    .text("COST FIGURES WITHHELD — MANUFACTURER COST MODEL PENDING");
+  CH.halo(b2t);
+  const b2s = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", (p2.y0 + p2.y1) / 2 + 12).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
+    .text("EARLIER $/M³ FIGURES HERE CAME FROM A MODELED STACK, NOT THE MANUFACTURER — NO $/M³ IS ATTACHED TO HCSP");
+  CH.halo(b2s);
+  CH.drill(b2.select("rect"), () => ({
+    title: "FULLY LOADED COST — ALL RUNGS", value: "TBD — pending",
+    sub: "Scale moves net energy (top panel); what it does to cost cannot be stated until the manufacturer publishes a cost model. Literature cost figures for the SCWO technology class (e.g., LANL's $2–3/m³ autothermal design bound) are design studies, not HCSP prices.",
+    source: CH.srcStr(["K70", "K72"]),
+  }));
 
   // rung markers + labels
   const rungEls = [];
@@ -68,16 +84,16 @@
       .attr("font-family", CH.MONO).attr("font-size", 10).attr("font-weight", 700).attr("fill", blue)
       .text(`${d.kwh[0]}–${d.kwh[1]}`);
     CH.halo(eLab);
-    // cost panel marker
-    g.append("rect").attr("x", x(d.m3d) - 5).attr("y", yS(p2, d.cost[1])).attr("width", 10)
-      .attr("height", yS(p2, d.cost[0]) - yS(p2, d.cost[1])).attr("fill", inkMd).attr("opacity", 0.9).attr("rx", 2);
-    const cLab = g.append("text").attr("x", x(d.m3d) + 12).attr("y", yS(p2, (d.cost[0] + d.cost[1]) / 2) + 3)
-      .attr("font-family", CH.MONO).attr("font-size", 10).attr("font-weight", 700).attr("fill", ink)
-      .text(`$${d.cost[0]}–${d.cost[1]}`);
+    // cost panel marker: pending chip (no $/m³ attached to HCSP)
+    g.append("rect").attr("x", x(d.m3d) - 5).attr("y", (p2.y0 + p2.y1) / 2 - 30).attr("width", 10)
+      .attr("height", 60).attr("fill", "none").attr("stroke", inkMd).attr("stroke-width", 1).attr("stroke-dasharray", "3 2").attr("rx", 2);
+    const cLab = g.append("text").attr("x", x(d.m3d) + 12).attr("y", (p2.y0 + p2.y1) / 2 + 3)
+      .attr("font-family", CH.MONO).attr("font-size", 10).attr("font-weight", 700).attr("fill", inkMd)
+      .text("TBD");
     CH.halo(cLab);
-    // rung name + capex under bottom axis (last two rungs staggered down to avoid collision)
+    // rung name under bottom axis (last two rungs staggered down to avoid collision)
     const yOff = i >= 2 ? (i - 2) * 26 : 0;
-    const capexTxt = `${(i === 3 ? "Regional hub" : d.name).toUpperCase()} · $${d.capex[0]}–${d.capex[1]}M`;
+    const capexTxt = `${(i === 3 ? "Regional hub" : d.name).toUpperCase()} · COST TBD`;
     const half = capexTxt.length * 5.1 / 2 + 6;
     const xc = Math.max(mL + half, Math.min(x(d.m3d), W - mR - half));
     const nm = g.append("text").attr("x", xc).attr("y", p2.y1 + 18 + yOff).attr("text-anchor", "middle")
@@ -91,8 +107,8 @@
       .attr("stroke", inkLo).attr("stroke-width", 0.8).attr("opacity", 0.5);
     CH.drill(g, () => ({
       title: `${d.m3d.toLocaleString("en-US")} M³/DAY · ${d.name.toUpperCase()}`,
-      value: `$${d.cost[0]}–${d.cost[1]} /m³`,
-      sub: `CapEx $${d.capex[0]}–${d.capex[1]}M; net energy ${d.kwh[0]}–${d.kwh[1]} kWh/m³ on dilute feed. ` + d.note,
+      value: `Net energy ${d.kwh[0]}–${d.kwh[1]} kWh/m³ · cost TBD`,
+      sub: `Net energy ${d.kwh[0]}–${d.kwh[1]} kWh/m³ on dilute feed (energy-balance model output, not a cost). CapEx and $/m³: TBD — manufacturer cost model pending. ` + d.note,
       source: CH.srcStr(d.src),
     }));
     rungEls.push(g);
@@ -130,7 +146,7 @@
   // module-cost reading note
   const rd = svg.append("text").attr("x", mL + 4).attr("y", p2.y1 - 10).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkMd)
-    .text("THE MODULE'S $215–310/M³ IS WHY PART I SITS ONLY UNDER DESTRUCTION-PRICED UMBRELLAS");
+    .text("MODULE COST IS TBD (MFR COST MODEL PENDING) — PART I SITS ONLY UNDER DESTRUCTION-PRICED UMBRELLAS");
   CH.halo(rd);
 
   CH.enter(host, () => {

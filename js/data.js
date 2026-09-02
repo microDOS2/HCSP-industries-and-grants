@@ -4,38 +4,38 @@ window.RPT = {
 
   // ── Ch.3 v2 league table: fifteen industries, six-criterion weighted scores, /10 ──
   league: [
-    { rank: 1, key: "pfas",    name: "PFAS destruction & landfill leachate", score: 8.0,  tier: 1, payback: "<1.5 yr",
+    { rank: 1, key: "pfas",    name: "PFAS destruction & landfill leachate", score: 8.0,  tier: 1, payback: "Pending — mfr cost model",
       why: "Regulation-protected destruction demand vs. $1–28/gal relocation incumbents; federally validated 99.9993% destruction evidence.",
       src: ["K8", "K2"] },
     { rank: 2, key: "defense", name: "Defense / maritime / remote", score: 7.5,  tier: 1, payback: "Not modeled — procurement-gated",
       why: "DoD carries >$9.3B future PFAS cleanup across 718 installations plus a statutory AFFF transition; 2–5× remote pricing premium.",
       src: ["K13", "K15"] },
-    { rank: 3, key: "textile", name: "Textile/dyeing clusters (India ZLD wedge)", score: 7.4, tier: 1, payback: "~3–6 yr (low-medium confidence)",
+    { rank: 3, key: "textile", name: "Textile/dyeing clusters (India ZLD wedge)", score: 7.4, tier: 1, payback: "Pending — mfr cost model",
       why: "Court-enforced zero liquid discharge with unsolved brine/sludge disposal; Tirupur built 18 ZLD plants (~$120M) and still lacks destruction.",
       src: ["K42", "K39"] },
-    { rank: 4, key: "chem",    name: "Chemical & hazardous waste", score: 7.0,  tier: 2, payback: "0.2–0.9 yr (2–11 months)",
+    { rank: 4, key: "chem",    name: "Chemical & hazardous waste", score: 7.0,  tier: 2, payback: "Pending — mfr cost model",
       why: "Halogenated solvents pay $15–50+/gal against ~24 RCRA combustors at 88–92% utilization — the widest umbrella in the portfolio.",
       src: ["K33", "K34"] },
-    { rank: 5, key: "pharma",  name: "Pharma & biotech", score: 7.0,  tier: 2, payback: "0.9–2.5 yr",
+    { rank: 5, key: "pharma",  name: "Pharma & biotech", score: 7.0,  tier: 2, payback: "Pending — mfr cost model",
       why: "$1.5–15/gal solvent/API disposal plus AMR and EU producer-responsibility mandates monetize destruction.",
       src: ["K37", "K38"] },
-    { rank: 6, key: "distill", name: "Distillery / ethanol vinasse (NEW in v2)", score: 7.0, tier: 2, payback: "~2.5–6 yr (medium-low confidence)",
+    { rank: 6, key: "distill", name: "Distillery / ethanol vinasse (NEW in v2)", score: 7.0, tier: 2, payback: "Pending — mfr cost model",
       why: "The standout v2 entrant: molasses spent wash at 100–160 g/L COD is autothermal, power-exporting feed, and India's CPCB forces ~270 molasses distilleries into energy-consuming thermal ZLD that HCSP replaces while exporting power. SAM $2–5B (India + Brazil, analyst build-up).",
       src: ["K61", "K62", "K64"] },
-    { rank: 7, key: "semi",    name: "Semiconductor side-streams", score: 6.75, tier: 2, payback: "1.5–4 yr",
+    { rank: 7, key: "semi",    name: "Semiconductor side-streams", score: 6.75, tier: 2, payback: "Pending — mfr cost model",
       why: "PFAS permit fights on new fabs; solvent/CMP/concentrate side-streams at $1.8–4/gal. Bulk fab effluent is a 2/10 fit.",
       src: ["K40"] },
-    { rank: 8, key: "bio",     name: "Municipal biosolids (crisis regions only)", score: 6.6, tier: 2, payback: "2.5–4 yr (crisis corridors)",
+    { rank: 8, key: "bio",     name: "Municipal biosolids (crisis regions only)", score: 6.6, tier: 2, payback: "Pending — mfr cost model",
       why: "$4.8B/yr US disposal bill and PFAS-driven pathway collapse; scale and power export improve economics modestly — but bimodal economics and 3–7-year procurement.",
       src: ["K43", "K44", "K73"] },
-    { rank: 9, key: "fnb",     name: "Food & beverage (side-streams only)", score: 6.3, tier: 3, payback: "~3–6 yr",
+    { rank: 9, key: "fnb",     name: "Food & beverage (side-streams only)", score: 6.3, tier: 3, payback: "Pending — mfr cost model",
       why: "Anaerobic digestion owns bulk effluent; concentrated side-streams hauled at $45–120/1,000 gal pencil, and trigeneration cooling slots into existing ammonia refrigeration.",
       src: ["K46", "K84"] },
-    { rank: 10, key: "islands", name: "Islands / resorts / coastal municipalities (NEW)", score: 6.0, tier: 3, payback: "~2–4 yr where disposal ≥$300/wet t and diesel ≥$0.35/kWh",
+    { rank: 10, key: "islands", name: "Islands / resorts / coastal municipalities (NEW)", score: 6.0, tier: 3, payback: "Pending — mfr cost model",
       why: "The only vertical where all three outputs price near global maximums — power $0.30–0.52/kWh, desal-parity water $2–5/m³ — but feed is dilute and needs FOG/food-waste blending.",
       src: ["K65"] },
-    { rank: 11, key: "og",     name: "Produced water (revised ↑, honest niche)", score: 4.75, tier: 3, payback: "1.2–8.5 yr (Marcellus hub only)",
-      why: "Real only as 50–100k bbl/day salt-first hubs in Marcellus/Utica ($3–15/bbl trucking) or seismicity-constrained Permian pockets; Permian pipeline disposal at $0.55–1.81/bbl forecloses any basin-scale oxidation play. Viable niche: 45–82% IRR.",
+    { rank: 11, key: "og",     name: "Produced water (revised ↑, honest niche)", score: 4.75, tier: 3, payback: "Pending — mfr cost model",
+      why: "Real only as 50–100k bbl/day salt-first hubs in Marcellus/Utica ($3–15/bbl trucking) or seismicity-constrained Permian pockets; Permian pipeline disposal at $0.55–1.81/bbl forecloses any basin-scale oxidation play. Niche viability pending the manufacturer cost model.",
       src: ["K93", "K94", "K100"] },
     { rank: 12, key: "cea",    name: "Indoor agriculture / CEA (briefing anchor)", score: 4.2, tier: 4, payback: "Service model only",
       why: "~99.8%-water stream far below the autothermal threshold, sold to distressed customers; only 27.3% of US cannabis operators profitable (2024). Cooling/water co-benefits help only at the margin.",
@@ -59,8 +59,8 @@ window.RPT = {
 
   // ── v3 addendum: the cost-savings lens — incumbent remediation cost per gallon, by vertical ──
   // Canonical dataset: research/hcsp_v3_savings_ladder.md. Manufacturer HCSP pricing TBD (early phase);
-  // the reference contrast is the HCSP conservative energy bound ~$0.07–0.09/gal (manufacturer-stated negligible net
-  // energy, self-fueling loop) and field SCWO service benchmarks ($1.63–4.88/gal).
+  // the reference contrast is qualitative only — HCSP: self-fueling loop, cost model pending — against
+  // field SCWO service benchmarks ($1.63–4.88/gal, 374Water AirSCWO 6).
   savings_ladder: [
     { srank: 1,  key: "chem",    vertical: "Chemical & hazardous — halogenated solvents", lo: 15, hi: 50, plus: true,
       note: "Halogenated solvents $15–20+/gal, specialty streams to $50+/gal; lab packs $7–11/gal. The widest umbrella in the portfolio.",
@@ -93,7 +93,7 @@ window.RPT = {
       note: "Spreading/haul equivalents; sparse data — LOW CONFIDENCE flag. Digester credit stacking (LCFS/RIN >$50/MMBtu) monetizes the same story better.",
       src: ["K66"] },
     { srank: 11, key: "og",      vertical: "Produced water — Marcellus niche", lo: 0.07, hi: 0.36,
-      note: "$3–15/bbl trucking in the Marcellus/Utica corridor; Permian pipeline disposal ($0.55–1.81/bbl) undercuts even HCSP's conservative energy bound.",
+      note: "$3–15/bbl trucking in the Marcellus/Utica corridor; Permian pipeline disposal ($0.55–1.81/bbl) leaves no room for any oxidation play — HCSP cost model pending.",
       src: ["K94", "K93"] },
     { srank: 12, key: "fnb",     vertical: "F&B side-streams", lo: 0.045, hi: 0.12,
       note: "Concentrated side-streams hauled at $45–120/1,000 gal; anaerobic digestion owns bulk effluent.",
@@ -109,7 +109,8 @@ window.RPT = {
       src: ["K68"] },
   ],
   savings_meta: {
-    floor: { lo: 0.07, hi: 0.09, label: "HCSP conservative energy bound ~$0.07–0.09/gal (negligible net energy per manufacturer, self-fueling loop)", src: ["K22", "K1"] },
+    floor: null, // HCSP cost reference band removed — no $/gal attached to HCSP; cost model pending
+    floor_note: "HCSP: self-fueling loop · manufacturer cost model pending — no $/gal attached",
     field_band: "$1.63–4.88/gal field SCWO service benchmark (374Water AirSCWO 6)",
     field_src: ["K54"],
     qualifier: "margin × volume = pool — $50/gal on a tiny stream can be a smaller prize than $5/gal on a ubiquitous one",
@@ -118,19 +119,21 @@ window.RPT = {
     src: ["K150"],
   },
 
-  // ── Ch.8.3 payback ranges (years), US cost basis ──
+  // ── Ch.8.3 gross addressable savings by vertical — displaced incumbent baselines, US cost basis ──
+  // Net payback is deliberately NOT stated: it requires HCSP cost/price inputs, and the
+  // manufacturer cost model is pending. Bars were removed; incumbent baselines are market data.
   payback: [
-    { key: "haz",    name: "Hazardous solvents (halogenated)", lo: 0.2, hi: 0.9,  basis: "Displaced baseline $5–20/gal (to $50+ special); $3M module", kind: "destruction", src: ["K33"] },
-    { key: "pfas",   name: "PFAS concentrates",                lo: 0.7, hi: 1.5,  basis: "vs. $5–10/gal incineration, $6–10/gal incumbent SCWO; $2.5–3.0M CapEx", kind: "destruction", src: ["K21", "K22"] },
-    { key: "pharma", name: "Pharma / biotech high-strength",   lo: 0.9, hi: 2.5,  basis: "$1.5–3/gal baseline, $5–15/gal hazardous-rated; $2–3M CapEx", kind: "destruction", src: ["K37"] },
-    { key: "semi",   name: "Semiconductor side-streams",       lo: 1.5, hi: 4.0,  basis: "$1.5–4/gal blended; multi-stream aggregation required; $3–6M", kind: "destruction", src: ["K40"] },
-    { key: "ref",    name: "Refinery residuals (K-listed)",    lo: 2.0, hi: 3.3,  basis: "$500/t mid-point baseline; $700–1,000/t service benchmark; $3M", kind: "disposal", src: ["K47"] },
-    { key: "bio",    name: "Biosolids — crisis zones only",    lo: 2.5, hi: 4.0,  basis: "$350–500/wet t crisis pricing; $3.5–5.0M installed", kind: "disposal", src: ["K43", "K44"] },
-    { key: "tex",    name: "Textile clusters — India ZLD",     lo: 3.0, hi: 6.0,  basis: "ZLD train ₹180–350/m³ + sludge disposal; $1.5–3.0M localized", kind: "disposal", src: ["K42"] },
-    { key: "fnb",    name: "F&B concentrated side-streams",    lo: 3.0, hi: 6.0,  basis: "Hauling $45–120/1,000 gal + dewatering savings; $1.0–1.5M", kind: "disposal", src: ["K46"] },
-    { key: "distill", name: "Distillery spent wash — India", lo: 2.5, hi: 6.0, basis: "Displaces CPCB-mandated MEE + boiler incineration; ~$1.3–2.7M/yr per 60 KLPD site incl. power export; $6–15M train", kind: "disposal", src: ["K62", "K64", "K61"] },
-    { key: "islands", name: "Islands / resorts (diesel)", lo: 2.0, hi: 4.0, basis: "Clears only where disposal ≥$300/wet t and diesel ≥$0.35/kWh coincide; $3.5–5.0M installed", kind: "disposal", src: ["K65"] },
-    { key: "cea",    name: "Indoor agriculture / CEA",         lo: null, hi: null, basis: "No standalone equipment payback — the dilute stream's value cannot cover operating costs; service model only", kind: "gap", src: ["K35", "K36"] },
+    { key: "haz",    name: "Hazardous solvents (halogenated)", basis: "Displaced baseline $5–20/gal (to $50+ special)", kind: "destruction", src: ["K33"] },
+    { key: "pfas",   name: "PFAS concentrates",                basis: "vs. $5–10/gal incineration, $6–10/gal incumbent SCWO", kind: "destruction", src: ["K21", "K22"] },
+    { key: "pharma", name: "Pharma / biotech high-strength",   basis: "$1.5–3/gal baseline, $5–15/gal hazardous-rated", kind: "destruction", src: ["K37"] },
+    { key: "semi",   name: "Semiconductor side-streams",       basis: "$1.5–4/gal blended; multi-stream aggregation required", kind: "destruction", src: ["K40"] },
+    { key: "ref",    name: "Refinery residuals (K-listed)",    basis: "$500/t mid-point baseline; $700–1,000/t service benchmark", kind: "disposal", src: ["K47"] },
+    { key: "bio",    name: "Biosolids — crisis zones only",    basis: "$350–500/wet t crisis pricing", kind: "disposal", src: ["K43", "K44"] },
+    { key: "tex",    name: "Textile clusters — India ZLD",     basis: "ZLD train ₹180–350/m³ + sludge disposal", kind: "disposal", src: ["K42"] },
+    { key: "fnb",    name: "F&B concentrated side-streams",    basis: "Hauling $45–120/1,000 gal + dewatering savings", kind: "disposal", src: ["K46"] },
+    { key: "distill", name: "Distillery spent wash — India", basis: "Displaces CPCB-mandated MEE + boiler incineration; ~$1.3–2.7M/yr per 60 KLPD site incl. power export", kind: "disposal", src: ["K62", "K64", "K61"] },
+    { key: "islands", name: "Islands / resorts (diesel)", basis: "Addressable only where disposal ≥$300/wet t and diesel ≥$0.35/kWh coincide", kind: "disposal", src: ["K65"] },
+    { key: "cea",    name: "Indoor agriculture / CEA",         basis: "No standalone equipment case — the dilute stream's value cannot cover operating costs; service model only", kind: "gap", src: ["K35", "K36"] },
   ],
 
   // ── Ch.1.2.3 / 8.4 grid power price context ($/m³-equivalent on the 75–95 kW startup/auxiliary spec) vs water value ──
@@ -147,10 +150,10 @@ window.RPT = {
 
   // ── Ch.4.1.2 / 8.2 incumbent destruction pricing umbrella ($/gal) ──
   umbrella: [
-    { name: "HCSP power cost only",        lo: 0.07, hi: 0.09, cls: "hcsp",  note: "0.68–0.86 kWh/gal × $0.10/kWh; under 3% of service revenue", src: ["K22"] },
-    { name: "HCSP fully loaded cost",      lo: 0.53, hi: 1.03, cls: "hcsp",  note: "Modeled cost stack incl. 10-yr CapEx amortization, $2.5–4.0M module", src: ["K22", "K18"] },
+    { name: "HCSP power cost",             tbd: true, cls: "hcsp",  note: "TBD — manufacturer cost model pending. Operating energy is negligible per the manufacturer (self-fueling loop); no $/gal figure is attached to HCSP until the manufacturer publishes a cost model.", src: ["K22", "K1"] },
+    { name: "HCSP fully loaded cost",      tbd: true, cls: "hcsp",  note: "TBD — manufacturer cost model pending. Earlier figures cited here came from SCWO industry literature and are not HCSP's costs.", src: ["K22", "K18"] },
     { name: "Deep-well injection",         lo: 1.0,  hi: 2.0,  cls: "inc",   note: "Relocation, not destruction; 'rarely available' — capacity-constrained", src: ["K9", "K10"] },
-    { name: "HCSP service pricing (viable)", lo: 2.0, hi: 5.0, cls: "hcsp2", note: "WDaaS price band; undercuts incumbents 2–5× at >60% margin", src: ["K21"] },
+    { name: "HCSP service pricing",        tbd: true, cls: "hcsp2", note: "TBD — manufacturer cost model pending. The $2–5/gal 'viable band' in SCWO industry literature describes 374Water's WDS service economics, not HCSP pricing.", src: ["K21"] },
     { name: "PFAS incineration",           lo: 5.0,  hi: 10.0, cls: "inc",   note: "Cheapest destructive incumbent; air-permit gauntlet, capacity-constrained", src: ["K9", "K10"] },
     { name: "Incumbent SCWO service",      lo: 6.0,  hi: 10.0, cls: "inc",   note: "374Water WDS benchmark; claimed 1.5–2.5-yr payback at $4.5–6.0M site capital", src: ["K21"] },
     { name: "Hazardous-waste landfill",    lo: 6.0,  hi: 28.0, cls: "inc",   note: "AFFF landfilled at $28/gal (Michigan 2020); CERCLA liability persists", src: ["K10"] },
@@ -192,15 +195,18 @@ window.RPT = {
     { k: "Air permitting", v: "None claimed — sealed system vents water vapor", note: "The hidden economic moat", src: "K1" },
   ],
 
-  // ── Ch.8.2 per-module cost stack ──
+  // ── Ch.8.2 per-module cost stack — HCSP has NO published cost benchmark ──
+  // All $ figures are TBD pending the manufacturer cost model; the rows keep only the
+  // qualitative structure of the stack. SCWO industry-literature figures are the technology
+  // class's, not HCSP's, and are labeled as such where cited.
   cost_stack: [
-    { el: "Electricity (conservative bound)", basis: "Operating energy negligible per manufacturer (self-fueling loop); bound = 75–95 kW startup/auxiliary spec × 8,400 h → 180–228 kWh/m³ × $0.066–0.10/kWh", yr: "$42–80k", gal: "$0.05–0.09", m3: "$12–23", src: ["K23", "K24"] },
-    { el: "Labor", basis: "1.0–1.5 FTE loaded (assumption; 240-bar system)", yr: "$90–175k", gal: "$0.10–0.19", m3: "$26–50", src: ["K53"] },
-    { el: "Maintenance & materials", basis: "3–5% of CapEx/yr (assumption; corrosion/salt management is the dominant risk)", yr: "$75–200k", gal: "$0.08–0.22", m3: "$21–57", src: ["K20"] },
-    { el: "Oxidant, residue disposal, misc.", basis: "Assumption (no chemicals claimed; mineral residue off-take)", yr: "$30–90k", gal: "$0.03–0.10", m3: "$8–26", src: ["K53"] },
-    { el: "Cash OpEx subtotal", basis: "", yr: "$240–550k", gal: "$0.26–0.60", m3: "$67–156", bold: true, src: ["K53"] },
-    { el: "CapEx amortization", basis: "$2.5–4.0M ÷ 10 yr straight line", yr: "$250–400k", gal: "$0.27–0.43", m3: "$72–115", src: ["K18"] },
-    { el: "Fully loaded cost stack", basis: "", yr: "$0.5–1.0M", gal: "$0.53–1.03", m3: "$139–271", bold: true, src: ["K53"] },
+    { el: "Electricity", basis: "Operating energy negligible per manufacturer (self-fueling loop); grid power covers only the 75–95 kW startup/auxiliary spec", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K23", "K24"] },
+    { el: "Labor", basis: "Staffing for a 240-bar automated system — level pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K53"] },
+    { el: "Maintenance & materials", basis: "Corrosion/salt management is the dominant risk; rate pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K20"] },
+    { el: "Oxidant, residue disposal, misc.", basis: "No chemicals claimed; mineral residue off-take — pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K53"] },
+    { el: "Cash OpEx subtotal", basis: "", yr: "TBD", gal: "TBD", m3: "TBD", bold: true, src: ["K53"] },
+    { el: "CapEx amortization", basis: "Module CapEx TBD — the only verifiable market reference is the AirSCWO 6's $5.2M equipment-plus-operation contract (OC San)", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K18"] },
+    { el: "Fully loaded cost stack", basis: "TBD — manufacturer cost model pending; no $/gal or $/m³ is attached to HCSP", yr: "TBD", gal: "TBD", m3: "TBD", bold: true, src: ["K53"] },
   ],
 
   // ── Ch.1.4 / 5.1 SCWO field · destiny flow (birth → outcome) ──
@@ -232,7 +238,7 @@ window.RPT = {
 
   // ── Vendor benchmark small multiples (Ch.1.4.2) ──
   vendors: [
-    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "modeled $0.50–1.50/gal all-in", constraint: "Salt/corrosion; dilute feeds", src: ["K22", "K54"] },
+    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "Salt/corrosion; dilute feeds", src: ["K22", "K54"] },
     { name: "374Water AirSCWO 6", scale: "6 wet t/d", trl: [7, 8], energy: "~294 kWh/m³ + IPA co-fuel", energy_kwh: [294, 294], cost: "$1.63–4.88/gal PFAS concentrate (field)", constraint: "Pre-scale finances", src: ["K54", "K52"] },
     { name: "GA PERSES (iSCWO)", scale: "t/h-class transportable", trl: [8, 9], energy: "compressed-air oxidant; 650 °C/3,400 psia", energy_kwh: null, cost: "service-based", constraint: "Tooele reliability record", src: ["K17"] },
     { name: "Aquarden SuperOx", scale: "5 t/d modular", trl: [7, 8], energy: "100% electric", energy_kwh: null, cost: "service / system sale", constraint: "EU energy prices", src: ["K19"] },
@@ -287,7 +293,7 @@ window.RPT = {
   verdict: {
     bull: [
       { t: "Federally validated destruction: 99.9993% DRE on AFFF (USACE ERDC)", src: ["K2"] },
-      { t: "Incumbent umbrella $5–28/gal vs. $0.07–0.09/gal power cost", src: ["K9", "K10", "K22"] },
+      { t: "Incumbent umbrella $5–28/gal vs. an HCSP that is self-fueling once started (cost model pending)", src: ["K9", "K10", "K22"] },
       { t: "No-air-permit moat: sealed system vs. 24 combustors at 88–92% utilization", src: ["K34", "K1"] },
       { t: "Dated demand clocks: AFFF Oct-2026, landfill ELG 2026–28, CPCB distillery ZLD, MCL 2031", src: ["K14", "K7", "K62"] },
       { t: "DoD liability >$9.3B across 718 installations", src: ["K13"] },
@@ -324,15 +330,18 @@ window.RPT = {
   ],
 
   // ── Ch.11.2 v2 scale ladder: four rungs on dilute aqueous feed (COD 5–20 g/L, non-autothermal base) ──
+  // Cost and CapEx figures were removed: they came from a modeled stack, not from the
+  // manufacturer — HCSP cost model pending. Net-energy (kWh/m³) ranges are kept as
+  // energy-balance model outputs, not costs.
   scale_ladder: [
-    { m3d: 10,   name: "Module",        capex: [3.0, 4.5],  kwh: [130, 250], cost: [215, 310],
-      note: "Anchor $3.0–4.5M (AirSCWO 6 ≈ $5.2M @ ~25 m³/d cross-check). 130–250 kWh/m³ brackets the 294 kWh/m³ AirSCWO field point on weak concentrate.", src: ["K70", "K18", "K54"] },
-    { m3d: 100,  name: "Industrial hub", capex: [12, 32],   kwh: [80, 160],  cost: [76, 180],
-      note: "The rung where HCSP crosses into treatment-market territory — overlaps hazardous/biosolids disposal bands; matches the vendor's ~$50/wet t projection at 30 t/d.", src: ["K70", "K71"] },
-    { m3d: 1000, name: "Plant",         capex: [48, 226],   kwh: [45, 110],  cost: [33, 120],
-      note: "First rung where autothermal operation + ORC bottoming pays; LANL base case 55.8 kWhₑ/m³ at 5,000 m³/d brackets the low end. Chematur cross-check ~$105/tDS @ 168 m³/d.", src: ["K70", "K72"] },
-    { m3d: 1900, name: "Regional hub (500k gpd)", capex: [70, 389], kwh: [35, 88], cost: [28, 110],
-      note: "Deliberately wide: custom single-train at n≈0.6 is ~3× cheaper per m³ than ~75 parallel containers at n≈0.85 — but no train above ~306 t/d has ever operated. LANL $2–3/m³ is an autothermal design bound, not a market price.", src: ["K70", "K76", "K72"] },
+    { m3d: 10,   name: "Module",        kwh: [130, 250],
+      note: "130–250 kWh/m³ brackets the 294 kWh/m³ AirSCWO 6 field point on weak concentrate. Module CapEx and $/m³ cost: TBD — manufacturer cost model pending (market reference: AirSCWO 6's $5.2M equipment-plus-operation contract at OC San).", src: ["K70", "K18", "K54"] },
+    { m3d: 100,  name: "Industrial hub", kwh: [80, 160],
+      note: "The rung where HCSP crosses into treatment-market territory — overlaps hazardous/biosolids disposal bands; matches the vendor's ~$50/wet t projection at 30 t/d. Cost: TBD — manufacturer cost model pending.", src: ["K70", "K71"] },
+    { m3d: 1000, name: "Plant",         kwh: [45, 110],
+      note: "First rung where autothermal operation + ORC bottoming pays; LANL base case 55.8 kWhₑ/m³ at 5,000 m³/d brackets the low end. Cost: TBD — manufacturer cost model pending.", src: ["K70", "K72"] },
+    { m3d: 1900, name: "Regional hub (500k gpd)", kwh: [35, 88],
+      note: "No train above ~306 t/d has ever operated; the LANL 5,000 m³/day design is a study, not a plant — its $2–3/m³ is an autothermal design bound for the technology class, not an HCSP price. HCSP cost: TBD — manufacturer cost model pending.", src: ["K70", "K76", "K72"] },
   ],
   scale_meta: {
     exponent: "CapEx scales at n ≈ 0.5–0.7 per train (NETL/LANL basis); modular parallelization blends the plant-level exponent toward 0.85 — every case above ~100 m³/day is priced on the pessimistic branch.",

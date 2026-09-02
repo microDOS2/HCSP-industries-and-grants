@@ -38,7 +38,7 @@ window.CH = (() => {
   if (!host) return;
   const body = U.frame(host, {
     title: "Fifteen industries, one physics filter — and the ranking is still an economics verdict",
-    sub: "WEIGHTED SIX-CRITERION SCORE /10 · COLOR = TIER · RIGHT COLUMN = MODELED PAYBACK · CLICK ANY BAR FOR THE RATIONALE",
+    sub: "WEIGHTED SIX-CRITERION SCORE /10 · COLOR = TIER · RIGHT COLUMN = NET PAYBACK (PENDING MANUFACTURER COST MODEL) · CLICK ANY BAR FOR THE RATIONALE",
     src: "Research compilation — cross-verified composites of dimension studies D1–D10 + v2 dimension V2D3 (2026-09), v2 league table",
   });
   const W = 880, rowH = 30, padT = 30, H = padT + rowH * RPT.league.length + 46;
@@ -74,7 +74,7 @@ window.CH = (() => {
   bars.each(function (d) {
     CH.drill(d3.select(this), () => ({
       title: `RANK ${d.rank} · ${tierName[d.tier]}`, value: d.score.toFixed(2).replace(/0$/, "") + " / 10",
-      sub: d.why + " Payback: " + d.payback + ".",
+      sub: d.why + " Net payback: " + d.payback + " (gross addressable savings basis — net payback pending the manufacturer cost model).",
       source: CH.srcStr(d.src),
     }));
   });
@@ -96,11 +96,12 @@ window.CH = (() => {
     .attr("x", x(10) + 14).attr("y", rowH / 2 + 3.5)
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a")
     .text(d => { const s = "PAYBACK " + d.payback.toUpperCase(); return s.length > 33 ? s.slice(0, 32) + " …" : s; });
+  pb.style("font-style", d => /^pending/i.test(d.payback) ? "italic" : "normal");
   CH.halo(pb);
   pb.each(function (d) {
     CH.drill(d3.select(this), () => ({
-      title: "MODELED PAYBACK · " + d.name.toUpperCase().slice(0, 34), value: d.payback,
-      sub: "Payback is a stream-selection variable, not a technology variable. " + d.why,
+      title: "NET PAYBACK · " + d.name.toUpperCase().slice(0, 34), value: d.payback,
+      sub: "Net payback is pending the manufacturer cost model — rankings here use a gross addressable savings basis against documented incumbent costs. Payback is a stream-selection variable, not a technology variable. " + d.why,
       source: CH.srcStr(d.src),
     }));
   });
@@ -231,8 +232,8 @@ window.CH = (() => {
   const host = document.getElementById("umbrella-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "A $2–5/gal service band sits beneath a $5–50/gal incumbent umbrella",
-    sub: "LOG SCALE $/GAL · BLUE = HCSP COST & PRICE BANDS · INK = INCUMBENT PATHWAYS · CLICK ANY BAND FOR BASIS",
+    title: "The incumbent umbrella runs $1–2/gal to $15–50+/gal — HCSP's own cost and pricing are TBD",
+    sub: "LOG SCALE $/GAL · INK = INCUMBENT PATHWAYS (PUBLIC MARKET DATA) · BLUE HATCH = HCSP — TBD, MANUFACTURER COST MODEL PENDING · CLICK ANY BAND FOR BASIS",
     src: "Company disclosure & official — disposal pricing guides (2025), 374Water investor materials (vendor-flagged), report Ch. 8.2 model [derived]",
   });
   const W = 880, rowH = 36, padT = 40, H = padT + rowH * RPT.umbrella.length + 44;
@@ -256,6 +257,19 @@ window.CH = (() => {
   rows.each(function (d) {
     const g = d3.select(this);
     const col = d.cls === "inc" ? "#42566a" : d.cls === "hcsp2" ? "#2251ff" : "#7d9bff";
+    if (d.tbd) {
+      // HCSP cost/price rows: no figure attached — hatched TBD band, pending manufacturer cost model
+      const tbdG = g.append("g").attr("class", "tbd").style("opacity", 0);
+      const trect = tbdG.append("rect").attr("x", mL).attr("y", 2).attr("width", W - mR - mL).attr("height", 15).attr("rx", 2)
+        .attr("fill", "rgba(34,81,255,.06)").attr("stroke", col).attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
+      const tlab = tbdG.append("text").attr("x", mL + 10).attr("y", 13)
+        .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", col)
+        .text("TBD — MANUFACTURER COST MODEL PENDING");
+      CH.halo(tlab);
+      CH.drill(trect, () => ({ title: d.name.toUpperCase(), value: "TBD — pending", sub: d.note, source: CH.srcStr(d.src) }));
+      CH.drill(tlab, () => ({ title: d.name.toUpperCase(), value: "TBD — pending", sub: d.note, source: CH.srcStr(d.src) }));
+      return;
+    }
     const bar = g.append("rect").attr("x", x(d.lo)).attr("y", 2).attr("height", 15).attr("rx", 2)
       .attr("fill", col).attr("opacity", d.cls === "hcsp" ? 0.85 : 1).attr("width", 0)
       .attr("data-x0", x(d.lo)).attr("data-x1", x(d.hi));
@@ -291,16 +305,17 @@ window.CH = (() => {
   }));
 
   CH.enter(host, () => {
-    rows.selectAll("rect").transition().duration(800).delay((d, i) => i * 55)
+    rows.selectAll("rect[data-x0]").transition().duration(800).delay((d, i) => i * 55)
       .attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
     rows.selectAll("text.cap, line.cap").transition().delay((d, i) => 480 + i * 55).duration(250).style("opacity", 1);
     rows.selectAll("text").filter(function () { return d3.select(this).attr("text-anchor") == null; })
       .transition().delay((d, i) => 480 + i * 55).duration(250).style("opacity", 1);
+    rows.selectAll("g.tbd").transition().delay(300).duration(400).style("opacity", 1);
     cm.transition().delay(900).duration(400).style("opacity", 1);
   });
   if (CH.REDUCE) {
-    rows.selectAll("rect").attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
-    rows.selectAll("line.cap, text").style("opacity", 1); cm.style("opacity", 1);
+    rows.selectAll("rect[data-x0]").attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
+    rows.selectAll("line.cap, text").style("opacity", 1); rows.selectAll("g.tbd").style("opacity", 1); cm.style("opacity", 1);
   }
 })();
 
@@ -311,27 +326,19 @@ window.CH = (() => {
   const host = document.getElementById("payback-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "Payback is a cliff: months where the baseline is destruction-priced, years where it is not",
-    sub: "MODELED SIMPLE PAYBACK, YEARS · US COST BASIS · BLUE = DESTRUCTION-PRICED BASELINE · INK = DISPOSAL-PRICED · HATCHED RED = NO EQUIPMENT PAYBACK · MANUFACTURER COST INPUTS PENDING — ADDRESSABLE-SAVINGS BASIS",
-    src: "Research compilation — report Ch. 8.3 payback model (2026-09), per-vertical baselines from priced disposal tariffs",
+    title: "The savings cliff: gross addressable savings vs incumbent cost — net payback pending",
+    sub: "GROSS ADDRESSABLE SAVINGS BASIS · DISPLACED INCUMBENT BASELINES FROM PRICED DISPOSAL TARIFFS · BLUE = DESTRUCTION-PRICED BASELINE · INK = DISPOSAL-PRICED · NET PAYBACK PENDING MANUFACTURER COST MODEL — NO PAYBACK YEARS ARE STATED · CLICK ANY ROW",
+    src: "Research compilation — report Ch. 8.3 (2026-09), per-vertical baselines from priced disposal tariffs",
   });
   const W = 880, rowH = 40, padT = 40, H = padT + rowH * RPT.payback.length + 46;
   const mL = 250, mR = 40;
-  const x = d3.scaleLinear().domain([0, 6.6]).range([mL, W - mR]);
   const svg = CH.svg(body, W, H);
 
-  [0, 1, 2, 3, 4, 5, 6].forEach(v => {
-    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 8).attr("y2", H - 42).attr("stroke", "#eef1f6");
-    svg.append("text").attr("x", x(v)).attr("y", padT - 14).attr("text-anchor", "middle")
-      .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#8595a6").text(v + " YR");
-  });
-  // Tier-1 bar line at 1.5 yr
-  svg.append("line").attr("x1", x(1.5)).attr("x2", x(1.5)).attr("y1", padT - 8).attr("y2", H - 42)
-    .attr("stroke", "#2251ff").attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4");
-  const barLbl = svg.append("text").attr("x", x(1.5) + 6).attr("y", padT - 2)
-    .attr("font-family", CH.MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", "#2251ff")
-    .text("THE TIER-1 BAR · <1.5 YR");
-  CH.halo(barLbl);
+  // framing note where the year axis used to be
+  const fn = svg.append("text").attr("x", mL).attr("y", padT - 14).attr("text-anchor", "start")
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#2251ff")
+    .text("PAYBACK YEARS REQUIRE HCSP COST INPUTS — WITHHELD UNTIL THE MANUFACTURER PUBLISHES A COST MODEL");
+  CH.halo(fn);
 
   const rows = svg.selectAll("g.r").data(RPT.payback).join("g")
     .attr("transform", (d, i) => `translate(0,${padT + i * rowH})`);
@@ -339,7 +346,7 @@ window.CH = (() => {
     .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 12.5).attr("fill", "#051c2c")
     .text(d => d.name.length > 36 ? d.name.slice(0, 35).replace(/[ ,;–—-]+$/, "") + " …" : d.name);
 
-  rows.each(function (d, i) {
+  rows.each(function (d) {
     const g = d3.select(this);
     if (d.kind === "gap") {
       // draw the gap itself: red hatch + ? — no interpolation, no hiding
@@ -349,7 +356,7 @@ window.CH = (() => {
         .attr("fill", "rgba(194,47,78,.08)").attr("stroke", "#c22f4e").attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
       const q = gapG.append("text").attr("x", mL + 10).attr("y", 13)
         .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", "#c22f4e")
-        .text("? NO STANDALONE EQUIPMENT PAYBACK");
+        .text("? NO STANDALONE EQUIPMENT CASE");
       CH.drill(gapG.select("rect"), () => ({
         title: d.name.toUpperCase(), value: "Service model only",
         sub: d.basis + ". The physics forecloses an equipment sale: dilute runoff cannot approach autothermal operation, so energy cost exceeds any disposal saving.",
@@ -358,22 +365,23 @@ window.CH = (() => {
       return;
     }
     const col = d.kind === "destruction" ? "#2251ff" : "#42566a";
-    const bar = g.append("rect").attr("x", x(d.lo)).attr("y", 3).attr("height", 15).attr("rx", 2)
-      .attr("fill", col).attr("width", 0).attr("data-x0", x(d.lo)).attr("data-x1", x(d.hi));
-    const fmt = v => v < 1 ? Math.round(v * 12) + " MO" : (v % 1 ? v.toFixed(1) : v) + " YR";
-    // stagger near-equal labels
-    const lift = (i > 0 && Math.abs(d.hi - (RPT.payback[i - 1].hi || 99)) < 0.5) ? -12 : 0;
-    const lab = g.append("text").attr("x", x(d.hi) + 8).attr("y", 15 + lift)
-      .attr("font-family", CH.MONO).attr("font-size", 10.5).attr("font-weight", 700).attr("fill", "#051c2c")
-      .style("opacity", 0).text(`${fmt(d.lo)}–${fmt(d.hi)}`);
-    CH.halo(lab);
-    const basis = g.append("text").attr("x", x(d.hi) + 8).attr("y", 27 + lift)
-      .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", "#8595a6").style("opacity", 0)
-      .text(d.basis.length > 56 ? d.basis.slice(0, 55).replace(/[ ,;–—-]+$/, "") + " …" : d.basis);
+    // pending chip: gross-savings basis, net payback withheld
+    const chipW = 216;
+    const chipG = g.append("g").style("opacity", 0);
+    const chip = chipG.append("rect").attr("x", mL).attr("y", 2).attr("width", chipW).attr("height", 15).attr("rx", 2)
+      .attr("fill", d.kind === "destruction" ? "rgba(34,81,255,.08)" : "rgba(66,86,106,.08)")
+      .attr("stroke", col).attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
+    const cl = chipG.append("text").attr("x", mL + 10).attr("y", 13)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", col)
+      .text("NET PAYBACK PENDING — MFR COST MODEL");
+    CH.halo(cl);
+    const basis = g.append("text").attr("x", mL + chipW + 12).attr("y", 13)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0)
+      .text(d.basis.length > 52 ? d.basis.slice(0, 51).replace(/[ ,;–—-]+$/, "") + " …" : d.basis);
     CH.halo(basis);
-    [bar, lab].forEach(s => CH.drill(s, () => ({
-      title: d.name.toUpperCase(), value: `${fmt(d.lo)}–${fmt(d.hi)}`,
-      sub: d.basis + ". " + (d.kind === "destruction"
+    [chip, cl, basis].forEach(s => CH.drill(s, () => ({
+      title: d.name.toUpperCase(), value: "Net payback: pending",
+      sub: "Gross addressable savings basis — displaced incumbent baseline: " + d.basis + ". Net payback cannot be stated without HCSP cost inputs; it is pending the manufacturer cost model. " + (d.kind === "destruction"
         ? "The displaced baseline is destruction-priced — the sales conversation concerns capacity and permitting speed, not price."
         : "The baseline is disposal-priced — the decision hinges on regulatory compulsion, grant funding, or crisis pricing."),
       source: CH.srcStr(d.src),
@@ -381,19 +389,19 @@ window.CH = (() => {
   });
 
   CH.enter(host, () => {
-    rows.selectAll("rect[data-x0]").transition().duration(800).delay((d, i) => i * 60)
-      .attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
-    rows.selectAll("text").transition().delay((d, i) => 520 + i * 60).duration(300).style("opacity", 1);
+    rows.selectAll("g").filter(function () { return this.childElementCount > 1; })
+      .transition().duration(500).delay((d, i) => i * 60).style("opacity", 1);
+    rows.selectAll("text").transition().delay((d, i) => 300 + i * 60).duration(300).style("opacity", 1);
   });
   if (CH.REDUCE) {
-    rows.selectAll("rect[data-x0]").attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
+    rows.selectAll("g").style("opacity", 1);
     rows.selectAll("text").style("opacity", 1);
   }
 })();
 
 /* ────────────────────────────────────────────────────────────
    5 · THE SAVINGS LADDER (v3 signature) — incumbent remediation cost $/gal,
-   log scale, HCSP conservative energy bound as reference band (hcsp_v3_savings_ladder.md)
+   log scale, HCSP reference reduced to a qualitative pending note (hcsp_v3_savings_ladder.md)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("savings-chart");
@@ -403,7 +411,7 @@ window.CH = (() => {
   RPT.league.forEach(d => { compByKey[d.key] = d; });
   const body = U.frame(host, {
     title: "The Savings Ladder — what incumbents charge to make each gallon disappear",
-    sub: "INCUMBENT REMEDIATION COST $/GAL · LOG SCALE · BLUE BAND = CONSERVATIVE ENERGY BOUND $0.07–0.09/GAL (SELF-FUELING LOOP) · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
+    sub: "INCUMBENT REMEDIATION COST $/GAL · LOG SCALE · HCSP REFERENCE: SELF-FUELING LOOP, COST MODEL PENDING — NO $/GAL ATTACHED · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
     src: "Research compilation — report v3 addendum (2026-09), all values previously sourced in the dim research · " + CH.srcStr(["K150"]),
   });
   const data = RPT.savings_ladder;
@@ -421,25 +429,17 @@ window.CH = (() => {
       .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#8595a6").text("$" + v);
   });
 
-  // ── HCSP conservative energy-bound reference band (geometry unchanged) ──
+  // ── HCSP reference: no $/gal band — cost model pending (qualitative note only) ──
   const fl = svg.append("g").style("opacity", 0);
-  fl.append("rect").attr("x", x(SM.floor.lo)).attr("y", padT - 6)
-    .attr("width", x(SM.floor.hi) - x(SM.floor.lo)).attr("height", H - 44 - padT + 6)
-    .attr("fill", "rgba(34,81,255,.10)");
-  [SM.floor.lo, SM.floor.hi].forEach(v => {
-    fl.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 6).attr("y2", H - 44)
-      .attr("stroke", "#2251ff").attr("stroke-width", 1.2).attr("stroke-dasharray", "4 3");
-  });
-  const flLab = fl.append("text").attr("x", x(0.05)).attr("y", H - 24).attr("text-anchor", "middle")
+  fl.append("rect").attr("x", mL).attr("y", H - 32).attr("width", W - mR - mL).attr("height", 22).attr("rx", 2)
+    .attr("fill", "rgba(34,81,255,.06)").attr("stroke", "#2251ff").attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
+  const flLab = fl.append("text").attr("x", (mL + W - mR) / 2).attr("y", H - 18).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", "#2251ff")
-    .text("CONSERVATIVE BOUND $0.07–0.09/GAL");
+    .text("HCSP: SELF-FUELING LOOP · MANUFACTURER COST MODEL PENDING — NO $/GAL ATTACHED");
   CH.halo(flLab);
-  fl.append("text").attr("x", x(0.05)).attr("y", H - 12).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", "#7d9bff")
-    .text("(SELF-FUELING LOOP · MFR PRICING TBD)");
   CH.drill(fl.select("rect"), () => ({
-    title: "THE REFERENCE CONTRAST", value: "$0.07–0.09 /gal (conservative bound)",
-    sub: "Manufacturer-stated negligible net energy in operation (self-fueling hydrogen loop); the band is a conservative bound computed from the briefing's 75–95 kW startup/auxiliary spec at 10 m³/day — against " + SM.field_band + ". " + SM.pending,
+    title: "THE REFERENCE CONTRAST", value: "TBD — cost model pending",
+    sub: "HCSP is self-fueling once started (manufacturer-stated negligible net energy, self-fueling hydrogen loop) — but no manufacturer cost model has been published, so no $/gal figure is attached to HCSP. The market reference points are " + SM.field_band + ". " + SM.pending,
     source: CH.srcStr(["K22", "K54", "K150"]),
   }));
 

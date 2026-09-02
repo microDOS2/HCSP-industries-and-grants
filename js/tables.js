@@ -28,8 +28,8 @@
     const r = RPT.cost_stack[+tr.dataset.i];
     tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
     tr.onclick = e => U.showDrill({
-      title: r.el.toUpperCase(), value: r.gal + " /gal",
-      sub: (r.basis ? r.basis + ". " : "") + "Per-module stack on 0.925M gal/yr throughput; fully loaded stack brackets the literature's $0.04–0.37/gal (large scale) and $0.5–2.0/gal (skid scale) calibration points.",
+      title: r.el.toUpperCase(), value: r.gal === "TBD" ? "TBD — pending" : r.gal + " /gal",
+      sub: (r.basis ? r.basis + ". " : "") + "Per-module stack on ~0.9M gal/yr throughput. HCSP has no published cost benchmark — every $ figure is TBD pending the manufacturer cost model. The SCWO industry literature's calibration points ($0.04–0.37/gal large scale; $0.5–2.0/gal skid scale) describe the technology class, not HCSP.",
       source: CH.srcStr(r.src), x: e.clientX, y: e.clientY,
     });
   });
@@ -40,7 +40,7 @@
   const t = document.getElementById("call-table");
   if (!t) return;
   const calls = { 1: "GO — direct entry, service pricing", 2: "GO, DISCIPLINED — premium streams only", 3: "HOLD — regional/crisis-gated beachheads", 4: "NO-GO for revenue — option value only" };
-  t.innerHTML = `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Tier</th><th>The call</th><th>Payback</th></tr></thead>` +
+  t.innerHTML = `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Tier</th><th>The call</th><th>Net payback (pending)</th></tr></thead>` +
     "<tbody>" + RPT.league.map((d, i) =>
       `<tr data-i="${i}" class="${d.tier === 1 ? "hl" : ""}"><td class="num">${d.rank}</td><td><b>${d.name}</b></td><td class="num">${d.score}</td><td class="num">${d.tier}</td><td>${calls[d.tier]}</td><td class="num">${d.payback}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
@@ -145,7 +145,7 @@
     const rows = merged.slice().sort((a, b) => lens === "savings" ? a.s.srank - b.s.srank : a.c.rank - b.c.rank);
     const head = lens === "savings"
       ? `<thead><tr><th>#</th><th>Vertical / stream</th><th>Incumbent cost $/gal</th><th>Composite rank</th><th>Basis</th></tr></thead>`
-      : `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Tier</th><th>Savings-lens rank</th><th>Payback</th></tr></thead>`;
+      : `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Tier</th><th>Savings-lens rank</th><th>Net payback (pending)</th></tr></thead>`;
     t.innerHTML = head + "<tbody>" + rows.map(m => {
       const s = m.s, c = m.c, i = merged.indexOf(m);
       if (lens === "savings") {
