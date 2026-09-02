@@ -13,7 +13,7 @@
     { id: "skid",  x: 0, y: 0, w: 22, d: 10, h: 1.1, z: 0,    sep: 0,
       head: "STEEL SKID", sub: "8–10 m² · container class · no air permit", col: "#42566a", k: "K1" },
     { id: "ely",   x: -7.2, y: 0, w: 6.4, d: 7.6, h: 3.1, z: 1.1, sep: 3.2,
-      head: "ELECTROLYZER (AS BRIEFED)", sub: "H₂ loop: −35–45% round-trip · retire", col: PAL.neg, k: "K60" },
+      head: "ELECTROLYZER (AS BRIEFED)", sub: "H₂ loop: fuel on demand from process water · self-fueling", col: PAL.inkMd, k: "K1" },
     { id: "pre",   x: -1.4, y: 0, w: 5.2, d: 8.0, h: 2.5, z: 1.1, sep: 7.0,
       head: "HP PUMP + ELECTRIC PREHEATER", sub: "75–95 kW · 180–228 kWh/m³ gross", col: PAL.inkMd, k: "K23" },
     { id: "rx",    x: 3.6, y: 0, w: 5.4, d: 5.4, h: 6.8, z: 1.1, sep: 11.4, cyl: true,

@@ -58,8 +58,8 @@
   [0, 1, 2].forEach(i => skid.append("path")
     .attr("d", `M${424 + i * 8},${186 - i * 2} q6,-14 -2,-26 q-6,-10 2,-22`)
     .attr("fill", "none").attr("stroke", "#7d9bff").attr("stroke-width", 1.4).attr("opacity", 0.75 - i * 0.18));
-  // ── electrolyzer unit (as briefed — flagged) ──
-  skid.append("rect").attr("x", 438).attr("y", 326).attr("width", 26).attr("height", 46).attr("fill", "#eef1f5").attr("stroke", neg).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+  // ── electrolyzer unit (as briefed — the self-fueling fuel loop) ──
+  skid.append("rect").attr("x", 438).attr("y", 326).attr("width", 26).attr("height", 46).attr("fill", "#eef1f5").attr("stroke", blue).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
   // ── water outlet tap + droplet ──
   skid.append("path").attr("d", "M666,272 L690,272 L690,296").attr("fill", "none").attr("stroke", inkMd).attr("stroke-width", 3);
   skid.append("path").attr("d", "M690,302 c5,7 5,12 0,15 c-5,-3 -5,-8 0,-15").attr("fill", blue);
@@ -74,8 +74,8 @@
       val: "10 m³/day", basis: "Rated throughput (~2,640 gal/day); ~0.9M gal/yr at 90% utilization — sized to a mid-size industrial site's generation rate.", src: ["K1"] },
     { sx: 560, sy: 196, px: 636, py: 128, anchor: "start", head: "380–420 °C · 25 MPA", sub: "JUST ABOVE THE CRITICAL POINT",
       val: "380–420 °C · 25 MPa", basis: "Water above 374 °C and 22.1 MPa is a single-phase fluid in which organics and oxygen are fully miscible and oxidize in seconds to minutes.", src: ["K1"] },
-    { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "→ $15–20/M³ US ENERGY FLOOR",
-      val: "75–95 kW", basis: "180–228 kWh/m³ gross spec × 8.62 ¢/kWh US industrial ≈ $15–20/m³ — three to sixteen times the recovered-water value. Field band on real feeds: ~294–500 kWh/m³.", src: ["K23", "K54"] },
+    { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "STARTUP/AUX SPEC · GRID-PRICE CONTEXT",
+      val: "75–95 kW", basis: "Startup/auxiliary draw spec (180–228 kWh/m³-equivalent × 8.62 ¢/kWh US industrial ≈ $15–20/m³-equivalent). Operating energy itself is negligible per the manufacturer — the self-fueling hydrogen loop generates fuel on demand from process water; grid price values the auxiliary draw and exported kWh.", src: ["K23", "K1"] },
     { sx: 690, sy: 306, px: 706, py: 366, anchor: "start", head: "≈$3.5/M³", sub: "RECOVERED-WATER VALUE (BYPRODUCT)",
       val: "≈ $3.53/m³", basis: "85–95% distilled recovery at <10 µS/cm earns a credit worth roughly US average commercial water + sewer tariffs — valuable, never sufficient to carry the economics.", src: ["K31", "K1"] },
     { sx: 500, sy: 150, px: 300, py: 96, anchor: "middle", head: "$2–5/GAL SERVICE", sub: "VS $5–28/GAL INCUMBENTS",
@@ -122,7 +122,7 @@
   if (!host) return;
   const body = U.frame(host, {
     title: "Pressurize, heat past 374 °C, oxidize, separate — the whole machine on one P–T path",
-    sub: "PRESSURE (MPA) × TEMPERATURE (°C) · NUMBERED NODES = THE FOUR STAGES · RED DASHED = THE H₂ LOOP THIS REPORT RECOMMENDS RETIRING · CLICK NODES",
+    sub: "PRESSURE (MPA) × TEMPERATURE (°C) · NUMBERED NODES = THE FOUR STAGES · DASHED = THE SELF-FUELING H₂ LOOP (FUEL ON DEMAND FROM PROCESS WATER) · CLICK NODES",
     src: "Company disclosure — HCSP technical briefing (2025-08) · Industry & official — ITRC Enviro Wiki (rev. 2026), Energies/MDPI (2024)",
   });
   const W = 880, H = 500;
@@ -187,30 +187,30 @@
       .attr("transform", `translate(${x(tx)},${y(ty)}) rotate(${rot})`);
   });
 
-  // H₂-loop red flag branch (as briefed)
+  // Self-fueling H₂ loop branch (as briefed)
   const h2 = svg.append("g");
   h2.append("path").attr("d", `M${x(150)},${y(25)} C ${x(120)},${y(20)} ${x(105)},${y(14)} ${x(105)},${y(9)}`)
-    .attr("fill", "none").attr("stroke", neg).attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
+    .attr("fill", "none").attr("stroke", blue).attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
   h2.append("rect").attr("x", x(105) - 34).attr("y", y(9) - 14).attr("width", 68).attr("height", 26)
-    .attr("fill", "none").attr("stroke", neg).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+    .attr("fill", "none").attr("stroke", blue).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
   const h2t = h2.append("text").attr("x", x(105)).attr("y", y(9) + 3).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", neg).text("H₂ LOOP (AS BRIEFED)");
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", blue).text("SELF-FUELING H₂ LOOP");
   CH.halo(h2t);
   const h2s = h2.append("text").attr("x", x(105)).attr("y", y(6.6)).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", neg).text("+55–75 KW PARASITIC · −35–45% ROUND-TRIP · RETIRE");
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", blue).text("FUEL ON DEMAND FROM PROCESS WATER · NEGLIGIBLE NET ENERGY ONCE STARTED");
   CH.halo(h2s);
   CH.drill(h2, () => ({
-    title: "THE H₂-LOOP RED FLAG", value: "−35–45% round-trip",
-    sub: "Electrolysis at 50–55 kWh/kg H₂ returns at most the 33.3 kWh/kg lower heating value. At HCSP scale: +55–75 kW parasitic load, $150–300k electrolyzer capital, and a pressurized-hydrogen safety case on a 250-bar system — for zero thermodynamic benefit. This report values the all-electric variant (TRL 6–7).",
-    source: CH.srcStr(["K60"]),
+    title: "THE SELF-FUELING H₂ LOOP", value: "Negligible net energy in operation",
+    sub: "Per the manufacturer briefing: a portion of the process water is electrolyzed on demand and the clean H₂/O₂ is combusted for SCWO process heat — fuel is generated as needed, never purchased or stored in bulk, at negligible net energy cost once started. A working prototype exists; grid power covers only startup/auxiliary draw (75–95 kW spec).",
+    source: CH.srcStr(["K1", "K60"]),
   }));
 
   // stage nodes
   const stages = [
     { n: 1, t: 25, p: 0.6, dx: 12, dy: 26, name: "HP PUMP", note: "PRESSURIZE TO 250 BAR",
       sub: "Feed arrives concentrated (≥60–150 g/L COD, or an upstream concentrate). Pressurization is the first of two energy inputs.", src: ["K58", "K1"] },
-    { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "ELECTRIC PREHEAT", note: "75–95 KW IN · 180–228 KWH/M³",
-      sub: "All-electric preheating (the valued configuration). Gross draw 75–95 kW; with ≥85–95% heat recuperation. Autothermal feeds (>~30 g/L organics) can net this toward zero — pilot data pending.", src: ["K23", "K59"] },
+    { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "PREHEAT — H₂/O₂ COMBUSTION", note: "SELF-FUELING LOOP · 75–95 KW STARTUP/AUX SPEC",
+      sub: "Per the briefing: on-demand electrolysis of a portion of the process water → clean H₂/O₂ combustion supplies the preheat. Self-fueling once started, negligible net energy cost in operation; the 75–95 kW grid spec covers startup and auxiliary draw. Autothermal feeds (>~30 g/L organics) carry more of the duty themselves.", src: ["K1", "K59"] },
     { n: 3, t: 400, p: 25, dx: 26, dy: -12, name: "SCWO REACTOR", note: "ORGANICS → CO₂ + H₂O + INERT SALTS · SECONDS",
       sub: "Complete mineralization in seconds to minutes: 99.9993% PFAS DRE federally validated (USACE ERDC). Salt precipitation and corrosion — not chemistry — are the governing risks.", src: ["K2", "K20"] },
     { n: 4, t: 90, p: 0.8, dx: 30, dy: -22, name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",

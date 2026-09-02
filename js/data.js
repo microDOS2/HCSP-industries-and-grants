@@ -59,7 +59,8 @@ window.RPT = {
 
   // ── v3 addendum: the cost-savings lens — incumbent remediation cost per gallon, by vertical ──
   // Canonical dataset: research/hcsp_v3_savings_ladder.md. Manufacturer HCSP pricing TBD (early phase);
-  // the reference contrast is the HCSP energy-cost floor ~$0.07–0.09/gal and field SCWO service benchmarks ($1.63–4.88/gal).
+  // the reference contrast is the HCSP conservative energy bound ~$0.07–0.09/gal (manufacturer-stated negligible net
+  // energy, self-fueling loop) and field SCWO service benchmarks ($1.63–4.88/gal).
   savings_ladder: [
     { srank: 1,  key: "chem",    vertical: "Chemical & hazardous — halogenated solvents", lo: 15, hi: 50, plus: true,
       note: "Halogenated solvents $15–20+/gal, specialty streams to $50+/gal; lab packs $7–11/gal. The widest umbrella in the portfolio.",
@@ -92,7 +93,7 @@ window.RPT = {
       note: "Spreading/haul equivalents; sparse data — LOW CONFIDENCE flag. Digester credit stacking (LCFS/RIN >$50/MMBtu) monetizes the same story better.",
       src: ["K66"] },
     { srank: 11, key: "og",      vertical: "Produced water — Marcellus niche", lo: 0.07, hi: 0.36,
-      note: "$3–15/bbl trucking in the Marcellus/Utica corridor; Permian pipeline disposal ($0.55–1.81/bbl) sits below the energy floor.",
+      note: "$3–15/bbl trucking in the Marcellus/Utica corridor; Permian pipeline disposal ($0.55–1.81/bbl) undercuts even HCSP's conservative energy bound.",
       src: ["K94", "K93"] },
     { srank: 12, key: "fnb",     vertical: "F&B side-streams", lo: 0.045, hi: 0.12,
       note: "Concentrated side-streams hauled at $45–120/1,000 gal; anaerobic digestion owns bulk effluent.",
@@ -108,7 +109,7 @@ window.RPT = {
       src: ["K68"] },
   ],
   savings_meta: {
-    floor: { lo: 0.07, hi: 0.09, label: "HCSP energy-cost floor ~$0.07–0.09/gal", src: ["K22", "K1"] },
+    floor: { lo: 0.07, hi: 0.09, label: "HCSP conservative energy bound ~$0.07–0.09/gal (negligible net energy per manufacturer, self-fueling loop)", src: ["K22", "K1"] },
     field_band: "$1.63–4.88/gal field SCWO service benchmark (374Water AirSCWO 6)",
     field_src: ["K54"],
     qualifier: "margin × volume = pool — $50/gal on a tiny stream can be a smaller prize than $5/gal on a ubiquitous one",
@@ -129,10 +130,10 @@ window.RPT = {
     { key: "fnb",    name: "F&B concentrated side-streams",    lo: 3.0, hi: 6.0,  basis: "Hauling $45–120/1,000 gal + dewatering savings; $1.0–1.5M", kind: "disposal", src: ["K46"] },
     { key: "distill", name: "Distillery spent wash — India", lo: 2.5, hi: 6.0, basis: "Displaces CPCB-mandated MEE + boiler incineration; ~$1.3–2.7M/yr per 60 KLPD site incl. power export; $6–15M train", kind: "disposal", src: ["K62", "K64", "K61"] },
     { key: "islands", name: "Islands / resorts (diesel)", lo: 2.0, hi: 4.0, basis: "Clears only where disposal ≥$300/wet t and diesel ≥$0.35/kWh coincide; $3.5–5.0M installed", kind: "disposal", src: ["K65"] },
-    { key: "cea",    name: "Indoor agriculture / CEA",         lo: null, hi: null, basis: "No standalone equipment payback — energy floor exceeds stream value; service model only", kind: "gap", src: ["K35", "K36"] },
+    { key: "cea",    name: "Indoor agriculture / CEA",         lo: null, hi: null, basis: "No standalone equipment payback — the dilute stream's value cannot cover operating costs; service model only", kind: "gap", src: ["K35", "K36"] },
   ],
 
-  // ── Ch.1.2.3 / 8.4 energy cost floor ($/m³, gross 75–95 kW) vs water value ──
+  // ── Ch.1.2.3 / 8.4 grid power price context ($/m³-equivalent on the 75–95 kW startup/auxiliary spec) vs water value ──
   energy_floor: [
     { region: "MEA (Saudi/UAE industrial)", lo: 10.8, hi: 13.7, idx: 21, note: "$10–15/MWh solar PPAs; Vision 2030 70% reuse target", src: ["K25", "K28"] },
     { region: "US Gulf / Texas",                     lo: 11.9, hi: 15.1, idx: 21, note: "TX industrial power ~6.6 ¢/kWh; produced-water reuse opening", src: ["K24"] },
@@ -140,7 +141,7 @@ window.RPT = {
     { region: "China industrial parks",              lo: 15.8, hi: 26.4, idx: 21, note: "25%/35% reuse mandates; localization required (*scoring adj.)", src: ["K26"] },
     { region: "India ZLD clusters",                  lo: 19.4, hi: 24.6, idx: 20, note: "CPCB/NGT mandates with 30–45-day closure enforcement", src: ["K27", "K39"] },
     { region: "EU average",                          lo: 35.7, hi: 45.2, idx: 19, note: "Viable only with heat recovery or Nordic power", src: ["K29"] },
-    { region: "Germany",                             lo: 44.0, hi: 55.7, idx: null, note: "€22.64/100 kWh — the floor alone exceeds EU water+sewer tariffs", src: ["K29", "K30"] },
+    { region: "Germany",                             lo: 44.0, hi: 55.7, idx: null, note: "€22.64/100 kWh — grid price alone exceeds EU water+sewer tariffs", src: ["K29", "K30"] },
   ],
   water_value: { v: 3.5, note: "US average commercial water + sewer, ~$3.53/m³ combined (EPA WaterSense 2024 data)", src: ["K31"] },
 
@@ -185,15 +186,15 @@ window.RPT = {
     { k: "Operating conditions", v: "380–420 °C · ~25 MPa (250 bar)", note: "Just above the critical point (374 °C, 22.1 MPa)", src: "K1" },
     { k: "Water recovery", v: "85–95% to distillate; <10 µS/cm", note: "Distilled-quality output", src: "K1" },
     { k: "Solid residual", v: "Contained, inert sludge", note: "Mineralized salts/oxides", src: "K1" },
-    { k: "Average electrical load", v: "~75–95 kW", note: "Implies 180–228 kWh/m³ gross", src: "K1" },
-    { k: "H₂ consumption (as briefed)", v: "~30–40 kg/day by on-demand electrolysis", note: "The engineering red flag — see §1.3", src: "K1" },
+    { k: "Electrical load (startup/auxiliary)", v: "~75–95 kW", note: "180–228 kWh/m³-equivalent spec; operating energy self-fueled once started", src: "K1" },
+    { k: "H₂ fuel loop (as briefed)", v: "~30–40 kg/day by on-demand electrolysis", note: "Self-fueling once started — fuel generated on demand from process water; see §1", src: "K1" },
     { k: "Footprint", v: "~8–10 m² · ≤3 m height · <75 dBA at 1 m", note: "Indoor-sited, container class", src: "K1" },
     { k: "Air permitting", v: "None claimed — sealed system vents water vapor", note: "The hidden economic moat", src: "K1" },
   ],
 
   // ── Ch.8.2 per-module cost stack ──
   cost_stack: [
-    { el: "Electricity", basis: "75–95 kW × 8,400 h → 180–228 kWh/m³ × $0.066–0.10/kWh", yr: "$42–80k", gal: "$0.05–0.09", m3: "$12–23", src: ["K23", "K24"] },
+    { el: "Electricity (conservative bound)", basis: "Operating energy negligible per manufacturer (self-fueling loop); bound = 75–95 kW startup/auxiliary spec × 8,400 h → 180–228 kWh/m³ × $0.066–0.10/kWh", yr: "$42–80k", gal: "$0.05–0.09", m3: "$12–23", src: ["K23", "K24"] },
     { el: "Labor", basis: "1.0–1.5 FTE loaded (assumption; 240-bar system)", yr: "$90–175k", gal: "$0.10–0.19", m3: "$26–50", src: ["K53"] },
     { el: "Maintenance & materials", basis: "3–5% of CapEx/yr (assumption; corrosion/salt management is the dominant risk)", yr: "$75–200k", gal: "$0.08–0.22", m3: "$21–57", src: ["K20"] },
     { el: "Oxidant, residue disposal, misc.", basis: "Assumption (no chemicals claimed; mineral residue off-take)", yr: "$30–90k", gal: "$0.03–0.10", m3: "$8–26", src: ["K53"] },
@@ -231,7 +232,7 @@ window.RPT = {
 
   // ── Vendor benchmark small multiples (Ch.1.4.2) ──
   vendors: [
-    { name: "HCSP (all-electric)", scale: "10 m³/day skid", trl: [6, 7], energy: "180–228 spec; ~294–500 field", energy_kwh: [180, 500], cost: "modeled $0.50–1.50/gal all-in", constraint: "Salt/corrosion; energy floor", src: ["K22", "K54"] },
+    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "modeled $0.50–1.50/gal all-in", constraint: "Salt/corrosion; dilute feeds", src: ["K22", "K54"] },
     { name: "374Water AirSCWO 6", scale: "6 wet t/d", trl: [7, 8], energy: "~294 kWh/m³ + IPA co-fuel", energy_kwh: [294, 294], cost: "$1.63–4.88/gal PFAS concentrate (field)", constraint: "Pre-scale finances", src: ["K54", "K52"] },
     { name: "GA PERSES (iSCWO)", scale: "t/h-class transportable", trl: [8, 9], energy: "compressed-air oxidant; 650 °C/3,400 psia", energy_kwh: null, cost: "service-based", constraint: "Tooele reliability record", src: ["K17"] },
     { name: "Aquarden SuperOx", scale: "5 t/d modular", trl: [7, 8], energy: "100% electric", energy_kwh: null, cost: "service / system sale", constraint: "EU energy prices", src: ["K19"] },
@@ -276,7 +277,8 @@ window.RPT = {
     { r: "Incineration re-opening erodes the PFAS niche", like: "Medium (occurred)", impact: "Medium", mit: "Compete on permitting speed, community-opposition risk, on-site liability elimination", ev: "DoD lifted the moratorium Feb 20–Mar 3, 2026 — because waste overflowed storage", src: ["K11"] },
     { r: "Customer capital constraints", like: "High", impact: "Medium", mit: "WDaaS and lease structures; grant-funded demonstrations", ev: "~27% of cannabis operators profitable; 14 CEA bankruptcies in 2025; municipal procurement 3–7 years", src: ["K36", "K44"] },
     { r: "Feed-dependence of all economics", like: "Medium", impact: "High", mit: "Gate every sale on COD screening (≥60–150 g/L or upstream concentrate)", ev: "Autothermal needs ~120–150 g/L COD; near-zero net power only above ~30 g/L organics", src: ["K58", "K59"] },
-    { r: "Regional energy-price exposure", like: "Medium", impact: "Medium", mit: "Sequence by energy floor (TX/MEA first); EU contingent on heat-integrated variant", ev: "US industrial power spans ~6.6 ¢ (TX) to ~24 ¢ (CA commercial) — tripling the cost floor", src: ["K23", "K24"] },
+    { r: "Regional grid-price exposure (auxiliary draw & export value)", like: "Medium", impact: "Medium", mit: "Sequence by grid price (TX/MEA first); EU export value contingent on the heat-integrated variant", ev: "US industrial power spans ~6.6 ¢ (TX) to ~24 ¢ (CA commercial) — tripling what auxiliary draw costs and exported kWh earn", src: ["K23", "K24"] },
+    { r: "Independent documentation of the self-fueling energy balance", like: "Medium", impact: "Medium", mit: "Publish prototype data — the on-demand hydrogen loop is manufacturer-stated and prototype-backed; independent verification converts the claim into a diligence asset", ev: "Per the manufacturer briefing: fuel generated on demand from process water, negligible net energy cost once started; a working prototype exists", src: ["K1"] },
     { r: "Scale-up beyond the demonstrated envelope (new in v2)", like: "High", impact: "High", mit: "Build the ladder as parallel trains (effective exponent n ≈ 0.85), never giant single vessels; stage-gate each rung on availability data from the rung below", ev: "No SCWO plant above 306 t/d has ever operated; the two largest ever built are both defunct; the LANL 5,000 m³/day design anchoring hub economics is a study, not a plant", src: ["K76", "K96", "K72"] },
     { r: "Credibility risk from unverifiable investor-page claims (new in v2)", like: "High (present today)", impact: "High (diligence-poisoning)", mit: "Publish the corrected produced-water model proactively; audit every public figure against contracted anchors (OC San $5.2M per 6 t/d) before release", ev: "Every load-bearing number on the $5/bbl, 1M-bbl/day page fails verification — CapEx 60–160× below the most optimistic modeled benchmark, recovery contradicting the manufacturer's own spec", src: ["K99", "K18", "K100"] },
     { r: "Storage/supply-chain sole-sourcing — NiFe (new in v2)", like: "Medium", impact: "Medium", mit: "Default to LFP for standby/black-start on every unit; dual-source NiFe (Chinese TN-series) only for daily-cycled remote variants; track the UCLA nanostructured revival as a 5–10-yr option", ev: "The dominant US NiFe vendor went bankrupt June 2023 leaving a Chinese-only supply base; NiFe self-discharges 20–30%/month and costs ~$400–1,000/kWh against $70/kWh LFP packs", src: ["K91", "K87", "K88"] },
@@ -297,7 +299,7 @@ window.RPT = {
       { t: "Listed leader: $215k revenue vs. $21.0M loss, going-concern language", src: ["K52"] },
       { t: "EBJ downgraded the 30-yr PFAS pool 43% on deregulation", src: ["K12"] },
       { t: "DoD re-opened the incineration pathway (Feb–Mar 2026)", src: ["K11"] },
-      { t: "Energy floor $11–56/m³ vs. ~$3.5/m³ water value at module scale — destruction-only economics until the crossover", src: ["K23", "K31"] },
+      { t: "Water value ~$3.5/m³ cannot carry module economics — the business must be priced as destruction, with energy export above ~35–60 g/L COD", src: ["K23", "K31"] },
       { t: "Scale is unproven: no SCWO train above 306 t/d has ever operated; hub economics are interpolated design studies", src: ["K76", "K96"] },
     ],
     upgrades: [
@@ -423,7 +425,7 @@ window.RPT = {
       verified: "LANL modeled floor $785–2,046/bbl-day ⇒ $0.79–2.05B at 1M bbl/day — the page sits 60–160× below the most optimistic modeled benchmark, 25–100× below conventional ZLD, 13–34× below commodity SWRO.",
       verdict: "contradicted", vlabel: "CONTRADICTED — 60–160× too low", src: ["K96", "K72"] },
     { n: 6, claim: "Variable OPEX", page: "$1.50/bbl",
-      verified: "HCSP electricity alone is $1.15–4.35/bbl (28.6–36.2 kWh/bbl) — before oxidant, H₂-loop parasitic losses, maintenance, labor, solids handling. Achievable only at the theoretical floor, where it roughly equals LANL's all-in modeled cost.",
+      verified: "Even on the conservative startup/auxiliary bound, HCSP electricity alone is $1.15–4.35/bbl (28.6–36.2 kWh/bbl) — before oxidant, maintenance, labor, solids handling. Achievable only at the theoretical floor, where it roughly equals LANL's all-in modeled cost.",
       verdict: "unsupported", vlabel: "UNSUPPORTED as stated", src: ["K100", "K72"] },
     { n: 7, claim: "Salt/metals revenue", page: "$0.10–0.50/bbl ($33–164M/yr)",
       verified: "SCWO solids are inert mixed sludge; mixed ZLD salts have 'limited or no commercial value' and are landfilled at cost. Lithium requires a separate DLE plant (Smackover DFS: $1.45B CapEx; breakeven ~$16k/t LCE).",

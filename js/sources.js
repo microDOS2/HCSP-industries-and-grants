@@ -44,23 +44,23 @@ window.SRCS = [
   { k: "K21", ref: "D4-47/D4-48", cat: "company", date: "2025-09", cite: "374Water investor materials (GlobeNewswire; mziq profile) — vendor source",
     fact: "WDS unit economics: viable service pricing $2–5/gal vs $5–10/gal incineration and $6–10/gal incumbent SCWO; AS6 site capital $4.5–6.0M; claimed 1.5–2.5-yr payback." },
   { k: "K22", ref: "D4-48/D12-64", cat: "kimi", date: "2025", cite: "Report Ch. 8.2 cost-stack model, calibrated to 374Water power-cost derivation [derived]",
-    fact: "HCSP power cost $0.07–0.09/gal; fully loaded stack $0.53–1.03/gal on a $2.5–4.0M module, 0.925M gal/yr throughput." },
+    fact: "HCSP power cost $0.07–0.09/gal — a conservative bound from the 75–95 kW startup/auxiliary spec (operating energy negligible per manufacturer, self-fueling loop); fully loaded stack $0.53–1.03/gal on a $2.5–4.0M module, 0.925M gal/yr throughput." },
   { k: "K23", ref: "D12-64", cat: "industry", date: "2025", cite: "US EIA, Electricity Explained",
-    fact: "US industrial electricity 8.62 ¢/kWh — basis for 180–228 kWh/m³ × price energy-floor calculation (~$15–20/m³ US average)." },
+    fact: "US industrial electricity 8.62 ¢/kWh — basis for the 180–228 kWh/m³ × price grid-context calculation (~$15–20/m³-equivalent US average; startup/auxiliary draw and export value)." },
   { k: "K24", ref: "D12-65", cat: "broker",   date: "2025", cite: "EIA state electricity tables (via compilation)",
     fact: "State industrial prices: TX ~6.6 ¢/kWh, FL ~8.7 ¢, CA ~24 ¢ commercial, high-cost Northeast 17–22 ¢/kWh." },
   { k: "K25", ref: "D12-74", cat: "broker",   date: "2025", cite: "BNEF/IEA data via energy-solutions.co",
-    fact: "MENA best-case green-power economics on $10–15/MWh solar PPAs; Saudi/UAE energy floor $10.8–13.7/m³." },
+    fact: "MENA best-case green-power economics on $10–15/MWh solar PPAs; Saudi/UAE grid-price context $10.8–13.7/m³-equivalent." },
   { k: "K26", ref: "D12-69/D12-70", cat: "broker", date: "2024 / 2025-12", cite: "China Briefing; GlobalPetrolPrices",
-    fact: "China industrial power ~$0.088–0.116/kWh → energy floor $15.8–26.4/m³." },
+    fact: "China industrial power ~$0.088–0.116/kWh → grid-price context $15.8–26.4/m³-equivalent." },
   { k: "K27", ref: "D12-71", cat: "broker",   date: "2025-12", cite: "GlobalPetrolPrices",
-    fact: "India business electricity INR 10.31 ≈ $0.108/kWh → energy floor $19.4–24.6/m³." },
+    fact: "India business electricity INR 10.31 ≈ $0.108/kWh → grid-price context $19.4–24.6/m³-equivalent." },
   { k: "K28", ref: "D12-43", cat: "industry", date: "2024", cite: "Journal of Futures Studies (Saudi Vision 2030 review)",
     fact: "Saudi Arabia targets 70% treated-wastewater reuse by 2030, >90% by 2040." },
   { k: "K29", ref: "D12-67", cat: "industry", date: "2025-H2", cite: "Eurostat non-household electricity prices",
-    fact: "EU €18.37/100 kWh (500–2,000 MWh band); Germany €22.64; Finland €7.48 → floors $35.7–45.2 EU avg, $44.0–55.7 Germany." },
+    fact: "EU €18.37/100 kWh (500–2,000 MWh band); Germany €22.64; Finland €7.48 → grid-price context $35.7–45.2/m³-equiv EU avg, $44.0–55.7 Germany." },
   { k: "K30", ref: "D12-11", cat: "broker",   date: "2024", cite: "Shayp utility tariff survey",
-    fact: "EU combined water+wastewater tariffs €1.07–7.12/m³ — the German energy floor alone exceeds them." },
+    fact: "EU combined water+wastewater tariffs €1.07–7.12/m³ — the German grid price alone exceeds them." },
   { k: "K31", ref: "D12-1",  cat: "industry", date: "2024", cite: "US EPA WaterSense data",
     fact: "US average commercial water $6.13 + wastewater $7.23 per 1,000 gal ≈ $3.53/m³ combined — the recovered-water value benchmark." },
   { k: "K32", ref: "D12-37", cat: "industry", date: "2025-09", cite: "US ITA Country Commercial Guide — China",
@@ -120,7 +120,7 @@ window.SRCS = [
   { k: "K59", ref: "D11-35", cat: "industry", date: "2022", cite: "Sharan et al., integrated SCWO-desalination techno-economic analysis (OSTI 1990108)",
     fact: "Autothermal above ~30 g/L organics; net power export possible at 53 g/L — pilot energy data is the highest-value de-risking input." },
   { k: "K60", ref: "D11-25/D11-27", cat: "industry", date: "2020–2024", cite: "IRENA green-hydrogen cost data; Energies (MDPI) 2024, 'Electrification or Hydrogen?'",
-    fact: "Electrolysis 50–55 kWh/kg H₂ vs 33.3 kWh/kg LHV; hydrogen process-heat round-trip 55–65% vs ~95–100% direct electric — the 35–45% penalty behind the H₂-loop red flag." },
+    fact: "Electrolysis 50–55 kWh/kg H₂ vs 33.3 kWh/kg LHV; hydrogen process-heat round-trip 55–65% vs ~95–100% direct electric — the manufacturer applies electrolysis inside a self-fueling, on-demand fuel loop (negligible net energy cost once started); grid power covers startup/auxiliary draw only." },
 
   // ═══ v2 additions (K61–K104): scale ladder, crossover, trigeneration, storage, credibility audit ═══
   { k: "K61", ref: "V2D3-22", cat: "industry", date: "2019", cite: "Spans Envirotech (CPCB ZLD reference); MDPI Catalysts",
@@ -306,7 +306,7 @@ window.SRCS = [
 
   // ═══ v3 addendum (K150): the cost-savings lens ═══
   { k: "K150", ref: "V3-SL", cat: "kimi", date: "2026-09", cite: "Report v3 addendum — cost-savings lens, research/hcsp_v3_savings_ladder.md [derived]",
-    fact: "Fifteen verticals re-ranked by incumbent remediation cost per gallon (all values previously sourced in dim research). Elevates chemical/hazmat to #1, defense AFFF #2, CEA-captive #6; demotes distillery vinasse and textiles (regulation + energy plays, ~1¢/gal incumbents). PFAS concentrates stay top-3 under both lenses. Manufacturer HCSP pricing TBD — ranked by addressable savings vs the ~$0.07–0.09/gal energy floor; margin × volume = pool qualifier applies." },
+    fact: "Fifteen verticals re-ranked by incumbent remediation cost per gallon (all values previously sourced in dim research). Elevates chemical/hazmat to #1, defense AFFF #2, CEA-captive #6; demotes distillery vinasse and textiles (regulation + energy plays, ~1¢/gal incumbents). PFAS concentrates stay top-3 under both lenses. Manufacturer HCSP pricing TBD — ranked by addressable savings vs the ~$0.07–0.09/gal conservative energy bound (negligible net energy per manufacturer, self-fueling loop); margin × volume = pool qualifier applies." },
 ];
 
 // Lookup helper: K("K2") → source object

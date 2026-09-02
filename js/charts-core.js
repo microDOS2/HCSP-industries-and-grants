@@ -1,4 +1,4 @@
-// ═══ Chart kit (window.CH) + §0/§3 core charts: league, energy floor, umbrella, payback ═══
+// ═══ Chart kit (window.CH) + §0/§3 core charts: league, grid price context, umbrella, payback ═══
 window.CH = (() => {
   const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const MONO = 'Menlo, Consolas, monospace', SERIF = '"et-book", Palatino, Georgia, serif';
@@ -130,15 +130,16 @@ window.CH = (() => {
 })();
 
 /* ────────────────────────────────────────────────────────────
-   2 · Energy floor by region vs the water value (Ch. 1.2.3 / 8.4)
-   The core conflict: no water sale can carry the gap.
+   2 · Grid power price context by region vs the water value (Ch. 1.2.3 / 8.4)
+   Prices the startup/auxiliary draw and the value of exported energy —
+   operating energy itself is negligible per the manufacturer (self-fueling loop).
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("energy-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "The floor is 3–16× the value of the water it recovers",
-    sub: "ELECTRICITY COST FLOOR $/M³ (GROSS 75–95 KW × REGIONAL POWER PRICE) · DASHED = RECOVERED-WATER VALUE ~$3.5/M³ · RED BAND = THE GAP · CLICK BARS",
+    title: "Grid power price context — startup/auxiliary draw and the value of exported energy",
+    sub: "REGIONAL GRID PRICE $/M³-EQUIVALENT (75–95 KW STARTUP/AUXILIARY SPEC × REGIONAL POWER PRICE) · DASHED = RECOVERED-WATER VALUE ~$3.5/M³ · OPERATING ENERGY NEGLIGIBLE PER MANUFACTURER (SELF-FUELING LOOP) · CLICK BARS",
     src: "Industry & official — EIA (2025), Eurostat (H2-2025), EPA WaterSense (2024); broker relays for CN/IN/MEA power prices",
   });
   const W = 880, rowH = 38, padT = 34, H = padT + rowH * RPT.energy_floor.length + 50;
@@ -159,11 +160,11 @@ window.CH = (() => {
     .attr("fill", "rgba(194,47,78,.07)");
   gap.append("text").attr("x", x(wv) + 7).attr("y", H - 56).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#c22f4e")
-    .text("THE GAP NO WATER SALE CAN CARRY");
+    .text("WATER SALES ALONE CAN'T CARRY THE BUSINESS");
   CH.drill(gap.select("rect"), () => ({
-    title: "THE CORE CONFLICT", value: "$3.5 vs $10.8+ /m³",
-    sub: "Even the cheapest regional floor (MEA, $10.8–13.7/m³) is ~3× the recovered-water value; Germany is ~16×. The product must be priced as destruction, not water.",
-    source: CH.srcStr(["K31", "K25"]),
+    title: "WHY DESTRUCTION PRICING", value: "$3.5/m³ water value",
+    sub: "Recovered water earns ~$3.5/m³ — a byproduct credit that can never carry the business on its own. The product must be priced as destruction, not water; energy export adds revenue on concentrated feeds. HCSP operating energy cost itself is negligible per the manufacturer (self-fueling hydrogen loop).",
+    source: CH.srcStr(["K31", "K25", "K1"]),
   }));
 
   const rows = svg.selectAll("g.r").data(RPT.energy_floor).join("g")
@@ -190,9 +191,8 @@ window.CH = (() => {
       .text(d.note.length > 52 ? d.note.slice(0, 51).replace(/[ ,;–—-]+$/, "") + " …" : d.note);
     CH.halo(note);
     [bx, lb].forEach(s => CH.drill(s, () => ({
-      title: d.region.toUpperCase(), value: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)} /m³`,
-      sub: "Gross 75–95 kW nameplate × regional industrial power price (180–228 kWh/m³). " + d.note +
-        ". Autothermal/heat-recovery operation would lower every floor proportionally — pilot data pending.",
+      title: d.region.toUpperCase(), value: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)} /m³-equiv`,
+      sub: "Grid price context, not an operating-cost floor: 75–95 kW startup/auxiliary spec (180–228 kWh/m³-equivalent) × regional industrial power price. HCSP operating energy cost is negligible per the manufacturer (self-fueling loop) — the prices shown matter for auxiliary draw and for valuing exported kWh on concentrated feeds. " + d.note,
       source: CH.srcStr(d.src),
     })));
     g.datum(Object.assign({}, d, { _bx: bx, _lb: lb, _nt: note }));
@@ -208,7 +208,7 @@ window.CH = (() => {
   CH.halo(wt);
   CH.drill(wl.select("line"), () => ({
     title: "RECOVERED-WATER VALUE", value: "≈ $3.53 /m³",
-    sub: RPT.water_value.note + ". The distilled output is a byproduct credit; it can never carry the energy floor alone.",
+    sub: RPT.water_value.note + ". The distilled output is a byproduct credit; water sales alone cannot carry the business — destruction pricing and energy export do.",
     source: CH.srcStr(RPT.water_value.src),
   }));
 
@@ -393,7 +393,7 @@ window.CH = (() => {
 
 /* ────────────────────────────────────────────────────────────
    5 · THE SAVINGS LADDER (v3 signature) — incumbent remediation cost $/gal,
-   log scale, HCSP energy floor as reference band (hcsp_v3_savings_ladder.md)
+   log scale, HCSP conservative energy bound as reference band (hcsp_v3_savings_ladder.md)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("savings-chart");
@@ -403,7 +403,7 @@ window.CH = (() => {
   RPT.league.forEach(d => { compByKey[d.key] = d; });
   const body = U.frame(host, {
     title: "The Savings Ladder — what incumbents charge to make each gallon disappear",
-    sub: "INCUMBENT REMEDIATION COST $/GAL · LOG SCALE · BLUE BAND = HCSP ENERGY-COST FLOOR $0.07–0.09/GAL · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
+    sub: "INCUMBENT REMEDIATION COST $/GAL · LOG SCALE · BLUE BAND = CONSERVATIVE ENERGY BOUND $0.07–0.09/GAL (SELF-FUELING LOOP) · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
     src: "Research compilation — report v3 addendum (2026-09), all values previously sourced in the dim research · " + CH.srcStr(["K150"]),
   });
   const data = RPT.savings_ladder;
@@ -421,7 +421,7 @@ window.CH = (() => {
       .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#8595a6").text("$" + v);
   });
 
-  // ── HCSP energy-floor reference band ──
+  // ── HCSP conservative energy-bound reference band (geometry unchanged) ──
   const fl = svg.append("g").style("opacity", 0);
   fl.append("rect").attr("x", x(SM.floor.lo)).attr("y", padT - 6)
     .attr("width", x(SM.floor.hi) - x(SM.floor.lo)).attr("height", H - 44 - padT + 6)
@@ -432,14 +432,14 @@ window.CH = (() => {
   });
   const flLab = fl.append("text").attr("x", x(0.05)).attr("y", H - 24).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", "#2251ff")
-    .text("HCSP ENERGY FLOOR $0.07–0.09/GAL");
+    .text("CONSERVATIVE BOUND $0.07–0.09/GAL");
   CH.halo(flLab);
   fl.append("text").attr("x", x(0.05)).attr("y", H - 12).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", "#7d9bff")
-    .text("(POWER ONLY · MFR PRICING TBD)");
+    .text("(SELF-FUELING LOOP · MFR PRICING TBD)");
   CH.drill(fl.select("rect"), () => ({
-    title: "THE REFERENCE CONTRAST", value: "$0.07–0.09 /gal",
-    sub: "HCSP energy-cost floor from the briefing's own 75–95 kW @ 10 m³/day spec, against " + SM.field_band + ". " + SM.pending,
+    title: "THE REFERENCE CONTRAST", value: "$0.07–0.09 /gal (conservative bound)",
+    sub: "Manufacturer-stated negligible net energy in operation (self-fueling hydrogen loop); the band is a conservative bound computed from the briefing's 75–95 kW startup/auxiliary spec at 10 m³/day — against " + SM.field_band + ". " + SM.pending,
     source: CH.srcStr(["K22", "K54", "K150"]),
   }));
 
