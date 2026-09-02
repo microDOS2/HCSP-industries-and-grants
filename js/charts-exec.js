@@ -1,0 +1,350 @@
+// ═══ §0/§2/§3 executive charts: evidence object (P17), mechanism P–T path, market-in-machines (P1) ═══
+
+/* ────────────────────────────────────────────────────────────
+   5 · Evidence object — the HCSP skid with the report's hardest
+   numbers hung on the parts that actually carry them
+──────────────────────────────────────────────────────────── */
+(function () {
+  const host = document.getElementById("evidence-chart");
+  if (!host) return;
+  const body = U.frame(host, {
+    title: "One skid, seven numbers — each hung where the machine actually carries it",
+    sub: "THE 10 M³/DAY HCSP MODULE, SIDE ELEVATION · EVERY PLAQUE IS CLICKABLE → VALUE + BASIS + DATED SOURCE",
+    src: "Company disclosure — HCSP technical briefing (2025-08) · Industry & official — EIA/EPA WaterSense/OC San · Research compilation [derived]",
+  });
+  const W = 880, H = 470;
+  const svg = CH.svg(body, W, H);
+  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#8595a6", blue = "#2251ff", neg = "#c22f4e";
+
+  const root = svg.append("g");
+  // ground line
+  root.append("line").attr("x1", 50).attr("x2", 830).attr("y1", 402).attr("y2", 402).attr("stroke", ink).attr("stroke-width", 1.6);
+
+  const skid = root.append("g").attr("class", "skid");
+  // ── skid base: rails + deck + forklift pockets ──
+  skid.append("rect").attr("x", 180).attr("y", 372).attr("width", 520).attr("height", 14).attr("fill", "#9fb0bf").attr("stroke", ink).attr("stroke-width", 1.2);
+  [230, 440, 650].forEach(rx => {
+    skid.append("rect").attr("x", rx - 14).attr("y", 386).attr("width", 28).attr("height", 14).attr("fill", "#5d7186").attr("stroke", ink).attr("stroke-width", 1);
+  });
+  // ── container enclosure (corrugated) ──
+  skid.append("rect").attr("x", 210).attr("y", 236).attr("width", 200).attr("height", 136).attr("fill", "#eef1f5").attr("stroke", ink).attr("stroke-width", 1.6);
+  for (let i = 1; i < 10; i++)
+    skid.append("line").attr("x1", 210 + i * 20).attr("x2", 210 + i * 20).attr("y1", 238).attr("y2", 370).attr("stroke", "#c3cdd8").attr("stroke-width", 1);
+  // door + nameplate
+  skid.append("rect").attr("x", 366).attr("y", 258).attr("width", 40).attr("height", 114).attr("fill", "#e3e9f0").attr("stroke", inkMd).attr("stroke-width", 1.2);
+  skid.append("rect").attr("x", 240).attr("y", 262).attr("width", 76).attr("height", 30).attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 1.2);
+  // ── reactor vessel (vertical cylinder, dome cap, hoops) ──
+  skid.append("rect").attr("x", 468).attr("y", 176).attr("width", 64).attr("height", 196).attr("fill", "#dbe3ec").attr("stroke", ink).attr("stroke-width", 1.6);
+  skid.append("path").attr("d", "M468,176 a32,20 0 0 1 64,0").attr("fill", "#cdd8e2").attr("stroke", ink).attr("stroke-width", 1.6);
+  [220, 268, 316].forEach(yy => skid.append("line").attr("x1", 468).attr("x2", 532).attr("y1", yy).attr("y2", yy).attr("stroke", inkMd).attr("stroke-width", 1.2));
+  skid.append("rect").attr("x", 492).attr("y", 156).attr("width", 16).attr("height", 20).attr("fill", "#c3ccd6").attr("stroke", ink).attr("stroke-width", 1.2);
+  // pressure gauge
+  skid.append("line").attr("x1", 532).attr("x2", 552).attr("y1", 210).attr("y2", 200).attr("stroke", inkMd).attr("stroke-width", 2);
+  skid.append("circle").attr("cx", 560).attr("cy", 196).attr("r", 14).attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 1.6);
+  skid.append("line").attr("x1", 560).attr("x2", 568).attr("y1", 196).attr("y2", 188).attr("stroke", neg).attr("stroke-width", 1.8);
+  // ── preheater / pump block with fins ──
+  skid.append("rect").attr("x", 560).attr("y", 306).attr("width", 84).attr("height", 66).attr("fill", "#dfe7ef").attr("stroke", ink).attr("stroke-width", 1.4);
+  for (let i = 1; i <= 4; i++)
+    skid.append("line").attr("x1", 562).attr("x2", 642).attr("y1", 306 + i * 13).attr("y2", 306 + i * 13).attr("stroke", inkLo).attr("stroke-width", 1);
+  skid.append("circle").attr("cx", 584).attr("cy", 352).attr("r", 9).attr("fill", inkMd); // pump motor
+  // ── separator drum (horizontal) ──
+  skid.append("rect").attr("x", 560).attr("y", 244).attr("width", 106).attr("height", 40).attr("fill", "#d3dce6").attr("stroke", ink).attr("stroke-width", 1.4);
+  skid.append("ellipse").attr("cx", 666).attr("cy", 264).attr("rx", 12).attr("ry", 20).attr("fill", "#e2e8ef").attr("stroke", ink).attr("stroke-width", 1.4);
+  skid.append("ellipse").attr("cx", 560).attr("cy", 264).attr("rx", 8).attr("ry", 20).attr("fill", "#c3ccd6").attr("stroke", inkMd).attr("stroke-width", 1);
+  // ── process pipe reactor → separator (electric blue) ──
+  skid.append("path").attr("d", "M532,200 C560,196 566,220 578,244").attr("fill", "none").attr("stroke", blue).attr("stroke-width", 3);
+  // ── vent stack + vapor wisps (the no-air-permit claim) ──
+  skid.append("rect").attr("x", 428).attr("y", 190).attr("width", 8).attr("height", 46).attr("fill", "#c3ccd6").attr("stroke", ink).attr("stroke-width", 1.2);
+  [0, 1, 2].forEach(i => skid.append("path")
+    .attr("d", `M${424 + i * 8},${186 - i * 2} q6,-14 -2,-26 q-6,-10 2,-22`)
+    .attr("fill", "none").attr("stroke", "#7d9bff").attr("stroke-width", 1.4).attr("opacity", 0.75 - i * 0.18));
+  // ── electrolyzer unit (as briefed — flagged) ──
+  skid.append("rect").attr("x", 438).attr("y", 326).attr("width", 26).attr("height", 46).attr("fill", "#eef1f5").attr("stroke", neg).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+  // ── water outlet tap + droplet ──
+  skid.append("path").attr("d", "M666,272 L690,272 L690,296").attr("fill", "none").attr("stroke", inkMd).attr("stroke-width", 3);
+  skid.append("path").attr("d", "M690,302 c5,7 5,12 0,15 c-5,-3 -5,-8 0,-15").attr("fill", blue);
+  // ── footprint dimension line ──
+  skid.append("line").attr("x1", 180).attr("x2", 700).attr("y1", 424).attr("y2", 424).attr("stroke", inkLo).attr("stroke-width", 1);
+  skid.append("line").attr("x1", 180).attr("x2", 180).attr("y1", 418).attr("y2", 430).attr("stroke", inkLo).attr("stroke-width", 1);
+  skid.append("line").attr("x1", 700).attr("x2", 700).attr("y1", 418).attr("y2", 430).attr("stroke", inkLo).attr("stroke-width", 1);
+
+  // ── semantic-site plaques (each clickable → drill) ──
+  const sites = [
+    { sx: 278, sy: 277, px: 96, py: 226, anchor: "start", head: "10 M³/DAY", sub: "≈0.925M GAL/YR THROUGHPUT",
+      val: "10 m³/day", basis: "Rated throughput (~2,640 gal/day); ~0.9M gal/yr at 90% utilization — sized to a mid-size industrial site's generation rate.", src: ["K1"] },
+    { sx: 560, sy: 196, px: 636, py: 128, anchor: "start", head: "380–420 °C · 25 MPA", sub: "JUST ABOVE THE CRITICAL POINT",
+      val: "380–420 °C · 25 MPa", basis: "Water above 374 °C and 22.1 MPa is a single-phase fluid in which organics and oxygen are fully miscible and oxidize in seconds to minutes.", src: ["K1"] },
+    { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "→ $15–20/M³ US ENERGY FLOOR",
+      val: "75–95 kW", basis: "180–228 kWh/m³ gross spec × 8.62 ¢/kWh US industrial ≈ $15–20/m³ — three to sixteen times the recovered-water value. Field band on real feeds: ~294–500 kWh/m³.", src: ["K23", "K54"] },
+    { sx: 690, sy: 306, px: 706, py: 366, anchor: "start", head: "≈$3.5/M³", sub: "RECOVERED-WATER VALUE (BYPRODUCT)",
+      val: "≈ $3.53/m³", basis: "85–95% distilled recovery at <10 µS/cm earns a credit worth roughly US average commercial water + sewer tariffs — valuable, never sufficient to carry the economics.", src: ["K31", "K1"] },
+    { sx: 500, sy: 150, px: 300, py: 96, anchor: "middle", head: "$2–5/GAL SERVICE", sub: "VS $5–28/GAL INCUMBENTS",
+      val: "$2–5 /gal", basis: "WDaaS pricing undercuts incineration ($5–10/gal) and incumbent SCWO ($6–10/gal) 2–5× while supporting margins above 60%; hazardous landfilling of AFFF documented at $28/gal.", src: ["K21", "K10"] },
+    { sx: 196, sy: 379, px: 60, py: 336, anchor: "start", head: "$2.5–4.0M", sub: "MODULE CAPEX (10-YR AMORTIZED)",
+      val: "$2.5–4.0M", basis: "Anchored to the only verifiable commercial SCWO transaction of this class — the AirSCWO 6's $5.2M equipment-plus-operation contract inside a $7.9M OC San project — assuming a smaller, simpler skid.", src: ["K18"] },
+    { sx: 432, sy: 172, px: 120, py: 132, anchor: "start", head: "NO AIR PERMIT", sub: "SEALED SYSTEM VENTS WATER VAPOR",
+      val: "The hidden moat", basis: "~24 permitted US RCRA combustors run at 88–92% utilization with one new unit in three decades; a sealed system bypasses the multi-year air-permitting gauntlet.", src: ["K1", "K34"] },
+    { sx: 440, sy: 424, px: 440, py: 446, anchor: "middle", head: "8–10 M² FOOTPRINT", sub: "CONTAINER CLASS · ≤3 M · <75 DBA",
+      val: "8–10 m²", basis: "Indoor-sited, container-class footprint — deployable at the point of waste generation, not at a central plant.", src: ["K1"] },
+  ];
+  const siteG = root.append("g").attr("class", "sites");
+  const siteEls = sites.map(s => {
+    const g = siteG.append("g").style("opacity", 0).attr("transform", "translate(0,-8)");
+    // transparent hit plate so the whole plaque is clickable
+    const hw = Math.max(s.head.length, s.sub.length) * 6.4 + 14;
+    const hx = s.anchor === "middle" ? s.px - hw / 2 : s.anchor === "start" ? s.px - 6 : s.px - hw + 6;
+    g.append("rect").attr("x", hx).attr("y", s.py - 14).attr("width", hw).attr("height", 36)
+      .attr("fill", "rgba(255,255,255,0)");
+    g.append("line").attr("x1", s.sx).attr("y1", s.sy).attr("x2", s.anchor === "middle" ? s.px : s.px + (s.anchor === "start" ? -4 : 4)).attr("y2", s.py + 12)
+      .attr("stroke", inkLo).attr("stroke-width", 1);
+    g.append("circle").attr("cx", s.sx).attr("cy", s.sy).attr("r", 3.2).attr("fill", blue).attr("stroke", "#fff").attr("stroke-width", 1.4);
+    const h = g.append("text").attr("x", s.px).attr("y", s.py).attr("text-anchor", s.anchor)
+      .attr("font-family", CH.MONO).attr("font-size", 11.5).attr("font-weight", 700).attr("fill", ink).text(s.head);
+    CH.halo(h);
+    const u = g.append("text").attr("x", s.px).attr("y", s.py + 14).attr("text-anchor", s.anchor)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd).text(s.sub);
+    CH.halo(u);
+    CH.drill(g, () => ({ title: s.head, value: s.val, sub: s.basis, source: CH.srcStr(s.src) }));
+    return g;
+  });
+
+  CH.enter(host, () => {
+    siteEls.forEach((g, i) => g.transition().delay(260 + i * 130).duration(420).style("opacity", 1).attr("transform", "translate(0,0)"));
+  });
+  if (CH.REDUCE) siteEls.forEach(g => g.style("opacity", 1).attr("transform", "translate(0,0)"));
+})();
+
+/* ────────────────────────────────────────────────────────────
+   6 · Mechanism — the process as a path through the P–T plane
+──────────────────────────────────────────────────────────── */
+(function () {
+  const host = document.getElementById("mechanism-chart");
+  if (!host) return;
+  const body = U.frame(host, {
+    title: "Pressurize, heat past 374 °C, oxidize, separate — the whole machine on one P–T path",
+    sub: "PRESSURE (MPA) × TEMPERATURE (°C) · NUMBERED NODES = THE FOUR STAGES · RED DASHED = THE H₂ LOOP THIS REPORT RECOMMENDS RETIRING · CLICK NODES",
+    src: "Company disclosure — HCSP technical briefing (2025-08) · Industry & official — ITRC Enviro Wiki (rev. 2026), Energies/MDPI (2024)",
+  });
+  const W = 880, H = 500;
+  const svg = CH.svg(body, W, H);
+  const x = d3.scaleLinear().domain([0, 600]).range([86, W - 60]);
+  const y = d3.scaleLinear().domain([0, 30]).range([H - 70, 60]);
+  const ink = "#051c2c", inkLo = "#8595a6", blue = "#2251ff", neg = "#c22f4e";
+
+  // axes
+  svg.append("line").attr("x1", 86).attr("x2", W - 60).attr("y1", H - 70).attr("y2", H - 70).attr("stroke", ink).attr("stroke-width", 1.4);
+  svg.append("line").attr("x1", 86).attr("x2", 86).attr("y1", 60).attr("y2", H - 70).attr("stroke", ink).attr("stroke-width", 1.4);
+  [0, 100, 200, 300, 374, 400, 500, 600].forEach(v => {
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", H - 70).attr("y2", H - 64).attr("stroke", inkLo);
+    svg.append("text").attr("x", x(v)).attr("y", H - 52).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(v);
+  });
+  [0, 5, 10, 15, 20, 22.1, 25, 30].forEach(v => {
+    svg.append("line").attr("x1", 80).attr("x2", 86).attr("y1", y(v)).attr("y2", y(v)).attr("stroke", inkLo);
+    svg.append("text").attr("x", 74).attr("y", y(v) + 3).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(v);
+  });
+  const xl = svg.append("text").attr("x", (86 + W - 60) / 2).attr("y", H - 30).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", "#42566a").text("TEMPERATURE · °C");
+  const yl = svg.append("text").attr("x", 20).attr("y", (60 + H - 70) / 2).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", "#42566a")
+    .attr("transform", `rotate(-90 20 ${(60 + H - 70) / 2})`).text("PRESSURE · MPA");
+
+  // supercritical region
+  const sc = svg.append("g");
+  sc.append("rect").attr("x", x(374)).attr("y", y(30)).attr("width", x(600) - x(374)).attr("height", y(22.1) - y(30))
+    .attr("fill", "rgba(34,81,255,.06)");
+  sc.append("line").attr("x1", x(374)).attr("x2", x(374)).attr("y1", y(22.1)).attr("y2", y(30)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
+  sc.append("line").attr("x1", x(374)).attr("x2", x(600)).attr("y1", y(22.1)).attr("y2", y(22.1)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
+  const scl = sc.append("text").attr("x", x(500)).attr("y", y(28.2)).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("SUPERCRITICAL REGION — ORGANICS + O₂ FULLY MISCIBLE");
+  CH.halo(scl);
+  // critical point
+  svg.append("circle").attr("cx", x(374)).attr("cy", y(22.1)).attr("r", 4).attr("fill", blue).attr("stroke", "#fff").attr("stroke-width", 1.6);
+  svg.append("line").attr("x1", x(374) + 4).attr("y1", y(22.1) + 4).attr("x2", x(386) + 8).attr("y2", y(20.6) - 4)
+    .attr("stroke", blue).attr("stroke-width", 0.9).attr("opacity", 0.6);
+  const cpl = svg.append("text").attr("x", x(386) + 12).attr("y", y(20.6)).attr("text-anchor", "start")
+    .attr("font-family", CH.MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", blue).text("CRITICAL POINT 374 °C · 22.1 MPA");
+  CH.halo(cpl);
+
+  // reactor operating band
+  svg.append("rect").attr("x", x(380)).attr("y", y(25.4)).attr("width", x(420) - x(380)).attr("height", y(24.6) - y(25.4))
+    .attr("fill", "rgba(34,81,255,.28)").attr("stroke", blue).attr("stroke-width", 1.2);
+
+  // ── the process path ──
+  const path = [
+    [25, 0.1], [25, 25],          // 1 · pump
+    [300, 25],                     // 2 · preheat
+    [400, 25],                     // 3 · reactor
+    [455, 25], [455, 24],          // exit reactor
+  ];
+  const line = d3.line().x(d => x(d[0])).y(d => y(d[1]));
+  const main = svg.append("path").attr("d", line(path))
+    .attr("fill", "none").attr("stroke", ink).attr("stroke-width", 2.6).attr("stroke-linecap", "round");
+  // cool-down + letdown curve to separator
+  const cool = svg.append("path")
+    .attr("d", `M${x(455)},${y(24)} C ${x(300)},${y(24)} ${x(200)},${y(22)} ${x(120)},${y(20)} L ${x(90)},${y(0.6)}`)
+    .attr("fill", "none").attr("stroke", ink).attr("stroke-width", 2.6).attr("stroke-linecap", "round");
+  // arrowheads
+  [[25, 12, -90], [170, 25, 0], [345, 25, 0], [250, 23.2, 24], [105, 10, -66]].forEach(([tx, ty, rot]) => {
+    svg.append("path").attr("d", "M-5,-4 L5,0 L-5,4 Z").attr("fill", ink)
+      .attr("transform", `translate(${x(tx)},${y(ty)}) rotate(${rot})`);
+  });
+
+  // H₂-loop red flag branch (as briefed)
+  const h2 = svg.append("g");
+  h2.append("path").attr("d", `M${x(150)},${y(25)} C ${x(120)},${y(20)} ${x(105)},${y(14)} ${x(105)},${y(9)}`)
+    .attr("fill", "none").attr("stroke", neg).attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
+  h2.append("rect").attr("x", x(105) - 34).attr("y", y(9) - 14).attr("width", 68).attr("height", 26)
+    .attr("fill", "none").attr("stroke", neg).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+  const h2t = h2.append("text").attr("x", x(105)).attr("y", y(9) + 3).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", neg).text("H₂ LOOP (AS BRIEFED)");
+  CH.halo(h2t);
+  const h2s = h2.append("text").attr("x", x(105)).attr("y", y(6.6)).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", neg).text("+55–75 KW PARASITIC · −35–45% ROUND-TRIP · RETIRE");
+  CH.halo(h2s);
+  CH.drill(h2, () => ({
+    title: "THE H₂-LOOP RED FLAG", value: "−35–45% round-trip",
+    sub: "Electrolysis at 50–55 kWh/kg H₂ returns at most the 33.3 kWh/kg lower heating value. At HCSP scale: +55–75 kW parasitic load, $150–300k electrolyzer capital, and a pressurized-hydrogen safety case on a 250-bar system — for zero thermodynamic benefit. This report values the all-electric variant (TRL 6–7).",
+    source: CH.srcStr(["K60"]),
+  }));
+
+  // stage nodes
+  const stages = [
+    { n: 1, t: 25, p: 0.6, dx: 12, dy: 26, name: "HP PUMP", note: "PRESSURIZE TO 250 BAR",
+      sub: "Feed arrives concentrated (≥60–150 g/L COD, or an upstream concentrate). Pressurization is the first of two energy inputs.", src: ["K58", "K1"] },
+    { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "ELECTRIC PREHEAT", note: "75–95 KW IN · 180–228 KWH/M³",
+      sub: "All-electric preheating (the valued configuration). Gross draw 75–95 kW; with ≥85–95% heat recuperation. Autothermal feeds (>~30 g/L organics) can net this toward zero — pilot data pending.", src: ["K23", "K59"] },
+    { n: 3, t: 400, p: 25, dx: 26, dy: -12, name: "SCWO REACTOR", note: "ORGANICS → CO₂ + H₂O + INERT SALTS · SECONDS",
+      sub: "Complete mineralization in seconds to minutes: 99.9993% PFAS DRE federally validated (USACE ERDC). Salt precipitation and corrosion — not chemistry — are the governing risks.", src: ["K2", "K20"] },
+    { n: 4, t: 90, p: 0.8, dx: 30, dy: -22, name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",
+      sub: "Cool, separate, let down. Distilled-quality output (<10 µS/cm) earns a ~$3.5/m³ byproduct credit; the contained inert sludge is the mineralized residue.", src: ["K1", "K31"] },
+  ];
+  const nodes = svg.append("g");
+  stages.forEach(s => {
+    const g = nodes.append("g").style("opacity", 0);
+    g.append("circle").attr("cx", x(s.t)).attr("cy", y(s.p)).attr("r", 11).attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 2);
+    g.append("text").attr("x", x(s.t)).attr("y", y(s.p) + 4).attr("text-anchor", "middle")
+      .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", ink).text(s.n);
+    const t1 = g.append("text").attr("x", x(s.t) + s.dx).attr("y", y(s.p) + s.dy)
+      .attr("text-anchor", s.n === 2 ? "end" : s.n === 3 ? "start" : "start")
+      .attr("font-family", CH.MONO).attr("font-size", 10.5).attr("font-weight", 700).attr("fill", ink).text(s.n + " · " + s.name);
+    CH.halo(t1);
+    const t2 = g.append("text").attr("x", x(s.t) + s.dx).attr("y", y(s.p) + s.dy + 14)
+      .attr("text-anchor", s.n === 2 ? "end" : "start")
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").text(s.note);
+    CH.halo(t2);
+    CH.drill(g, () => ({ title: `STAGE ${s.n} · ${s.name}`, value: s.note, sub: s.sub, source: CH.srcStr(s.src) }));
+  });
+
+  // feed label
+  const fl = svg.append("text").attr("x", x(25) - 14).attr("y", y(0.6) + 4).attr("text-anchor", "end")
+    .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a").text("CONCENTRATED FEED IN · 10 M³/DAY");
+  CH.halo(fl);
+
+  CH.enter(host, () => {
+    [main, cool].forEach((p, pi) => {
+      const len = p.node().getTotalLength();
+      p.attr("stroke-dasharray", `${len} ${len}`).attr("stroke-dashoffset", len)
+        .transition().delay(pi * 600).duration(1400).ease(d3.easeCubicInOut).attr("stroke-dashoffset", 0)
+        .on("end", function () { d3.select(this).attr("stroke-dasharray", null); });
+    });
+    nodes.selectAll("g").transition().delay((d, i) => 500 + i * 380).duration(350).style("opacity", 1);
+  });
+  if (CH.REDUCE) nodes.selectAll("g").style("opacity", 1);
+})();
+
+/* ────────────────────────────────────────────────────────────
+   7 · The market in machines — SAM as skid-equivalent arrays (P1)
+   1 skid glyph = 50 module-equivalents; solid = low case, hollow dashed = upside
+──────────────────────────────────────────────────────────── */
+(function () {
+  const host = document.getElementById("sizing-chart");
+  if (!host) return;
+  const body = U.frame(host, {
+    title: "The serviceable market, counted in machines: ~1,800–3,200 skid-equivalents",
+    sub: "1 SKID = 50 MODULE-EQUIVALENTS (10 M³/DAY EACH) · SOLID = MODELED LOW CASE · HOLLOW DASHED = UPSIDE · CLIPPED = FRACTIONAL · MANUFACTURER COST INPUTS PENDING — ADDRESSABLE-SAVINGS BASIS · CLICK ROWS",
+    src: "Research compilation — report Ch. 8.1 TAM/SAM consolidation (2026-09); per-vertical assumptions in drill-downs",
+  });
+  const W = 880, rowH = 52, padT = 56, H = padT + rowH * RPT.sizing.length + 64;
+  const mL = 216;
+  const svg = CH.svg(body, W, H);
+  const GW = 15, GH = 13, GAP = 5; // glyph size + spacing
+
+  // mini skid glyph (side elevation: container + vessel + rail)
+  function glyph(g, x0, y0, solid, frac) {
+    const col = solid ? "#2251ff" : "none";
+    const st = solid ? "#1233b8" : "#8595a6";
+    const grp = g.append("g").attr("transform", `translate(${x0},${y0})`);
+    if (solid && frac < 1) {
+      const id = "clip" + Math.round(x0) + "_" + Math.round(y0);
+      grp.append("clipPath").attr("id", id).append("rect").attr("x", 0).attr("y", 0).attr("width", GW * frac).attr("height", GH + 2);
+      const inner = grp.append("g").attr("clip-path", `url(#${id})`);
+      drawGlyphBody(inner, "#2251ff", "#1233b8", null);
+      drawGlyphBody(grp, "none", "#8595a6", "3 2");
+    } else {
+      drawGlyphBody(grp, col, st, solid ? null : "3 2");
+    }
+  }
+  function drawGlyphBody(grp, fill, stroke, dash) {
+    grp.append("rect").attr("x", 0).attr("y", GH - 2.5).attr("width", GW).attr("height", 2.5)
+      .attr("fill", fill === "none" ? "none" : "#42566a").attr("stroke", stroke).attr("stroke-width", 0.9)
+      .attr("stroke-dasharray", dash || null);
+    grp.append("rect").attr("x", 0.8).attr("y", 2.5).attr("width", GW * 0.58).attr("height", GH - 5)
+      .attr("fill", fill).attr("stroke", stroke).attr("stroke-width", 0.9).attr("stroke-dasharray", dash || null);
+    grp.append("rect").attr("x", GW * 0.62).attr("y", 0.5).attr("width", GW * 0.3).attr("height", GH - 3)
+      .attr("fill", fill).attr("stroke", stroke).attr("stroke-width", 0.9).attr("stroke-dasharray", dash || null)
+      .attr("rx", 2);
+  }
+
+  // legend
+  const lg = svg.append("g").attr("transform", `translate(${mL},14)`);
+  glyph(lg, 0, 0, true, 1);
+  lg.append("text").attr("x", 24).attr("y", 11).attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a")
+    .text("= 50 MODULES · MODELED LOW CASE");
+  glyph(lg, 268, 0, false, 1);
+  lg.append("text").attr("x", 292).attr("y", 11).attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a")
+    .text("= UPSIDE TO HIGH CASE");
+
+  RPT.sizing.forEach((d, ri) => {
+    const g = svg.append("g").attr("transform", `translate(0,${padT + ri * rowH})`);
+    g.append("text").attr("x", mL - 12).attr("y", 12).attr("text-anchor", "end")
+      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 12.5).attr("fill", "#051c2c")
+      .text(d.name.length > 24 ? d.name.slice(0, 23).replace(/[ ,;–—(/]+$/, "") + " …" : d.name);
+    g.append("text").attr("x", mL - 12).attr("y", 25).attr("text-anchor", "end")
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#8595a6")
+      .text(d.mod_lo === d.mod_hi ? `${d.mod_lo.toLocaleString("en-US")} MODULES` : `${d.mod_lo.toLocaleString("en-US")}–${d.mod_hi.toLocaleString("en-US")} MODULES`);
+    const field = g.append("g");
+    const nSolid = Math.floor(d.mod_lo / d.unit), fracSolid = (d.mod_lo % d.unit) / d.unit;
+    const nUp = Math.round((d.mod_hi - d.mod_lo) / d.unit);
+    let gx = mL;
+    for (let i = 0; i < nSolid; i++) { glyph(field, gx, 2, true, 1); gx += GW + GAP; }
+    if (fracSolid > 0.05) { glyph(field, gx, 2, true, fracSolid); gx += GW + GAP; }
+    for (let i = 0; i < nUp; i++) { glyph(field, gx, 2, false, 1); gx += GW + GAP; }
+    const sam = g.append("text").attr("x", mL).attr("y", 40)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a")
+      .text(("SAM " + d.sam + " · TAM " + d.tam).length > 96 ? ("SAM " + d.sam + " · TAM " + d.tam).slice(0, 94).replace(/[ ,;–—-]+$/, "") + " …" : "SAM " + d.sam + " · TAM " + d.tam);
+    CH.halo(sam);
+    CH.drill(field, () => ({
+      title: d.name.toUpperCase(),
+      value: d.mod_lo === d.mod_hi ? `≈${d.mod_lo.toLocaleString("en-US")} module-equiv.` : `${d.mod_lo.toLocaleString("en-US")}–${d.mod_hi.toLocaleString("en-US")} module-equiv.`,
+      sub: "SAM: " + d.sam + ". TAM: " + d.tam + ". " + d.note + ".",
+      source: CH.srcStr(d.src),
+    }));
+    if (!CH.REDUCE) {
+      field.attr("opacity", 0);
+      field.transition().delay(ri * 160).duration(500).attr("opacity", 1);
+    }
+  });
+
+  // consolidated note
+  const nt = svg.append("text").attr("x", mL).attr("y", H - 30)
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#051c2c").attr("font-weight", 700)
+    .text("CONSOLIDATED SERVICEABLE DEMAND ≈ $9–20B/YR — ROUGHLY DOUBLE V1 ONCE THE V2 POOLS ARE ADDED");
+  CH.halo(nt);
+  const nt2 = svg.append("text").attr("x", mL).attr("y", H - 15)
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#8595a6")
+    .text("V2 ADDS DISTILLERY $2–5B, CAFO $1–3B, ISLANDS $0.5–1.5B, MINING $0.3–0.8B · PRODUCED WATER SHRUNK TO A NICHE");
+  CH.halo(nt2);
+  CH.drill(nt, () => ({
+    title: "CONSOLIDATED SAM (V2)", value: "~$9–20B /yr",
+    sub: RPT.market_meta.sam_note + " " + RPT.market_meta.scwo_note,
+    source: CH.srcStr(["K53", "K8", "K64"]),
+  }));
+})();
