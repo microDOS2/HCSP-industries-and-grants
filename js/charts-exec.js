@@ -212,7 +212,7 @@
     { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "PREHEAT — H₂/O₂ COMBUSTION", note: "SELF-FUELING LOOP · 75–95 KW STARTUP/AUX SPEC",
       sub: "Per the briefing: on-demand electrolysis of a portion of the process water → clean H₂/O₂ combustion supplies the preheat. Self-fueling once started, negligible net energy cost in operation; the 75–95 kW grid spec covers startup and auxiliary draw. Autothermal feeds (>~30 g/L organics) carry more of the duty themselves.", src: ["K1", "K59"] },
     { n: 3, t: 400, p: 25, dx: 26, dy: -12, name: "SCWO REACTOR", note: "ORGANICS → CO₂ + H₂O + INERT SALTS · SECONDS",
-      sub: "Complete mineralization in seconds to minutes: 99.9993% PFAS DRE federally validated (USACE ERDC). Salt precipitation and corrosion — not chemistry — are the governing risks.", src: ["K2", "K20"] },
+      sub: "Complete mineralization in seconds to minutes: 99.9993% PFAS DRE federally validated (USACE ERDC). Salts precipitate in supercritical water — the failure mode that killed conventional preheater designs — but HCSP combusts hydrogen above 3,000 °F (≈1,650 °C) directly in the reactor, preventing salt deposition; the manufacturer reports no salt issues, consistent with in-reactor hydrothermal-flame research.", src: ["K2", "K20", "K1"] },
     { n: 4, t: 90, p: 0.8, dx: 30, dy: -22, name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",
       sub: "Cool, separate, let down. Distilled-quality output (<10 µS/cm) earns a ~$3.5/m³ byproduct credit; the contained inert sludge is the mineralized residue.", src: ["K1", "K31"] },
   ];

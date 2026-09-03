@@ -202,7 +202,7 @@ window.RPT = {
   cost_stack: [
     { el: "Electricity", basis: "Operating energy negligible per manufacturer (self-fueling loop); grid power covers only the 75–95 kW startup/auxiliary spec", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K23", "K24"] },
     { el: "Labor", basis: "Staffing for a 240-bar automated system — level pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K53"] },
-    { el: "Maintenance & materials", basis: "Corrosion/salt management is the dominant risk; rate pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K20"] },
+    { el: "Maintenance & materials", basis: "Corrosion/salt management was the historical industry risk of conventional preheater designs; HCSP's >3,000 °F in-reactor H₂ combustion eliminates salt deposition by design (manufacturer) — rate pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K20", "K1"] },
     { el: "Oxidant, residue disposal, misc.", basis: "No chemicals claimed; mineral residue off-take — pending manufacturer data", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K53"] },
     { el: "Cash OpEx subtotal", basis: "", yr: "TBD", gal: "TBD", m3: "TBD", bold: true, src: ["K53"] },
     { el: "CapEx amortization", basis: "Module CapEx TBD — the only verifiable market reference is the AirSCWO 6's $5.2M equipment-plus-operation contract (OC San)", yr: "TBD", gal: "TBD", m3: "TBD", src: ["K18"] },
@@ -238,7 +238,7 @@ window.RPT = {
 
   // ── Vendor benchmark small multiples (Ch.1.4.2) ──
   vendors: [
-    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "Salt/corrosion; dilute feeds", src: ["K22", "K54"] },
+    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "None — >3,000 °F H₂ combustion design (manufacturer); prototype data publication pending", src: ["K22", "K54", "K1"] },
     { name: "374Water AirSCWO 6", scale: "6 wet t/d", trl: [7, 8], energy: "~294 kWh/m³ + IPA co-fuel", energy_kwh: [294, 294], cost: "$1.63–4.88/gal PFAS concentrate (field)", constraint: "Pre-scale finances", src: ["K54", "K52"] },
     { name: "GA PERSES (iSCWO)", scale: "t/h-class transportable", trl: [8, 9], energy: "compressed-air oxidant; 650 °C/3,400 psia", energy_kwh: null, cost: "service-based", constraint: "Tooele reliability record", src: ["K17"] },
     { name: "Aquarden SuperOx", scale: "5 t/d modular", trl: [7, 8], energy: "100% electric", energy_kwh: null, cost: "service / system sale", constraint: "EU energy prices", src: ["K19"] },
@@ -278,7 +278,7 @@ window.RPT = {
   risks: [
     { r: "Regulatory rollback slows the PFAS demand clock", like: "Medium-High", impact: "High", mit: "Anchor on CERCLA liability and state action (11+ states on AFFF), not federal deadlines", ev: "EBJ cut its 30-yr PFAS market estimate 43%, $230B → $132B (2025)", src: ["K12"] },
     { r: "EPA guidance lag blocks permits", like: "Medium", impact: "Medium-High", mit: "State-level permits and ESTCP/DIU validation; guidance cycle as dated de-risking trigger", ev: "April 2026 interim guidance: 'commercially unproven at scale' — while Revive operates a permitted system", src: ["K55", "K16"] },
-    { r: "Salt-plugging / corrosion reliability", like: "Medium", impact: "Very High (existential)", mit: "Inconel 625 core (0.6 mm/yr demonstrated) or titanium liner; chloride pre-screening; liner regime priced in", ev: "Corrosion and salt — not chemistry — killed prior plants; 16–26 mm/yr in lesser alloys", src: ["K20", "K57", "K50"] },
+    { r: "Historical SCWO salt/corrosion failures (other designs)", like: "Low", impact: "Medium (residual: validation, not physics)", mit: "HCSP's >3,000 °F (≈1,650 °C) in-reactor hydrogen combustion prevents salt deposition by design (manufacturer reports no salt issues) — consistent with in-reactor hydrothermal-flame salt-management research; residual item = third-party publication of prototype long-run data on salty feeds", ev: "Corrosion and salt plugging — not chemistry — killed prior conventional-preheater plants (HydroProcessing, Hanwha); 16–26 mm/yr in lesser alloys", src: ["K20", "K57", "K50", "K1"] },
     { r: "First-mover fragility / capital intensity", like: "High", impact: "High", mit: "Asset-light service entry; milestone-gated CapEx; underwrite the 374Water trajectory, not its deck", ev: "$215,037 FY2025 revenue vs. $21.0M net loss; going-concern language", src: ["K52"] },
     { r: "Incineration re-opening erodes the PFAS niche", like: "Medium (occurred)", impact: "Medium", mit: "Compete on permitting speed, community-opposition risk, on-site liability elimination", ev: "DoD lifted the moratorium Feb 20–Mar 3, 2026 — because waste overflowed storage", src: ["K11"] },
     { r: "Customer capital constraints", like: "High", impact: "Medium", mit: "WDaaS and lease structures; grant-funded demonstrations", ev: "~27% of cannabis operators profitable; 14 CEA bankruptcies in 2025; municipal procurement 3–7 years", src: ["K36", "K44"] },
@@ -300,7 +300,7 @@ window.RPT = {
       { t: "Scale + feed strength invert the energy line: net-zero ~35–40 g/L COD, −60 kWhₑ/m³ export at 150 g/L, $9–20B/yr consolidated SAM", src: ["K73", "K70"] },
     ],
     bear: [
-      { t: "30-year graveyard: corrosion and salt plugging, not chemistry, killed the field", src: ["K49", "K50"] },
+      { t: "30-year graveyard: corrosion and salt plugging, not chemistry, killed conventional designs — HCSP's documented design answer (>3,000 °F in-reactor combustion; no salt issues reported) still needs published prototype data", src: ["K49", "K50", "K1"] },
       { t: "Listed leader: $215k revenue vs. $21.0M loss, going-concern language", src: ["K52"] },
       { t: "EBJ downgraded the 30-yr PFAS pool 43% on deregulation", src: ["K12"] },
       { t: "DoD re-opened the incineration pathway (Feb–Mar 2026)", src: ["K11"] },
@@ -313,7 +313,7 @@ window.RPT = {
       { t: "Landfill ELG finalized — ~2,600 MSW landfills become mandatory buyers", src: ["K7"] },
     ],
     falsifiers: [
-      { t: "Liner/salt regime materially worse than several thousand hours on salty feeds", src: ["K20"] },
+      { t: "Third-party long-run data on salty feeds contradicts the manufacturer's no-salt-deposition design answer (>3,000 °F in-reactor combustion)", src: ["K20", "K1"] },
       { t: "CERCLA designation or 4 ppt MCLs vacated on appeal", src: ["K5", "K6"] },
       { t: "A permitted incineration build-out collapses the $5–28/gal umbrella", src: ["K34"] },
     ],

@@ -29,7 +29,7 @@
   seal.append("rect").attr("x", 120).attr("y", 536).attr("width", 640).attr("height", 30).attr("fill", "rgba(194,47,78,.10)");
   for (let hx = 120; hx < 760; hx += 14)
     seal.append("line").attr("x1", hx).attr("y1", 566).attr("x2", hx + 8).attr("y2", 536).attr("stroke", neg).attr("stroke-width", 0.8).attr("opacity", 0.5);
-  const falsShort = ["LINER LIFE COLLAPSES ON SALTY FEEDS", "CERCLA / 4 PPT MCLS VACATED", "INCINERATOR BUILD-OUT KILLS THE UMBRELLA"];
+  const falsShort = ["LONG-RUN SALT DATA REFUTES DESIGN", "CERCLA / 4 PPT MCLS VACATED", "INCINERATOR BUILD-OUT KILLS THE UMBRELLA"];
   falsShort.forEach((f, i) => {
     const wX = 150 + i * 205;
     const st = seal.append("g");
@@ -143,7 +143,7 @@
     .attr("font-size", 8.5).attr("fill", inkMd).text("RELIABILITY, NOT DEMAND, IS THE GATE");
   CH.drill(rd, () => ({
     title: "CURRENT VERDICT", value: "Pursue, staged",
-    sub: "The opportunity is real but not yet banked: ~$9–20B/yr consolidated serviceable demand across fifteen industries, contingent on proving unattended reliability on salty feeds — and, new in v2, on scaling in parallel trains rather than unproven giant vessels. Qualitative reading, not a score.",
+    sub: "The opportunity is real but not yet banked: ~$9–20B/yr consolidated serviceable demand across fifteen industries, contingent on third-party publication of prototype long-run data confirming the manufacturer's salt-free combustion design (>3,000 °F in-reactor H₂ — the documented answer to the failure mode that killed conventional SCWO) — and, new in v2, on scaling in parallel trains rather than unproven giant vessels. Qualitative reading, not a score.",
     source: CH.srcStr(["K53", "K20", "K70"]),
   }));
 
