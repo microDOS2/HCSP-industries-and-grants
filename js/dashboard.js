@@ -22,9 +22,11 @@
     { id: "register", no: "§9", name: "Grant register" },
     { id: "pursuits", no: "§10", name: "Top-15 pursuits" },
   ];
-  // countdown to the next hard funding deadline (compiled 2026-09; computed live)
-  const NEXT_D = [["2026-09-29T16:00:00-06:00", "DWPR proposals due (Sep 29, 4pm MT)"], ["2026-09-30T23:59:00-04:00", "ONR BAA N0001425SB001 closes"], ["2026-11-02T23:59:00-05:00", "NC DEQ rolling window closes"], ["2027-03-15T23:59:00-04:00", "ESTCP FY28 pre-proposals (~Mar 2027)"]]
-    .map(([iso, lab]) => ({ t: new Date(iso).getTime(), lab })).find(d => d.t > Date.now());
+  // countdown to the next OPEN hard funding deadline (compiled 2026-09; computed live).
+  // closed:true marks deadlines that passed in Sep 2026 — they are skipped regardless of clock.
+  const NEXT_D = [["2026-09-29T16:00:00-06:00", "DWPR proposals due (Sep 29, 4pm MT)", true], ["2026-09-30T23:59:00-04:00", "ONR BAA N0001425SB001 closes", true], ["2026-11-02T23:59:00-05:00", "NC DEQ rolling window closes"], ["2026-12-15T23:59:00-05:00", "Imagine H2O 2027 applications (Nov–Dec 2026)"], ["2027-03-15T23:59:00-04:00", "ESTCP FY28 pre-proposals (~Mar 2027)"]]
+    .map(([iso, lab, closed]) => ({ t: new Date(iso).getTime(), lab, closed: !!closed }))
+    .find(d => !d.closed && d.t > Date.now());
   const COUNTDOWN = NEXT_D ? Math.ceil((NEXT_D.t - Date.now()) / 864e5) + " DAYS" : "IN FLIGHT";
   const STATS = {
     exec: [
@@ -83,14 +85,14 @@
       { v: "$795M", k: "NJ PFAS Abatement Fund, court-approved 2026-08-07", d: { title: "NEWEST POOL", value: "$795M · ≥$150M to POTWs", sub: "Routed through the NJ Water Bank; program design forming now — engage NJDEP while pipelines form.", source: CH.srcStr(["K112"]) } },
     ],
     register: [
-      { v: "80", k: "Programs screened — dead ones kept on record", d: { title: "THE REGISTER", value: "80 programs", sub: "57 active, 2 with open deadlines, 17 on watch, 1 paused, 3 dead. Filter and sort the full table in §9.", source: CH.srcStr(["K149"]) } },
+      { v: "80", k: "Programs screened — dead ones kept on record", d: { title: "THE REGISTER", value: "80 programs", sub: "57 active, 17 on watch, 1 paused, 3 dead, 2 closed after the September 2026 federal deadlines (DWPR, ONR BAA). Filter and sort the full table in §9.", source: CH.srcStr(["K149"]) } },
       { v: "40/35/25", k: "Pursuit-effort split across the three access modes", d: { title: "ACCESS ARCHITECTURE", value: "40/35/25", sub: "~90% of relevant dollars flow to utilities and public systems: 40% named-technology-in-partner-application, 35% direct-apply, 25% vendor-to-prime. The direct applications generate credibility; the partnerships generate dollars.", source: CH.srcStr(["K114", "K133"]) } },
       { v: "8 / 15", k: "Top-15 pursuits that are direct-apply — all 5 largest pools are partner-mediated", d: { title: "THE BARBELL", value: "8 direct · 7 partner", sub: "Rows 1–4 are sub-$1M credibility plays; rows 6, 9, 10, 12 are large-dollar, long-cycle infrastructure plays. Almost nothing worth pursuing in the middle.", source: CH.srcStr(["K149"]) } },
       { v: "0.8→5", k: "$M — the Orlando conversion: grant → license → hub", d: { title: "THE ORLANDO TEMPLATE", value: "$0.8M → $3–5M", sub: "CWSRF-BIL grant (Feb 2024) → 5-yr waste-destruction license (Mar 2026) → full-scale PFAS hub (Jun 2026). One anchor utility per state program, then replicate.", source: CH.srcStr(["K114", "K115"]) } },
     ],
     pursuits: [
       { v: COUNTDOWN, k: NEXT_D ? "To " + NEXT_D.lab : "All 2026 hard deadlines have passed — Q1 2027 cycle in flight", d: { title: "NEXT HARD DEADLINE", value: COUNTDOWN, sub: NEXT_D ? NEXT_D.lab + ". Missing a clustered deadline costs a full annual cycle." : "The calendar rolls to ESTCP FY28 pre-proposals (~Mar 2027) and the Q2 2027 state entries.", source: CH.srcStr(["K116", "K117"]) } },
-      { v: "$5.7M", k: "DWPR FY2026 NOFO — the best-matched direct federal grant", d: { title: "PURSUIT #1", value: "≤$800K pilot of $5.7M", sub: "For-profits apply directly; produced water and municipal wastewater are named source waters. Due Sep 29 2026, 4:00 pm MT.", source: CH.srcStr(["K116"]) } },
+      { v: "CLOSED", k: "DWPR FY2026 NOFO closed Sep 29 2026 — annual cycle, track FY2027", d: { title: "PURSUIT #1 · CLOSED", value: "≤$800K pilot of $5.7M", sub: "The best-matched direct federal grant closed Sep 29 2026 (4:00 pm MT). For-profits apply directly; produced water and municipal wastewater are named source waters. Annual cycle — pre-position the pilot proposal for the FY2027 NOFO.", source: CH.srcStr(["K116"]) } },
       { v: "$185.9M", k: "SERDP + ESTCP FY2027 budgets, fully funded", d: { title: "PURSUIT #3", value: "$60.8M + $125.1M", sub: "FY28 solicitations expected Oct–Nov 2026 (SERDP) and ~Dec 2026 with Mar 2027 pre-proposals (ESTCP). SCWO precedents ER20-5350 and ER23-7939. Line up a DoD installation host in Q4.", source: CH.srcStr(["K118", "K119"]) } },
       { v: "$500K–5M", k: "Elemental DCII per project — flagship private fit, rolling through 2027", d: { title: "PURSUIT #11", value: "$500K–$5M · ≤10 startups", sub: "Philanthropy-funded catalytic investment with Amazon/Google/Meta/Microsoft as collaborators — the water+cooling+power story. Structured as investment, not a pure grant.", source: CH.srcStr(["K131"]) } },
     ],

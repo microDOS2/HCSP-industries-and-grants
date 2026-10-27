@@ -179,7 +179,7 @@
   if (!table || !tools) return;
   const rows = RPT.grants_register;
 
-  const ST_SHORT = { "ACTIVE": "ACTIVE", "OPEN-DEADLINE": "OPEN · DUE", "WATCH": "WATCH", "PAUSED": "PAUSED", "DEAD": "DEAD" };
+  const ST_SHORT = { "ACTIVE": "ACTIVE", "OPEN-DEADLINE": "OPEN · DUE", "WATCH": "WATCH", "PAUSED": "PAUSED", "CLOSED": "CLOSED", "DEAD": "DEAD" };
   const AC_SHORT = { "Yes": "DIRECT", "No—via utility partner": "VIA UTILITY", "No—via other partner": "VIA PARTNER", "No": "CLOSED" };
   const uniq = k => [...new Set(rows.map(r => r[k]))];
 
@@ -187,7 +187,7 @@
     <input type="search" id="gq" placeholder="Search program, agency, notes…" aria-label="Search the register">
     <select id="gf-level" aria-label="Filter by level"><option value="">LEVEL · ALL</option>${uniq("level").map(v => `<option>${v}</option>`).join("")}</select>
     <select id="gf-type" aria-label="Filter by type"><option value="">TYPE · ALL</option>${uniq("type").map(v => `<option>${v}</option>`).join("")}</select>
-    <select id="gf-status" aria-label="Filter by status"><option value="">STATUS · ALL</option>${["ACTIVE", "OPEN-DEADLINE", "WATCH", "PAUSED", "DEAD"].map(v => `<option>${v}</option>`).join("")}</select>
+    <select id="gf-status" aria-label="Filter by status"><option value="">STATUS · ALL</option>${["ACTIVE", "OPEN-DEADLINE", "WATCH", "PAUSED", "CLOSED", "DEAD"].map(v => `<option>${v}</option>`).join("")}</select>
     <select id="gf-access" aria-label="Filter by access"><option value="">ACCESS · ALL</option>${["Yes", "No—via utility partner", "No—via other partner", "No"].map(v => `<option value="${v}">${AC_SHORT[v]}</option>`).join("")}</select>
     <select id="gf-match" aria-label="Filter by match score"><option value="0">MATCH · ALL</option><option value="5">5 ONLY</option><option value="4">≥ 4</option><option value="3">≥ 3</option></select>
     <span class="grant-count" id="grant-count"></span>`;
@@ -220,7 +220,7 @@
   function render() {
     const out = view();
     table.querySelector("tbody").innerHTML = out.map(r =>
-      `<tr data-id="${r.id}" class="${r.status === "DEAD" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : ""}" data-drill-keep="" style="cursor:pointer">
+      `<tr data-id="${r.id}" class="${r.status === "DEAD" || r.status === "CLOSED" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : ""}" data-drill-keep="" style="cursor:pointer">
         <td class="num">${r.id}</td>
         <td><b>${r.program}</b><br><span class="g-ag">${r.agency}</span></td>
         <td>${r.level}</td>
@@ -291,15 +291,15 @@
   const host = document.getElementById("fundwall-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "Twelve months of dated pursuits — two deadlines inside September",
-    sub: "WALL-CHART TIMELINE SEP 2026 – Q3 2027 · SOLID BLUE = HARD DEADLINE · INK = EXPECTED CYCLE · DASHED = PROGRAM STILL FORMING · ⚑ = MISSING IT COSTS A FULL ANNUAL CYCLE · CLICK PLAQUES",
+    title: "Twelve months of dated pursuits — rolling federal cycles through 2027",
+    sub: "WALL-CHART TIMELINE SEP 2026 – Q3 2027 · SOLID BLUE = HARD DEADLINE · INK = EXPECTED CYCLE · DASHED = PROGRAM STILL FORMING · MUTED RED, STRUCK = CLOSED (DEADLINE PASSED SEP 2026) · ⚑ = MISSING IT COSTS A FULL ANNUAL CYCLE · CLICK PLAQUES",
     src: "Industry & official — agency NOFO pages, settlement administrators, state program bulletins · dates as published (K116–K132)",
   });
   const W = 880, H = 420, axisY = 342;
   // piecewise scale: Sep 2026–Feb 2027 expanded (deadline cluster), Mar–Sep 2027 compressed
   const x = v => v <= 2027.15 ? 56 + (v - 2026.6) / 0.55 * 560 : 616 + (v - 2027.15) / 0.65 * 208;
   const svg = CH.svg(body, W, H);
-  const ink = "#051c2c", inkLo = "#8595a6", blue = "#2251ff";
+  const ink = "#051c2c", inkLo = "#8595a6", blue = "#2251ff", closedCol = "#c22f4e";
   const clsCol = { hard: blue, window: ink, forming: inkLo };
 
   // "now" marker (compiled September 2026)
@@ -334,23 +334,25 @@
   const stemG = svg.append("g"), plqG = svg.append("g");
 
   placed.forEach((p, i) => {
-    const py = layerY(p.li), col = clsCol[p.cls];
+    const py = layerY(p.li), col = p.closed ? closedCol : clsCol[p.cls];
     stemG.append("line").attr("x1", p.cx).attr("x2", p.cx).attr("y1", py + 22).attr("y2", axisY - 2)
-      .attr("stroke", col).attr("stroke-width", 0.9).attr("opacity", 0.55);
-    stemG.append("circle").attr("cx", p.cx).attr("cy", axisY).attr("r", p.cls === "hard" ? 3.4 : 2.6).attr("fill", col);
+      .attr("stroke", col).attr("stroke-width", 0.9).attr("opacity", p.closed ? 0.35 : 0.55);
+    stemG.append("circle").attr("cx", p.cx).attr("cy", axisY).attr("r", p.cls === "hard" ? 3.4 : 2.6)
+      .attr("fill", p.closed ? "none" : col).attr("stroke", p.closed ? col : null).attr("stroke-width", p.closed ? 1.4 : null);
     const g = plqG.append("g").style("opacity", 0);
     g.append("rect").attr("x", p.cx - p.wpx / 2).attr("y", py - 14).attr("width", p.wpx).attr("height", 38)
       .attr("rx", 2).attr("fill", "#fff").attr("stroke", col)
-      .attr("stroke-width", p.cls === "hard" ? 1.8 : 1.1)
-      .attr("stroke-dasharray", p.cls === "forming" ? "5 3" : null);
+      .attr("stroke-width", p.cls === "hard" && !p.closed ? 1.8 : 1.1)
+      .attr("stroke-dasharray", p.cls === "forming" ? "5 3" : p.closed ? "3 3" : null);
     g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py - 1)
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("font-weight", 700).attr("fill", col)
-      .text((p.urgent ? "⚑ " : "") + p.date.toUpperCase());
+      .text(p.closed ? "CLOSED · " + p.date.toUpperCase() : (p.urgent ? "⚑ " : "") + p.date.toUpperCase());
     g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py + 14)
-      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 10.5).attr("fill", ink).text(p.label);
+      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 10.5).attr("fill", p.closed ? inkLo : ink)
+      .attr("text-decoration", p.closed ? "line-through" : null).text(p.label);
     CH.drill(g, () => ({
       title: p.date.toUpperCase() + " · " + p.label.toUpperCase(),
-      value: p.urgent ? "⚑ HARD DEADLINE — ANNUAL CYCLE" : p.cls === "hard" ? "HARD DEADLINE" : p.cls === "forming" ? "PROGRAM FORMING — ENGAGE NOW" : "EXPECTED CYCLE",
+      value: p.closed ? "CLOSED — DEADLINE PASSED SEP 2026" : p.urgent ? "⚑ HARD DEADLINE — ANNUAL CYCLE" : p.cls === "hard" ? "HARD DEADLINE" : p.cls === "forming" ? "PROGRAM FORMING — ENGAGE NOW" : "EXPECTED CYCLE",
       sub: p.ev, source: CH.srcStr(p.src),
     }));
     if (CH.REDUCE) g.style("opacity", 1);
@@ -359,5 +361,5 @@
 
   svg.append("text").attr("x", 56).attr("y", axisY + 42)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("RULE 1: SUBMIT DWPR (SEP 29) + ONR WHITE PAPER (SEP 30), THEN SEQUENCE Q4→Q3 PER THE STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
+    .text("RULE 1: DWPR + ONR BAA CLOSED SEP 2026 (ANNUAL CYCLES — TRACK FY2027) · SEQUENCE Q4→Q3 PER THE STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
 })();

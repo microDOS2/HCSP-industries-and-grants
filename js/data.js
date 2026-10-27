@@ -581,10 +581,10 @@ Object.assign(window.RPT, {
     "access": "Yes",
     "fit": "Water; PFAS destruction",
     "vertical": "Produced water; municipal wastewater; impaired waters",
-    "status": "OPEN-DEADLINE",
-    "deadline": "Due 4:00 p.m. MT September 29 2026 (posted Jul 29 2026)",
+    "status": "CLOSED",
+    "deadline": "CLOSED — was due 4:00 p.m. MT September 29 2026 (posted Jul 29 2026)",
     "match": 5,
-    "notes": "Best near-term direct-apply federal grant: for-profit firms eligible directly; produced water and municipal wastewater are named eligible source waters; ~75% non-federal cost share for pilots; also watch companion Pitch-to-Pilot NOFO (last issued FY2024).",
+    "notes": "Best-matched direct-apply federal grant: for-profit firms eligible directly; produced water and municipal wastewater are named eligible source waters; ~75% non-federal cost share for pilots. The FY2026 deadline passed Sep 29 2026 — CLOSED; DWPR is an annual cycle, so track the FY2027 NOFO and the companion Pitch-to-Pilot NOFO (last issued FY2024).",
     "url": "https://www.usbr.gov/research/dwpr/index.html",
     "src": [
       "K116"
@@ -1094,10 +1094,10 @@ Object.assign(window.RPT, {
     "access": "Yes",
     "fit": "Water; Power",
     "vertical": "Shipboard/expeditionary water treatment; waste-to-energy S&T",
-    "status": "OPEN-DEADLINE",
-    "deadline": "Full proposals accepted through September 30 2026; white papers strongly encouraged first",
+    "status": "CLOSED",
+    "deadline": "CLOSED — full proposals were accepted through September 30 2026",
     "match": 5,
-    "notes": "OPEN NOW - for-profits eligible; pitch a waste-heat SCWO water-production white paper to relevant ONR codes (sea platforms & environmental quality); slower and more research-oriented than SBIR/CSO but immediately actionable.",
+    "notes": "CLOSED Sep 30 2026 - for-profits were eligible; the waste-heat SCWO water-production white-paper angle (sea platforms & environmental quality codes) carries over to the successor Long-Range BAA — ONR reissues it roughly every 1-2 years; verify the current BAA before applying.",
     "url": "https://www.grants.gov/search-results-detail/356605",
     "src": [
       "K117"
@@ -1949,10 +1949,10 @@ Object.assign(window.RPT, {
     "program": "Desalination & Water Purification Research (DWPR) NOFO",
     "type": "Grant",
     "award": "Lab-scale up to $300K federal; pilot-scale up to $800K federal; $5.7M total FY26",
-    "status": "OPEN-DEADLINE",
-    "deadline": "Due 4:00 p.m. MT September 29 2026 (posted Jul 29 2026)",
+    "status": "CLOSED",
+    "deadline": "CLOSED — was due 4:00 p.m. MT September 29 2026 (posted Jul 29 2026)",
     "match": 5,
-    "why": "Urgency: proposals due 4:00 p.m. MT Sep 29 2026. The single best direct-apply federal grant - for-profits eligible, produced water and municipal wastewater are named source waters, pilot-scale up to $800K.",
+    "why": "CLOSED Sep 29 2026. The best-matched direct-apply federal grant - for-profits eligible, produced water and municipal wastewater named source waters, pilot-scale up to $800K. Annual cycle: pre-position the produced-water/PFAS-concentrate pilot proposal for the FY2027 NOFO.",
     "access": "Yes",
     "src": [
       "K116"
@@ -1964,10 +1964,10 @@ Object.assign(window.RPT, {
     "program": "ONR Long-Range BAA N0001425SB001 (Navy & Marine Corps S&T)",
     "type": "Grant",
     "award": "~$300K-$1M+/yr per effort, negotiated",
-    "status": "OPEN-DEADLINE",
-    "deadline": "Full proposals accepted through September 30 2026; white papers strongly encouraged first",
+    "status": "CLOSED",
+    "deadline": "CLOSED — full proposals were accepted through September 30 2026",
     "match": 5,
-    "why": "Urgency: BAA N0001425SB001 closes Sep 30 2026. Submit a white paper now (strongly encouraged) on waste-heat SCWO water production; for-profits eligible.",
+    "why": "CLOSED Sep 30 2026. BAA N0001425SB001 has ended; the waste-heat SCWO water-production white paper remains valid positioning for the successor ONR Long-Range BAA — verify the current BAA number before submitting.",
     "access": "Yes",
     "src": [
       "K117"
@@ -2195,8 +2195,8 @@ Object.assign(window.RPT, {
   funding_calendar: [
     { y: 2026.66, label: "TX Prop 4 rulemaking", date: "2026 (interim year)", cls: "forming", ev: "2026 is the rulemaking and positioning year for the up-to-$20B sales-tax dedication (2027–2047); produced-water treatment is explicitly named. Low effort now, very high payoff later.", src: ["K126"] },
     { y: 2026.71, label: "WI Acts 200/201 rounds", date: "summer–fall 2026", cls: "window", ev: "Sampling grants launch summer/fall 2026; treatment grants (incl. privately owned landfills, ≤20% match) follow. The most direct state door for a leachate-destruction vendor.", src: ["K113"] },
-    { y: 2026.74, label: "DWPR proposals due", date: "2026-09-29 · 4:00 pm MT", cls: "hard", urgent: true, ev: "Reclamation DWPR FY2026 NOFO: $5.7M total; lab ≤$300K / pilot ≤$800K federal; for-profits apply directly; produced water and municipal wastewater are named source waters. The single best-matched federal grant available today.", src: ["K116"] },
-    { y: 2026.75, label: "ONR BAA closes", date: "2026-09-30", cls: "hard", urgent: true, ev: "ONR Long-Range BAA N0001425SB001: full proposals accepted through Sep 30 2026; submit a white paper first on waste-heat-driven SCWO for expeditionary/shipboard water and waste destruction.", src: ["K117"] },
+    { y: 2026.74, label: "DWPR proposals due", date: "2026-09-29 · 4:00 pm MT", cls: "hard", closed: true, ev: "CLOSED — Reclamation DWPR FY2026 NOFO proposals were due Sep 29 2026: $5.7M total; lab ≤$300K / pilot ≤$800K federal; for-profits apply directly; produced water and municipal wastewater are named source waters. Annual cycle — pre-position for the FY2027 NOFO.", src: ["K116"] },
+    { y: 2026.75, label: "ONR BAA closes", date: "2026-09-30", cls: "hard", closed: true, ev: "CLOSED — ONR Long-Range BAA N0001425SB001 stopped accepting full proposals Sep 30 2026. The waste-heat-driven SCWO white paper (expeditionary/shipboard water and waste destruction) carries over to the successor BAA — verify the current solicitation before submitting.", src: ["K117"] },
     { y: 2026.79, label: "SERDP FY28 SON", date: "~Oct–Nov 2026", cls: "window", ev: "SERDP FY28 solicitation expected ~Oct–Nov 2026; FY2027 budget fully funded at $60.8M; direct SCWO precedents (ER20-5350). Pre-position for an Environmental Restoration SON.", src: ["K118"] },
     { y: 2026.81, label: "NJ fund pipeline forms", date: "post Aug 7 2026", cls: "forming", ev: "NJ $795M PFAS Abatement Fund court-approved Aug 7 2026; ≥$150M to POTWs via the Water Bank. Engage NJDEP while program design and project pipelines form.", src: ["K112"] },
     { y: 2026.83, label: "DoW SBIR FY27 R1", date: "~Oct 2026 pre-release", cls: "window", ev: "Watch for NAVFAC water/PFAS topics succeeding N254-123 (expeditionary greywater reuse) and N233-117 (PFAS defluorination; AFCEC/USACE named Phase III transition partners).", src: ["K120"] },
@@ -2214,7 +2214,7 @@ Object.assign(window.RPT, {
       template: "Orlando CWSRF grant ~$800K (Feb 2024) → 374Water demo at Iron Bridge → 5-yr waste-destruction license (Mar 2026) → $3–5M PFAS destruction hub (Jun 2026). Repeating at OC San (RISE, 6 t/d) and Minnesota (ENRTF, Dec 2025).",
       src: ["K114", "K115", "K144", "K143"] },
     { mode: "a", name: "Direct-apply programs", effort: 35, tone: "base",
-      gist: "Fewer but actionable now: Reclamation DWPR, ONR Long-Range BAA, SERDP/ESTCP, all SBIR/STTR vehicles, NYSERDA waste-to-fuels, PA PENNVEST (private owner/operators eligible), AZ WIFA project teams, USDA B&I loan guarantees, WIFIA (corporations eligible with public sponsorship).",
+      gist: "Fewer but actionable: SERDP/ESTCP, all SBIR/STTR vehicles, NYSERDA waste-to-fuels, PA PENNVEST (private owner/operators eligible), AZ WIFA project teams, USDA B&I loan guarantees, WIFIA (corporations eligible with public sponsorship) — plus the FY2027 returns of Reclamation DWPR and the ONR Long-Range BAA, both of which closed in September 2026.",
       template: "Eight of the Top 15 are direct-apply — small-dollar, high-probability credibility plays that generate the evidence the partnerships consume.",
       src: ["K116", "K117", "K118", "K124"] },
     { mode: "c", name: "Vendor / subrecipient to prime contractors", effort: 25, tone: "base",

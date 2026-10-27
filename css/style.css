@@ -336,6 +336,14 @@ h3 { font-family: var(--sans); font-size: 21px; font-weight: 700; line-height: 1
 .src-row .s-fact { display: block; color: var(--ink); line-height: 1.55; }
 .src-row .s-cite { display: block; font-family: var(--mono); font-size: 10.5px; color: var(--ink-md); margin-top: 4px; line-height: 1.6; }
 .colophon { margin-top: 40px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-lo); line-height: 2; }
+
+/* footer downloads block — same editorial register as the colophon */
+.downloads { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 16px; }
+.downloads .dl-head { font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--ink-lo); margin-bottom: 10px; }
+.downloads .dl-line { font-size: 13.5px; color: var(--ink-md); line-height: 2; }
+.downloads .dl-line a { color: var(--red); text-decoration: none; border-bottom: 1px solid var(--line); }
+.downloads .dl-line a:hover { border-bottom-color: var(--red); }
+.downloads .dl-note { margin-top: 10px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-lo); line-height: 1.9; }
 @media (max-width: 900px) { #source-list { column-count: 1; } }
 
 /* source-category badge (four-source rule) */
@@ -534,6 +542,7 @@ th.sortable .sort-ind { color: var(--red); font-size: 8px; }
 .st-OPEN-DEADLINE { background: var(--red); box-shadow: 0 0 0 2.5px rgba(34,81,255,.22); }
 .st-WATCH { background: transparent; border: 1.5px solid var(--ink-lo); }
 .st-PAUSED { background: var(--ink-md); }
+.st-CLOSED { background: transparent; border: 1.5px solid var(--neg); }
 .st-DEAD { background: var(--neg); }
 .g-ac { font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .06em; border: 1px solid var(--line); border-radius: 3px; padding: 1px 5px; color: var(--ink-md); white-space: nowrap; }
 .g-ac-y { border-color: var(--red); color: var(--red); }
