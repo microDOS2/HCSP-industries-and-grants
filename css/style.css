@@ -577,3 +577,45 @@ tr.bad .t15-rank { color: var(--ink-lo); }
   font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em;
   color: var(--ink-lo); border: 1px dashed var(--ink-lo); border-radius: 3px; padding: 0 4px;
 }
+
+/* ── §4B competitive deep-dive — editorial rules, no card chrome ── */
+.cp-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px 56px;
+  margin: 10px 0 6px;
+}
+.comp-prof { border-top: 2px solid var(--ink); padding-top: 10px; }
+.cp-name { font-family: var(--serif); font-size: 23px; line-height: 1.2; margin: 0; }
+.cp-form {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-lo); margin: 5px 0 4px;
+}
+.cp-rows { margin-top: 6px; }
+.cp-row {
+  padding: 9px 2px; border-bottom: 1px solid var(--line-lo); cursor: pointer;
+  transition: background .15s;
+}
+.cp-row:hover { background: var(--hi); }
+.cp-lab {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .14em;
+  color: var(--ink-md); margin: 0 0 3px;
+}
+.cp-arrow { color: var(--red); opacity: 0; transition: opacity .15s; }
+.cp-row:hover .cp-arrow { opacity: 1; }
+.cp-txt { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0; }
+.cp-txt.tone-bad { color: var(--neg); }
+.cp-txt.tone-verdict { font-weight: 600; }
+.cp-txt.tone-verdict::first-letter { color: var(--red); }
+@media (max-width: 900px) { .cp-grid { grid-template-columns: 1fr; gap: 28px; } }
+
+/* cross-company matrix: clickable cells */
+#comp-table td.cmp-dim { white-space: nowrap; vertical-align: top; }
+#comp-table td.cmp-cell { cursor: pointer; font-size: 12.5px; line-height: 1.55; vertical-align: top; min-width: 150px; transition: background .15s; }
+#comp-table td.cmp-cell:hover { background: var(--hi); }
+#comp-table td.cmp-cell::after {
+  content: " →"; font-family: var(--mono); color: var(--red); opacity: 0; transition: opacity .15s;
+}
+#comp-table td.cmp-cell:hover::after { opacity: 1; }
+
+/* watch list: clickable rows */
+#watch-list li { cursor: pointer; transition: background .15s; }
+#watch-list li:hover { background: var(--hi); }

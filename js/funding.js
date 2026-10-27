@@ -9,7 +9,7 @@
     const M = [
       { v: "$11.3B", neg: true, l: "DOE demonstration awards terminated (2025)", d: "24 OCED awards (~$3.7B) terminated May 2025, ~$7.56B more across DOE offices in Oct 2025; the office itself was abolished in November.", src: ["K106"] },
       { v: "781", neg: true, l: "EPA environmental-justice grants terminated", d: "OBBBA (P.L. 119-21) rescinded unobligated IRA climate-justice appropriations; the Office of Environmental Justice is closed. Dead money — never a fit for a for-profit vendor.", src: ["K105"] },
-      { v: "$37.33B", l: "Known addressable pools across the register", d: "Sum of disclosed award pools — grants, forgivable SRF tranches, WIFIA credit capacity, and settlement funds — across the 80-program register. Not exhaustive; loans and settlements included.", src: ["K149"] },
+      { v: "$37.33B", l: "Known addressable pools across the register", d: "Sum of disclosed award pools — grants, forgivable SRF tranches, WIFIA credit capacity, and settlement funds — across the 92-program register. Not exhaustive; loans and settlements included, and the international/NGO layer (G-081–G-092) adds channels rather than pooled dollars.", src: ["K149"] },
       { v: "$12.75B+", l: "Settlement funds in flight to water systems", d: "3M $10.5–12.5B over 13 years (>$3.5B already paid) plus DuPont/Chemours/Corteva $1.185B, Tyco $750M, BASF $316.5M. Administrators pay utilities, not vendors — sell downstream of the checks.", src: ["K111"] },
     ];
     strip.innerHTML = M.map((m, i) => `<div class="m" data-i="${i}"><div class="v"${m.neg ? ' style="color:var(--neg)"' : ""}>${m.v}</div><div class="k">${m.l}</div></div>`).join("");
@@ -171,7 +171,7 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   §9 · The Grant Register — 80 programs, searchable / filterable / sortable
+   §9 · The Grant Register — 92 programs, searchable / filterable / sortable
 ──────────────────────────────────────────────────────────── */
 (function () {
   const table = document.getElementById("grant-table");
