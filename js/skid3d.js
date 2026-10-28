@@ -55,7 +55,7 @@
     wrap.innerHTML = "<p style='padding:40px;font-family:var(--mono);font-size:13px'>WebGL is unavailable in this browser — the 3D explorer cannot start. The machine section above covers the same components in 2D.</p>";
     return;
   }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, window.HCSP_DPR_CAP || 2));
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 2, 0.1, 100);
@@ -238,6 +238,8 @@
   function frame() {
     raf = 0;
     if (!inView) return;
+    // single-active-scene gate (js/lazy3d.js): another 3D scene owns the renderer
+    if (window.HCSP3D_ACTIVE && window.HCSP3D_ACTIVE !== "skid3d") return;
     // explode animation (vertical separation); instant (static frame) in reading mode
     const tgt = exploded ? 1 : 0;
     if (READER()) {
@@ -250,6 +252,7 @@
     if (controls.enableDamping) controls.update();
     if (dirty || !READER()) {
       renderer.render(scene, camera);
+      (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).skid3d = (window.__HCSP3D_RENDERED.skid3d || 0) + 1;
       // project labels
       const w = wrap.clientWidth, h = canvas.clientHeight || 560;
       LABELS.forEach(L => {
@@ -272,4 +275,10 @@
   }), { threshold: 0.05 });
   io.observe(wrap);
   resize();
+
+  // ── lazy3d controller hooks: resume when granted the active slot, announce init ──
+  addEventListener("hcsp3d:active", e => {
+    if (e.detail === "skid3d" && inView && !raf) { dirty = true; raf = requestAnimationFrame(frame); }
+  });
+  window.dispatchEvent(new CustomEvent("hcsp3d:ready", { detail: "skid3d" }));
 })();

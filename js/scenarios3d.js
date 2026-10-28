@@ -122,7 +122,7 @@
     stageCol.innerHTML = "<p style='padding:40px;font-family:var(--mono,Menlo,monospace);font-size:13px'>WebGL is unavailable in this browser — the 3D scenario explorer cannot start.</p>";
     return;
   }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, window.HCSP_DPR_CAP || 2));
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(38, 2, 0.1, 200);
   camera.position.set(1.2, 8.0, 15.0);
@@ -460,6 +460,8 @@
   function frame(t) {
     raf = 0;
     if (!inView) return;
+    // single-active-scene gate (js/lazy3d.js): another 3D scene owns the renderer
+    if (window.HCSP3D_ACTIVE && window.HCSP3D_ACTIVE !== "scenarios3d") return;
     if (!READER() && t != null) {
       const dt = Math.min(0.05, (t - lastT) / 1000 || 0);
       lastT = t;
@@ -470,6 +472,7 @@
     if (controls.enableDamping) controls.update();
     if (dirty || !READER()) {
       renderer.render(scene, camera);
+      (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).scenarios3d = (window.__HCSP3D_RENDERED.scenarios3d || 0) + 1;
       const w = stageCol.clientWidth, h = canvas.clientHeight || 620;
       labels.forEach(L => {
         const p = L.v.clone(); p.project(camera);
@@ -495,4 +498,10 @@
   picker.querySelector("button").setAttribute("aria-selected", "true");
   buildScene(0);
   resize();
+
+  // ── lazy3d controller hooks: resume when granted the active slot, announce init ──
+  addEventListener("hcsp3d:active", e => {
+    if (e.detail === "scenarios3d" && inView && !raf) { dirty = true; raf = requestAnimationFrame(frame); }
+  });
+  window.dispatchEvent(new CustomEvent("hcsp3d:ready", { detail: "scenarios3d" }));
 })();

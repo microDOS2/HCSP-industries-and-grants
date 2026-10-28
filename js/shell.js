@@ -3,6 +3,7 @@
 // reader mode (or prefers-reduced-motion) is seen as REDUCE by every module.
 (function () {
   const LS_KEY = "hcsp-reader";
+  const LITE_KEY = "hcsp-lite";
   const SCROLL_KEY = "hcsp-reader-scroll";
 
   // ── 1 · Reading mode state ──
@@ -12,7 +13,19 @@
   // default: honor prefers-reduced-motion
   const readerOn = stored == null ? sysReduce : stored === "1";
 
-  if (readerOn) {
+  // ── 1b · Lite mode — reader behavior (static frames, no auto-motion)
+  // plus a global DPR cap that the 3D modules read at init ──
+  let liteStored = null;
+  try { liteStored = localStorage.getItem(LITE_KEY); } catch (e) {}
+  const liteOn = liteStored === "1";
+  if (liteOn) {
+    document.documentElement.classList.add("lite");
+    window.HCSP_DPR_CAP = 1;
+  }
+  // lite mode implies reading mode
+  const staticOn = readerOn || liteOn;
+
+  if (staticOn) {
     document.documentElement.classList.add("reader");
     // Every module captures matchMedia("(prefers-reduced-motion: reduce)").matches
     // at load time → make that query answer true for this page load.
@@ -64,11 +77,26 @@
   // re-initializes under REDUCE (static frames, frozen animation)
   const rt = document.getElementById("reader-toggle");
   if (rt) {
-    rt.setAttribute("aria-pressed", readerOn ? "true" : "false");
-    rt.querySelector(".rt-state").textContent = readerOn ? "ON" : "OFF";
+    rt.setAttribute("aria-pressed", staticOn ? "true" : "false");
+    rt.querySelector(".rt-state").textContent = staticOn ? "ON" : "OFF";
     rt.addEventListener("click", () => {
       try {
-        localStorage.setItem(LS_KEY, readerOn ? "0" : "1");
+        localStorage.setItem(LS_KEY, staticOn ? "0" : "1");
+        if (staticOn) localStorage.setItem(LITE_KEY, "0"); // leaving static view also exits lite
+        sessionStorage.setItem(SCROLL_KEY, String(scrollY));
+      } catch (e) {}
+      location.reload();
+    });
+  }
+
+  // lite-mode toggle: same persist-then-reload pattern; lite ⇒ reader class on next load
+  const lt = document.getElementById("lite-toggle");
+  if (lt) {
+    lt.setAttribute("aria-pressed", liteOn ? "true" : "false");
+    lt.querySelector(".rt-state").textContent = liteOn ? "ON" : "OFF";
+    lt.addEventListener("click", () => {
+      try {
+        localStorage.setItem(LITE_KEY, liteOn ? "0" : "1");
         sessionStorage.setItem(SCROLL_KEY, String(scrollY));
       } catch (e) {}
       location.reload();
@@ -79,7 +107,7 @@
   document.querySelectorAll("[data-goto]").forEach(b => {
     b.addEventListener("click", () => {
       const el = document.querySelector(b.dataset.goto);
-      if (el) el.scrollIntoView({ behavior: readerOn ? "auto" : "smooth" });
+      if (el) el.scrollIntoView({ behavior: staticOn ? "auto" : "smooth" });
     });
   });
 
@@ -93,6 +121,6 @@
     }, { passive: true });
     onScroll();
     toTop.addEventListener("click", () =>
-      scrollTo({ top: 0, behavior: readerOn ? "auto" : "smooth" }));
+      scrollTo({ top: 0, behavior: staticOn ? "auto" : "smooth" }));
   }
 })();

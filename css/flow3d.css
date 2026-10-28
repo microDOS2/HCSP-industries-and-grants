@@ -10,6 +10,15 @@
 /* ── extra-wide host container for the 3D scenario explorer (needs ~1240px+) ── */
 .wide.xxl { max-width: 1280px; }
 
+/* ── lazy3d · reserve vertical space before the scene script loads, so the
+   IntersectionObserver gating (js/lazy3d.js) works and sections never collapse ── */
+.lazy3d-host { min-height: 620px; }
+.lazy3d-host.lazy3d-tall { min-height: 700px; }
+@media (max-width: 860px) {
+  .lazy3d-host { min-height: 480px; }
+  .lazy3d-host.lazy3d-tall { min-height: 540px; }
+}
+
 /* ── shared stage chrome (both modules) ── */
 .flow3d-wrap, .sc3d-wrap {
   position: relative; border: 1px solid var(--line, #dbe2ea); border-radius: 10px;

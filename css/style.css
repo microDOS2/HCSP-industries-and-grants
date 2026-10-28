@@ -808,6 +808,38 @@ tr.bad .t15-rank { color: var(--ink-lo); }
   color: var(--ink-lo); border: 1px dashed var(--ink-lo); border-radius: 4px;
   padding: 6px 10px; margin: 12px 0 0; line-height: 1.6;
 }
+
+/* ── plain-language "what this shows" line above core charts ── */
+.chart-plain {
+  font-family: var(--serif); font-size: 13.5px; line-height: 1.55;
+  color: var(--ink-md); margin: 0 0 12px; max-width: 76ch;
+}
+
+/* ── league ranked list (plain DOM replacement for the old bar chart) ── */
+.lg-list { list-style: none; margin: 0; padding: 0; }
+.lg-row {
+  display: flex; gap: 14px; align-items: baseline;
+  padding: 9px 10px; border-bottom: 1px solid var(--line-lo); cursor: pointer;
+}
+.lg-row:hover { background: var(--paper-hi); }
+.lg-rank { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--red); min-width: 26px; text-align: right; flex: none; }
+.lg-main { flex: 1; min-width: 0; }
+.lg-top { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.lg-name { font-family: var(--serif); font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.lg-val { font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+.lg-tag {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .03em;
+  border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--ink-md); white-space: nowrap;
+}
+.lg-tag.lg-g1 { border-color: var(--red); color: var(--red); }
+.lg-tag.lg-low { border-color: var(--gold); color: var(--gold); }
+.lg-why { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-md); line-height: 1.55; max-width: 90ch; }
+.lg-note {
+  font-family: var(--mono); font-size: 11px; color: var(--ink-lo);
+  border: 1px dashed var(--ink-lo); border-radius: 4px;
+  padding: 6px 10px; margin: 12px 0 0; line-height: 1.6;
+}
+table.lg-table tbody tr { cursor: pointer; }
 .lc-flag {
   font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em;
   color: var(--ink-lo); border: 1px dashed var(--ink-lo); border-radius: 3px; padding: 0 4px;
@@ -843,7 +875,7 @@ tr.bad .t15-rank { color: var(--ink-lo); }
 @media (max-width: 900px) { .cp-grid { grid-template-columns: 1fr; gap: 28px; } }
 
 /* cross-company matrix: clickable cells */
-#comp-table td.cmp-dim { white-space: nowrap; vertical-align: top; }
+#comp-table td.cmp-dim { white-space: normal; vertical-align: top; }
 #comp-table td.cmp-cell { cursor: pointer; font-size: 12.5px; line-height: 1.55; vertical-align: top; min-width: 150px; transition: background .15s; }
 #comp-table td.cmp-cell:hover { background: var(--hi); }
 #comp-table td.cmp-cell::after {
@@ -889,20 +921,20 @@ tr.bad .t15-rank { color: var(--ink-lo); }
   border-radius: 6px 6px 0 0;
 }
 #topnav .tn-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-#reader-toggle {
+#reader-toggle, #lite-toggle {
   font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
   color: var(--ink-md); background: var(--paper);
   border: 1.5px solid var(--line); border-radius: 999px;
   padding: 6px 14px; cursor: pointer; white-space: nowrap;
   display: flex; align-items: center; gap: 8px;
 }
-#reader-toggle::before {
+#reader-toggle::before, #lite-toggle::before {
   content: ""; width: 8px; height: 8px; border-radius: 50%;
   border: 1.5px solid var(--ink-lo); background: transparent;
 }
-#reader-toggle:hover { border-color: var(--ink); color: var(--ink); }
-html.reader #reader-toggle { border-color: var(--red); color: var(--red); }
-html.reader #reader-toggle::before { background: var(--red); border-color: var(--red); }
+#reader-toggle:hover, #lite-toggle:hover { border-color: var(--ink); color: var(--ink); }
+html.reader #reader-toggle, html.lite #lite-toggle { border-color: var(--red); color: var(--red); }
+html.reader #reader-toggle::before, html.lite #lite-toggle::before { background: var(--red); border-color: var(--red); }
 #tn-burger {
   display: none; background: none; border: 1.5px solid var(--line); border-radius: 6px;
   font-family: var(--mono); font-size: 12px; padding: 6px 11px; cursor: pointer; color: var(--ink);
@@ -1194,10 +1226,10 @@ html.reader .skid3d-stage { touch-action: auto; }
 table.dt.cust-dt th, table#geo-table.dt th { font-size: 12px; }
 /* customer tables: fixed layout so every column stays inside the frame — no clipped cells */
 table.dt.cust-dt { table-layout: fixed; width: 100%; }
-table.dt.cust-dt th:nth-child(1), table.dt.cust-dt td:nth-child(1) { width: 26%; }
-table.dt.cust-dt th:nth-child(2), table.dt.cust-dt td:nth-child(2) { width: 15%; }
-table.dt.cust-dt th:nth-child(3), table.dt.cust-dt td:nth-child(3) { width: 17%; }
-table.dt.cust-dt th:nth-child(4), table.dt.cust-dt td:nth-child(4) { width: 16%; }
+table.dt.cust-dt th:nth-child(1), table.dt.cust-dt td:nth-child(1) { width: 25%; }
+table.dt.cust-dt th:nth-child(2), table.dt.cust-dt td:nth-child(2) { width: 14%; }
+table.dt.cust-dt th:nth-child(3), table.dt.cust-dt td:nth-child(3) { width: 20%; }
+table.dt.cust-dt th:nth-child(4), table.dt.cust-dt td:nth-child(4) { width: 15%; }
 table.dt.cust-dt th:nth-child(5), table.dt.cust-dt td:nth-child(5) { width: 26%; }
 table.dt.cust-dt td.num { white-space: normal; }
 #geo-table td.gm-cell { min-width: 0; }
@@ -1332,5 +1364,9 @@ table.mr-table td { font-size: 14.5px; }
 
 /* comp/geo tables: wrap instead of clipping */
 #comp-table, #geo-table { table-layout: fixed; width: 100%; }
-#comp-table td, #geo-table td, #geo-table th { white-space: normal; }
+#comp-table td, #comp-table th, #geo-table td, #geo-table th { white-space: normal; overflow-wrap: break-word; }
+#comp-table th.cmp-dim, #comp-table td.cmp-dim { width: 18%; }
 #geo-table .flag-chip, #geo-table .gm { white-space: normal; }
+/* customer tables: headers wrap, long tokens break instead of clipping */
+table.dt.cust-dt th { white-space: normal; }
+table.dt.cust-dt td { overflow-wrap: break-word; }

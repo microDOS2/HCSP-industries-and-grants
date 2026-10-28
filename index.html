@@ -22,6 +22,7 @@
   <div class="tn-right">
     <button class="art-toggle" id="art-toggle" type="button" aria-pressed="false">SHOW ANIMATION</button>
     <button id="reader-toggle" type="button" aria-pressed="false">READING&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
+    <button id="lite-toggle" type="button" aria-pressed="false">LITE&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
     <button id="tn-burger" type="button" aria-expanded="false" aria-label="Toggle navigation">☰</button>
   </div>
 </nav>
@@ -280,7 +281,7 @@
       paying customers — click any part for its plain-English role, pull the plant apart with EXPLODE, or let the
       walkthrough step you through the four stages one at a time.</p>
   </div>
-  <div class="wide xl"><div id="flow3d"></div></div>
+  <div class="wide xl"><div id="flow3d" class="lazy3d-host"></div></div>
 </section>
 
 <!-- ═══ §2B Inside the HCSP — interactive 3D skid ═══ -->
@@ -471,7 +472,7 @@
       each setup as a little world — the host site, the HCSP plant, and the buyer next door, with the money flows drawn
       in — and the cards underneath it tell the same story in words as the text alternative.</p>
   </div>
-  <div class="wide xxl"><div id="scenarios3d"></div></div>
+  <div class="wide xxl"><div id="scenarios3d" class="lazy3d-host lazy3d-tall"></div></div>
   <div class="prose">
     <p>Each card opens a diagram of
       where the heat goes, the three revenue streams, the indicative economics, and what has to be true before anyone
@@ -677,11 +678,9 @@
 <script src="js/calculator.js"></script>
 <script src="js/energy.js"></script>
 <script src="js/materials.js"></script>
-<script src="vendor/three.min.js"></script>
-<script src="vendor/OrbitControls.js"></script>
-<script src="js/flow3d.js"></script>
-<script src="js/scenarios3d.js"></script>
-<script src="js/skid3d.js"></script>
+<!-- 3D scenes load lazily (js/lazy3d.js injects three.min.js + OrbitControls + each
+     scene script only when its section nears the viewport; one scene renders at a time) -->
+<script src="js/lazy3d.js"></script>
 <script src="js/tables.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/main.js"></script>
