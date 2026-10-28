@@ -14,7 +14,7 @@
     reactor: {
       name: "SCWO reactor — pressure vessel",
       specs: "380–420 °C · 25 MPa (250 bar) · just above the critical point",
-      role: "The core: above 374 °C and 22.1 MPa, water enters a state that is neither liquid nor gas, in which organic waste and oxygen mix completely and the waste burns up in seconds to minutes. Hydrogen burns above 3,000 °F directly in the reactor, so salt deposition never starts — the manufacturer reports no salt issues.",
+      role: "The core: above 374 °C and 22.1 MPa, water enters a state that is neither liquid nor gas, in which organic waste and oxygen mix completely and the waste burns up in seconds to minutes. Hydrogen burns above 3,000 °F directly in the reactor — a design intended to prevent salt deposition (manufacturer-stated; independent long-run data pending).",
     },
     electrolyzer: {
       name: "Electrolyzer — self-fueling H₂ loop",

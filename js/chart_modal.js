@@ -11,10 +11,10 @@
   const usd = v => "$" + v;
   const EXPLAIN = {
     "league-chart": {
-      take: "Fifteen industries scored on six criteria — the top of the ranking is an economics verdict, not a technology verdict: concentrated feeds paired with high existing supplier disposal prices.",
-      axes: "Bars read left→right as weighted score out of 10. Color marks the tier (blue = pursue now); the right column states net time to earn back the cost status — pending the manufacturer cost model everywhere.",
-      table: () => ({ cols: ["Rank", "Industry", "Score /10", "Tier", "Net time to earn back the cost", "Rationale"],
-        rows: RPT.league.map(d => ["#" + d.rank, d.name, String(d.score), "Tier " + d.tier, d.payback, d.why]) }),
+      take: "Fifteen industries ranked by overall fit, each with one plain sentence on why; the toggle re-ranks them by what existing cleanup suppliers charge per gallon.",
+      axes: "A plain ranked list, not a bar chart: rank, industry, score out of 10, and the reason. Earn-back time is not calculated yet — the manufacturer's cost model is not set.",
+      table: () => ({ cols: ["Rank", "Industry", "Score /10", "Fit", "Why"],
+        rows: RPT.league.map(d => ["#" + d.rank, d.name, String(d.score), (RPT.league_fit || {})[d.tier] || "", d.plain || d.why]) }),
     },
     "energy-chart": {
       take: "Grid power price swings the value of the startup/auxiliary draw and of exported energy 5× across regions — but operating energy itself is negligible per the manufacturer (self-fueling loop).",
@@ -23,13 +23,13 @@
         rows: RPT.energy_floor.map(d => [d.region, `$${d.lo}–${d.hi}`, d.idx ? d.idx + "/25" : "—", d.note]) }),
     },
     "umbrella-chart": {
-      take: "Existing supplier destruction and disposal runs $1–2/gal to $15–50+/gal — all public market data; HCSP's own cost and pricing are TBD until the manufacturer publishes a cost model.",
+      take: "What existing suppliers charge for destruction and disposal runs $1–2/gal to $15–50+/gal — all public market data; HCSP's own cost and pricing are TBD until the manufacturer publishes a cost model.",
       axes: "Log-scale $/gal bands. Ink bands are existing supplier pathways; blue hatched bands are HCSP — deliberately empty (TBD). The red marker is the $28/gal Michigan firefighting-foam panic-buying ceiling.",
       table: () => ({ cols: ["Pathway", "$/gal", "Basis"],
         rows: RPT.umbrella.map(d => [d.name, d.tbd ? "TBD — manufacturer cost model pending" : `$${d.lo}–${d.hi}${d.hi >= 50 ? "+" : ""}`, d.note]) }),
     },
     "payback-chart": {
-      take: "The savings ladder is a cliff: destruction-priced baselines make the widest savings before our costs are known; disposal-priced baselines depend on compulsion or crisis. Net time to earn back the cost in years is withheld everywhere.",
+      take: "Destruction-priced baselines leave the widest room for savings before our costs are known; disposal-priced baselines depend on compulsion or crisis. Earn-back time in years is not stated anywhere — the manufacturer cost model is not set.",
       axes: "Each row is an industry; the chip states the shared status (time to earn back the cost: pending) and the text gives the displaced existing-supplier baseline. Blue rows are destruction-priced, ink rows disposal-priced.",
       table: () => ({ cols: ["Industry", "Displaced existing supplier baseline", "Baseline type"],
         rows: RPT.payback.map(d => [d.name, d.basis, d.kind]) }),
@@ -83,7 +83,7 @@
     // "horizon-chart" intentionally has no entry: it is now a DOM vertical
     // timeline (no SVG), so the explorer never opens for it.
     "destiny-chart": {
-      take: "Forty years of commercial SCWO: a graveyard of exits for context, four verifiable survivors as the evidence — try the walkthrough for the guided version.",
+      take: "Forty years of commercial SCWO: a long record of failed or exited ventures for context, four verifiable survivors as the evidence — try the walkthrough for the guided version.",
       axes: "Each line is an entity's lifespan (dashed span = graded date estimate); ✕ marks an exit; hairline ribbons flow to outcome plaques (deal sizes undisclosed).",
     },
     "vendor-chart": {

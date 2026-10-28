@@ -41,17 +41,30 @@ window.CH = (() => {
   if (document.readyState === "complete") setTimeout(fitText, 60);
   else addEventListener("load", () => setTimeout(fitText, 60));
   // Wrap a long label into ≤2 tspans at word boundaries instead of truncating.
-  function wrap2(t, str, maxChars) {
+  function wrap2(t, str, maxChars) { wrapN(t, str, maxChars, 2); }
+  // Wrap into up to maxLines tspans; ellipsize only the final line if still too long.
+  function wrapN(t, str, maxChars, maxLines) {
     if (str.length <= maxChars) { t.text(str); return; }
     const words = str.split(" ");
-    let l1 = "", l2 = "";
+    const lines = [""];
     words.forEach(w => {
-      if (!l2 && (l1 + " " + w).trim().length <= maxChars) l1 = (l1 + " " + w).trim();
-      else l2 = (l2 + " " + w).trim();
+      const cur = lines[lines.length - 1];
+      if ((cur + " " + w).trim().length <= maxChars || !cur) lines[lines.length - 1] = (cur + " " + w).trim();
+      else if (lines.length < maxLines) lines.push(w);
+      else lines[lines.length - 1] = (cur + " " + w).trim(); // overflow handled below
     });
-    if (l2.length > maxChars) l2 = l2.slice(0, maxChars - 1).replace(/[ ,;–—(/-]+$/, "") + " …";
-    t.text(l1);
-    t.append("tspan").attr("x", t.attr("x")).attr("dy", "1.15em").text(l2);
+    let last = lines[lines.length - 1];
+    if (last.length > maxChars) lines[lines.length - 1] = last.slice(0, maxChars - 1).replace(/[ ,;–—(/-]+$/, "") + " …";
+    t.text(lines[0]);
+    for (let i = 1; i < lines.length; i++)
+      t.append("tspan").attr("x", t.attr("x")).attr("dy", "1.15em").text(lines[i]);
+  }
+  // Plain-language "what this shows" line inserted above every core chart.
+  function plainLine(text) {
+    const p = document.createElement("p");
+    p.className = "chart-plain";
+    p.textContent = text;
+    return p;
   }
   function halo(sel, w = 4) {
     sel.attr("paint-order", "stroke").attr("stroke", "#ffffff").attr("stroke-width", w).attr("stroke-linejoin", "round");
@@ -74,108 +87,161 @@ window.CH = (() => {
   function srcStr(ids) { return window.KSTR ? KSTR(ids) : (ids || []).join(" "); }
   // HTML variant: every K-anchor rendered as a clickable link to the original source (new tab)
   function srcLink(ids) { return window.KLINK ? KLINK(ids) : srcStr(ids); }
-  return { REDUCE, MONO, SERIF, svg, halo, drill, enter, srcStr, srcLink, fitText, fitTextSoon, wrap2 };
+  return { REDUCE, MONO, SERIF, svg, halo, drill, enter, srcStr, srcLink, fitText, fitTextSoon, wrap2, wrapN, plainLine };
 })();
 
 /* ────────────────────────────────────────────────────────────
-   1 · Ranking hero — fifteen industries, weighted score /10,
-   tier-colored, time to earn back the cost annotation (Ch. 3.1.1 v2)
+   1 · Ranking — fifteen industries as a plain ranked list (DOM, not SVG):
+   rank, industry, score /10, one plain sentence on why. The toggle
+   re-orders the same list by what existing suppliers charge ($/gal).
+   No tiers, no drop-off line — earn-back time noted once, under the list.
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("league-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "Fifteen industries, one physics filter — and the ranking is still an economics verdict",
-    sub: "WEIGHTED SIX-CRITERION SCORE /10 · COLOR = TIER · RIGHT COLUMN = NET TIME TO EARN BACK THE COST (PENDING MANUFACTURER COST MODEL) · CLICK ANY BAR FOR THE RATIONALE",
+    title: "Fifteen industries, ranked by fit",
+    sub: "SCORE OUT OF 10 ACROSS SIX CRITERIA · TOGGLE TO RANK BY WHAT EXISTING SUPPLIERS CHARGE ($/GAL) · CLICK ANY ROW FOR THE REASONS AND DATED SOURCES",
     src: "Research compilation — cross-checked composites from the report's industry studies (D1–D10) and industry chapter (2026-09)",
   });
-  const W = 880, rowH = 50, padT = 32, H = padT + rowH * RPT.league.length + 46;
-  const mL = 236, mR = 210;
-  const x = d3.scaleLinear().domain([0, 10]).range([mL, W - mR]);
-  const svg = CH.svg(body, W, H);
-  const tierCol = { 1: "#2251ff", 2: "#1233b8", 3: "#42566a", 4: "#42566a" };
-  const tierName = { 1: "TIER 1 · PURSUE NOW", 2: "TIER 2 · DEVELOP", 3: "TIER 3 · CONDITIONAL", 4: "TIER 4 · WEAK FIT" };
+  body.appendChild(CH.plainLine("What this shows: all fifteen industries ranked by overall fit, with one plain sentence on why — or, using the toggle, ranked by what their existing cleanup suppliers charge per gallon."));
 
-  // axis
-  [0, 2, 4, 6, 8, 10].forEach(v => {
-    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 6).attr("y2", H - 40)
-      .attr("stroke", v ? "#eef1f6" : "#dbe2ea");
-    svg.append("text").attr("x", x(v)).attr("y", padT - 12).attr("text-anchor", "middle")
-      .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#42566a").text(v);
-  });
+  const FIT = RPT.league_fit;
+  const compByKey = {};
+  RPT.league.forEach(d => { compByKey[d.key] = d; });
+  const fv = v => v < 0.1 ? v.toFixed(3) : v < 1 ? v.toFixed(2) : String(v);
+  const band = s => "$" + fv(s.lo) + "–" + fv(s.hi) + (s.plus ? "+" : "") + "/gal";
+  const PB_NOTE = "Earn-back time is not calculated yet — the manufacturer's cost model is not set.";
+  const cleanNote = n => n
+    .replace(/;?\s*sparse data — LOW CONFIDENCE flag\.?/i, " (sparse data — low confidence)")
+    .replace("Top-3 under BOTH lenses — the most robust finding.", "Top-3 under both rankings.")
+    .replace("NOT a $/gal savings play", "not a per-gallon savings play");
 
-  const rows = svg.selectAll("g.row").data(RPT.league).join("g")
-    .attr("transform", (d, i) => `translate(0,${padT + i * rowH})`);
-  rows.append("text").attr("x", mL - 10).attr("y", rowH / 2 - 13)
-    .attr("text-anchor", "end").attr("font-family", CH.SERIF).attr("font-weight", 700)
-    .attr("font-size", 12.5).attr("fill", "#051c2c")
-    .each(function (d) { CH.wrap2(d3.select(this), d.rank + ". " + d.name, 24); });
-  rows.append("text").attr("x", mL - 10).attr("y", rowH / 2 + 20)
-    .attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 8.5)
-    .attr("fill", d => d.tier === 1 ? "#2251ff" : "#42566a").text(d => tierName[d.tier]);
+  let lens = "composite", view = "list";
 
-  const bars = rows.append("rect")
-    .attr("x", x(0)).attr("y", rowH / 2 - 8.5).attr("height", 17).attr("rx", 2)
-    .attr("fill", d => tierCol[d.tier]).attr("width", 0);
-  CH.drill(bars, () => ({})); // placeholder replaced below (needs row datum)
-  rows.select("rect").each(function () {});
-  bars.each(function (d) {
-    CH.drill(d3.select(this), () => ({
-      title: `RANK ${d.rank} · ${tierName[d.tier]}`, value: d.score.toFixed(2).replace(/0$/, "") + " / 10",
-      sub: d.why + " Net time to earn back the cost: " + d.payback + " (savings before our costs are known — pending the manufacturer cost model).",
+  // ── toggles: ranking order + list/table view ──
+  const lensBar = document.createElement("div");
+  lensBar.className = "lens-toggle";
+  lensBar.setAttribute("aria-label", "Ranking order");
+  lensBar.innerHTML = `<button type="button" data-lens="composite">Composite score</button>
+    <button type="button" data-lens="savings">What existing suppliers charge ($/gal)</button>`;
+  const viewBar = document.createElement("div");
+  viewBar.className = "unit-toggle";
+  viewBar.innerHTML = `<span class="ut-lab">VIEW</span>
+    <button type="button" data-view="list">LIST</button>
+    <button type="button" data-view="table">TABLE</button>`;
+  const listEl = document.createElement("ol");
+  listEl.className = "lg-list";
+  const tblWrap = document.createElement("div");
+  tblWrap.className = "table-scroll";
+  tblWrap.hidden = true;
+  const note = document.createElement("p");
+  note.className = "lg-note";
+  note.textContent = PB_NOTE;
+  body.append(lensBar, viewBar, listEl, tblWrap, note);
+
+  function drillFor(d) { // d: league entry
+    return {
+      title: "#" + d.rank + " · " + d.name.toUpperCase(),
+      value: d.score + " / 10 — " + FIT[d.tier],
+      sub: d.plain + " In detail: " + d.why + " " + PB_NOTE,
       source: CH.srcLink(d.src),
-    }));
-  });
+    };
+  }
+  function drillForSav(s) {
+    const c = compByKey[s.key];
+    return {
+      title: "#" + s.srank + " · " + s.vertical.toUpperCase().slice(0, 46),
+      value: s.na ? "No stream to treat — buyer of the output" : band(s),
+      sub: cleanNote(s.note)
+        + (c ? " Composite fit ranking: #" + c.rank + " (" + c.score + "/10 — " + FIT[c.tier] + "). " : "")
+        + (s.lowConf ? "Low confidence: sparse data. " : "")
+        + RPT.savings_meta.qualifier + ". " + PB_NOTE,
+      source: CH.srcLink(s.src.concat(c ? c.src.filter(k => !s.src.includes(k)) : []).concat(["K150"])),
+    };
+  }
+  function clickable(el, get) {
+    el.style.cursor = "pointer";
+    el.setAttribute("data-drill-keep", "");
+    el.addEventListener("click", e => { e.stopPropagation(); const d = get(); U.showDrill({ ...d, x: e.clientX, y: e.clientY }); });
+  }
 
-  const vals = rows.append("text")
-    .attr("x", d => x(d.score) + 7).attr("y", rowH / 2 + 4)
-    .attr("font-family", CH.MONO).attr("font-size", 12).attr("font-weight", 700)
-    .attr("fill", d => tierCol[d.tier]).style("opacity", 0)
-    .text(d => d.score % 1 ? d.score.toFixed(2).replace(/0$/, "") : d.score.toFixed(1));
-  CH.halo(vals);
-  vals.each(function (d) {
-    CH.drill(d3.select(this), () => ({
-      title: `RANK ${d.rank} · ${d.name.toUpperCase().slice(0, 40)}`, value: d.score + " / 10",
-      sub: d.why, source: CH.srcLink(d.src),
-    }));
-  });
+  function rowComposite(d) {
+    const li = document.createElement("li");
+    li.className = "lg-row";
+    li.innerHTML = `<span class="lg-rank">${d.rank}</span>
+      <div class="lg-main">
+        <div class="lg-top"><span class="lg-name"></span>
+          <span class="lg-val">${d.score} / 10</span>
+          <span class="lg-tag lg-g${d.tier}">${FIT[d.tier]}</span></div>
+        <p class="lg-why"></p>
+      </div>`;
+    li.querySelector(".lg-name").textContent = d.name;
+    li.querySelector(".lg-why").textContent = d.plain;
+    clickable(li, () => drillFor(d));
+    return li;
+  }
+  function rowSavings(s) {
+    const c = compByKey[s.key];
+    const li = document.createElement("li");
+    li.className = "lg-row";
+    li.innerHTML = `<span class="lg-rank">${s.srank}</span>
+      <div class="lg-main">
+        <div class="lg-top"><span class="lg-name"></span>
+          <span class="lg-val">${s.na ? "No stream to treat" : band(s)}</span>
+          ${s.lowConf ? '<span class="lg-tag lg-low">Low confidence — sparse data</span>' : ""}
+          ${c ? `<span class="lg-tag">Composite fit #${c.rank}</span>` : ""}</div>
+        <p class="lg-why"></p>
+      </div>`;
+    li.querySelector(".lg-name").textContent = s.vertical;
+    li.querySelector(".lg-why").textContent = cleanNote(s.note);
+    clickable(li, () => drillForSav(s));
+    return li;
+  }
 
-  const pb = rows.append("text")
-    .attr("x", x(10) + 14).attr("y", rowH / 2 - 9)
-    .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a")
-    .each(function (d) { CH.wrap2(d3.select(this), d.payback.toUpperCase(), 22); });
-  pb.style("font-style", d => /^pending/i.test(d.payback) ? "italic" : "normal");
-  CH.halo(pb);
-  pb.each(function (d) {
-    CH.drill(d3.select(this), () => ({
-      title: "NET TIME TO EARN BACK THE COST · " + d.name.toUpperCase().slice(0, 34), value: d.payback,
-      sub: "Net time to earn back the cost is pending the manufacturer cost model — rankings here use savings before our costs are known, measured against documented existing-supplier costs. Time to earn back the cost is a stream-selection variable, not a technology variable. " + d.why,
-      source: CH.srcLink(d.src),
-    }));
-  });
+  function buildTable() {
+    const comp = lens === "composite";
+    const cols = comp
+      ? ["#", "Industry", "Score /10", "Fit", "Why"]
+      : ["#", "Industry / stream", "Existing supplier cost", "Composite fit", "Basis"];
+    const rows = comp ? RPT.league : RPT.savings_ladder;
+    const tbl = document.createElement("table");
+    tbl.className = "dt lg-table";
+    tbl.innerHTML = "<thead><tr>" + cols.map(c => `<th>${c}</th>`).join("") + "</tr></thead><tbody></tbody>";
+    const tb = tbl.querySelector("tbody");
+    rows.forEach((d, i) => {
+      const tr = document.createElement("tr");
+      if (comp) {
+        tr.innerHTML = `<td class="num">${d.rank}</td><td><b></b></td><td class="num">${d.score} / 10</td><td>${FIT[d.tier]}</td><td style="font-size:12px"></td>`;
+        tr.children[1].firstChild.textContent = d.name;
+        tr.children[4].textContent = d.plain;
+        clickable(tr, () => drillFor(d));
+      } else {
+        const c = compByKey[d.key];
+        tr.innerHTML = `<td class="num">${d.srank}</td><td><b></b></td><td class="num">${d.na ? "No stream to treat" : band(d)}${d.lowConf ? " (low confidence)" : ""}</td><td class="num">${c ? "#" + c.rank + " · " + c.score + "/10" : "—"}</td><td style="font-size:12px"></td>`;
+        tr.children[1].firstChild.textContent = d.vertical;
+        tr.children[4].textContent = cleanNote(d.note);
+        clickable(tr, () => drillForSav(d));
+      }
+      tb.appendChild(tr);
+    });
+    tblWrap.innerHTML = "";
+    tblWrap.appendChild(tbl);
+  }
 
-  // the cliff annotation: between the last Tier-3 row (4.75) and the Tier-4 tail (<4.5)
-  const cliffIdx = RPT.league.findIndex(d => d.tier === 4);
-  const cliffY = padT + (cliffIdx > 0 ? cliffIdx : 11) * rowH;
-  const cliff = svg.append("g").style("opacity", 0);
-  cliff.append("line").attr("x1", x(0) + 4).attr("x2", W - mR + 130).attr("y1", cliffY).attr("y2", cliffY)
-    .attr("stroke", "#c22f4e").attr("stroke-dasharray", "3 4").attr("stroke-width", 1);
-  const ct = cliff.append("text").attr("x", x(4.35)).attr("y", cliffY + 12)
-    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#c22f4e")
-    .text("THE CLIFF: BELOW 4.5, PHYSICS BINDS");
-  CH.halo(ct);
-  CH.drill(cliff.select("line"), () => ({
-    title: "THE 4.5 CLIFF", value: "Tier 3 → Tier 4",
-    sub: "Every market scoring 6.0 or above sits high on feed concentration or disposal-price protection; every market below 4.5 fails both. Produced water — scored up 1.25 points on closer review — still sits in the conditional zone: a real niche, not a basin-scale play.",
-    source: CH.srcLink(["K70", "K100"]),
-  }));
-
-  CH.enter(host, () => {
-    bars.transition().duration(750).delay((d, i) => i * 55).attr("width", d => x(d.score) - x(0));
-    vals.transition().delay((d, i) => 500 + i * 55).duration(300).style("opacity", 1);
-    cliff.transition().delay(900).duration(400).style("opacity", 1);
-  });
-  if (CH.REDUCE) bars.attr("width", d => x(d.score) - x(0)), vals.style("opacity", 1), cliff.style("opacity", 1);
+  function render() {
+    lensBar.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.lens === lens));
+    viewBar.querySelectorAll("button[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === view));
+    listEl.innerHTML = "";
+    if (lens === "composite") RPT.league.forEach(d => listEl.appendChild(rowComposite(d)));
+    else RPT.savings_ladder.forEach(s => listEl.appendChild(rowSavings(s)));
+    buildTable();
+    listEl.hidden = view !== "list";
+    tblWrap.hidden = view !== "table";
+  }
+  lensBar.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { lens = b.dataset.lens; render(); }));
+  viewBar.querySelectorAll("button[data-view]").forEach(b => b.addEventListener("click", () => { view = b.dataset.view; render(); }));
+  render();
 })();
 
 /* ────────────────────────────────────────────────────────────
@@ -188,26 +254,27 @@ window.CH = (() => {
   if (!host) return;
   const body = U.frame(host, {
     title: "Grid power price context — startup/auxiliary draw and the value of exported energy",
-    sub: "REGIONAL GRID PRICE $/M³-EQUIVALENT (75–95 KW STARTUP POWER SPEC × REGIONAL POWER PRICE) · DASHED = RECOVERED-WATER VALUE ~$3.5/M³ · OPERATING ENERGY NEGLIGIBLE PER MANUFACTURER (SELF-FUELING LOOP) · CLICK BARS",
+    sub: "ESTIMATED $/M³-EQUIVALENT (75–95 KW STARTUP POWER SPEC × REGIONAL POWER PRICE — MODEL ESTIMATE, NOT A MEASURED OPERATING COST) · DASHED = RECOVERED-WATER VALUE ~$3.5/M³ · OPERATING ENERGY NEGLIGIBLE PER MANUFACTURER (SELF-FUELING LOOP) · CLICK BARS",
     src: "Industry & official — EIA (2025), Eurostat (H2-2025), EPA WaterSense (2024); broker relays for China, India, and Middle East power prices",
   });
-  const W = 880, rowH = 50, padT = 34, H = padT + rowH * RPT.energy_floor.length + 50;
+  body.insertBefore(CH.plainLine("What this shows: how local electricity prices change the cost of starting the plant and the value of any power it can sell. These bars are estimates — the manufacturer's own cost model is not set."), body.firstChild);
+  const W = 880, rowH = 50, padT = 34, H = padT + rowH * RPT.energy_floor.length + 78;
   const mL = 250, mR = 30;
   const x = d3.scaleLinear().domain([0, 60]).range([mL, W - mR]);
   const svg = CH.svg(body, W, H);
   const wv = RPT.water_value.v;
 
   [0, 10, 20, 30, 40, 50, 60].forEach(v => {
-    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 8).attr("y2", H - 44).attr("stroke", "#eef1f6");
+    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 8).attr("y2", H - 60).attr("stroke", "#eef1f6");
     svg.append("text").attr("x", x(v)).attr("y", padT - 14).attr("text-anchor", "middle")
       .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#42566a").text("$" + v);
   });
 
   // the gap band: water value → lowest floor
   const gap = svg.append("g").style("opacity", 0);
-  gap.append("rect").attr("x", x(wv)).attr("y", padT - 4).attr("width", x(10.8) - x(wv)).attr("height", H - 44 - padT)
+  gap.append("rect").attr("x", x(wv)).attr("y", padT - 4).attr("width", x(10.8) - x(wv)).attr("height", H - 60 - padT)
     .attr("fill", "rgba(194,47,78,.07)");
-  gap.append("text").attr("x", x(wv) + 7).attr("y", H - 56).attr("text-anchor", "start")
+  gap.append("text").attr("x", x(wv) + 7).attr("y", H - 44).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#c22f4e")
     .text("WATER SALES ALONE CAN'T CARRY THE BUSINESS");
   CH.drill(gap.select("rect"), () => ({
@@ -238,16 +305,14 @@ window.CH = (() => {
       .attr("font-family", CH.MONO).attr("font-size", 11.5).attr("font-weight", 700).attr("fill", "#051c2c")
       .style("opacity", 0).text(lbTxt);
     CH.halo(lb);
-    const noteTxt = d.note.length > 40 ? d.note.slice(0, 39).replace(/[ ,;–—-]+$/, "") + " …" : d.note;
-    const noteRight = x(d.hi) + 8 + noteTxt.length * 8.8 <= W - 6;
-    const note = g.append("text").attr("x", noteRight ? x(d.hi) + 8 : W - 6).attr("y", 35)
-      .attr("text-anchor", noteRight ? "start" : "end")
-      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0)
-      .text(noteTxt);
+    const note = g.append("text").attr("x", W - 6).attr("y", 33)
+      .attr("text-anchor", "end")
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0);
+    CH.wrapN(note, d.note, 58, 2);
     CH.halo(note);
     [bx, lb].forEach(s => CH.drill(s, () => ({
-      title: d.region.toUpperCase(), value: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)} /m³-equiv`,
-      sub: "Grid price context, not an operating-cost floor: the 75–95 kW startup power spec (180–228 kilowatt-hours per cubic meter, kWh/m³) × the regional industrial power price. HCSP operating energy cost is negligible per the manufacturer (self-fueling loop) — the prices shown matter for the startup draw and for valuing each exported kilowatt-hour on concentrated feeds. " + d.note,
+      title: d.region.toUpperCase(), value: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)} /m³-equiv (estimate)`,
+      sub: "Estimate — grid price context, not a measured operating cost: the 75–95 kW startup power spec (180–228 kilowatt-hours per cubic meter, kWh/m³) × the regional industrial power price. HCSP operating energy cost is negligible per the manufacturer (self-fueling loop) — the prices shown matter for the startup draw and for valuing each exported kilowatt-hour on concentrated feeds. " + d.note,
       source: CH.srcLink(d.src),
     })));
     g.datum(Object.assign({}, d, { _bx: bx, _lb: lb, _nt: note }));
@@ -255,9 +320,9 @@ window.CH = (() => {
 
   // water-value dashed line
   const wl = svg.append("g");
-  wl.append("line").attr("x1", x(wv)).attr("x2", x(wv)).attr("y1", padT - 8).attr("y2", H - 44)
+  wl.append("line").attr("x1", x(wv)).attr("x2", x(wv)).attr("y1", padT - 8).attr("y2", H - 60)
     .attr("stroke", "#2251ff").attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
-  const wt = wl.append("text").attr("x", x(wv) + 8).attr("y", H - 30).attr("text-anchor", "start")
+  const wt = wl.append("text").attr("x", x(wv) + 8).attr("y", H - 28).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#2251ff")
     .text("WATER VALUE ≈ $3.5/M³");
   CH.halo(wt);
@@ -286,10 +351,11 @@ window.CH = (() => {
   const host = document.getElementById("umbrella-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "The existing supplier umbrella runs $1–2/gal to $15–50+/gal — HCSP's own cost and pricing are TBD",
+    title: "What existing suppliers charge runs $1–2/gal to $15–50+/gal — HCSP's own cost and pricing are TBD",
     sub: "LOG SCALE $/GAL · INK = EXISTING SUPPLIER PATHWAYS (PUBLIC MARKET DATA) · BLUE HATCH = HCSP — TBD, MANUFACTURER COST MODEL PENDING · CLICK ANY BAND FOR BASIS",
     src: "Company disclosure & official — disposal pricing guides (2025), 374Water investor materials (vendor-flagged), report Ch. 8.2 model [derived]",
   });
+  body.insertBefore(CH.plainLine("What this shows: what existing disposal and destruction suppliers charge per gallon, cheapest to most expensive. HCSP's own cost and price are not set yet — the manufacturer has not published a cost model."), body.firstChild);
   const W = 880, rowH = 40, padT = 40, H = padT + rowH * RPT.umbrella.length + 44;
   const mL = 236, mR = 26;
   const x = d3.scaleLog().domain([0.05, 60]).range([mL, W - mR]);
@@ -374,16 +440,17 @@ window.CH = (() => {
 })();
 
 /* ────────────────────────────────────────────────────────────
-   4 · Time to earn back the cost by industry — the cliff (Ch. 8.3)
+   4 · Savings vs existing supplier cost by industry — earn-back time withheld (Ch. 8.3)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("payback-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "The savings cliff: savings before our costs are known vs existing supplier cost — net time to earn back the cost pending",
+    title: "What each industry already pays for disposal — and why earn-back time is not stated yet",
     sub: "SAVINGS BEFORE OUR COSTS ARE KNOWN · DISPLACED EXISTING-SUPPLIER BASELINES FROM PRICED DISPOSAL TARIFFS · BLUE = DESTRUCTION-PRICED BASELINE · INK = DISPOSAL-PRICED · TIME TO EARN BACK THE COST PENDING MANUFACTURER COST MODEL — NO EARN-BACK YEARS ARE STATED · CLICK ANY ROW",
     src: "Research compilation — report Ch. 8.3 (2026-09), per-industry baselines from priced disposal tariffs",
   });
+  body.insertBefore(CH.plainLine("What this shows: the existing disposal bill each industry pays today. The time to earn back the machine's cost is not stated anywhere — the manufacturer's cost model is not set."), body.firstChild);
   const W = 880, rowH = 46, padT = 40, H = padT + rowH * RPT.payback.length + 46;
   const mL = 250, mR = 40;
   const svg = CH.svg(body, W, H);
@@ -391,7 +458,7 @@ window.CH = (() => {
   // framing note where the year axis used to be
   const fn = svg.append("text").attr("x", mL).attr("y", padT - 14).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#2251ff")
-    .text("EARN-BACK YEARS: WITHHELD PENDING THE MANUFACTURER COST MODEL");
+    .text("EARN-BACK YEARS: NOT CALCULATED YET — MANUFACTURER COST MODEL NOT SET");
   CH.halo(fn);
 
   const rows = svg.selectAll("g.r").data(RPT.payback).join("g")
@@ -403,35 +470,35 @@ window.CH = (() => {
   rows.each(function (d) {
     const g = d3.select(this);
     if (d.kind === "gap") {
-      // draw the gap itself: red hatch + ? — no interpolation, no hiding
-      const gw = 216;
+      // draw the gap itself: red hatch — no interpolation, no hiding
+      const gw = 170;
       const gapG = g.append("g");
       gapG.append("rect").attr("x", mL).attr("y", 2).attr("width", gw).attr("height", 15)
         .attr("fill", "rgba(194,47,78,.08)").attr("stroke", "#c22f4e").attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
       const q = gapG.append("text").attr("x", mL + 10).attr("y", 13)
         .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", "#c22f4e")
-        .text("? NO EQUIPMENT CASE");
+        .text("NO EQUIPMENT CASE");
       CH.drill(gapG.select("rect"), () => ({
         title: d.name.toUpperCase(), value: "Service model only",
-        sub: d.basis + ". The physics rules out an equipment sale: dilute runoff never reaches the point where the system makes its own heat from the waste, so energy cost exceeds any disposal saving.",
+        sub: d.basis + ". An equipment sale is ruled out on an estimate: dilute runoff stays below the strength at which the process makes its own heat (about 35–60 g/L COD, from engineering studies), so energy cost would exceed any disposal saving.",
         source: CH.srcLink(d.src),
       }));
       return;
     }
     const col = d.kind === "destruction" ? "#2251ff" : "#42566a";
     // pending chip: savings before our costs are known, net time to earn back the cost withheld
-    const chipW = 216;
+    const chipW = 170;
     const chipG = g.append("g").style("opacity", 0);
     const chip = chipG.append("rect").attr("x", mL).attr("y", 2).attr("width", chipW).attr("height", 15).attr("rx", 2)
       .attr("fill", d.kind === "destruction" ? "rgba(34,81,255,.08)" : "rgba(66,86,106,.08)")
       .attr("stroke", col).attr("stroke-dasharray", "4 3").attr("stroke-width", 1);
     const cl = chipG.append("text").attr("x", mL + 10).attr("y", 13)
       .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", col)
-      .text("EARN-BACK TIME PENDING");
+      .text("NOT CALCULATED YET");
     CH.halo(cl);
-    const basis = g.append("text").attr("x", mL + chipW + 12).attr("y", 13)
-      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0)
-      .text(d.basis.length > 44 ? d.basis.slice(0, 43).replace(/[ ,;–—-]+$/, "") + " …" : d.basis);
+    const basis = g.append("text").attr("x", mL + chipW + 12).attr("y", 9)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0);
+    CH.wrapN(basis, d.basis, 48, 2);
     CH.halo(basis);
     [chip, cl, basis].forEach(s => CH.drill(s, () => ({
       title: d.name.toUpperCase(), value: "Net earn-back time: pending",
@@ -455,7 +522,7 @@ window.CH = (() => {
 
 /* ────────────────────────────────────────────────────────────
    5 · THE SAVINGS LADDER — what existing suppliers charge to clean it up $/gal,
-   log scale, HCSP reference reduced to a qualitative pending note (hcsp_v3_savings_ladder.md)
+   log scale, HCSP reference reduced to a qualitative pending note
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("savings-chart");
@@ -468,6 +535,7 @@ window.CH = (() => {
     sub: "WHAT EXISTING SUPPLIERS CHARGE TO CLEAN IT UP — UNIT & AXIS TOGGLES BELOW (REMEMBERED UNTIL YOU CLOSE THE TAB) · HCSP REFERENCE: SELF-FUELING LOOP, COST MODEL PENDING — NO $/GAL ATTACHED · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
     src: "Research compilation — the report's cost-savings analysis (2026-09), all values previously sourced in the underlying research · " + CH.srcStr(["K150"]),
   });
+  body.insertBefore(CH.plainLine("What this shows: what existing suppliers charge per gallon to clean up each industry's waste stream, from most expensive to cheapest. HCSP's own price is not set yet — no cost model has been published."), body.firstChild);
   const GAL2M3 = 264.172; // 1 US gallon = 0.00378541 m³ → $/gal × 264.172 = $/m³
   let unit = "gal", axis = "log";
   try {
@@ -476,7 +544,7 @@ window.CH = (() => {
   } catch (e) {}
   const data = RPT.savings_ladder;
   const W = 880, rowH = 52, padT = 50, H = padT + rowH * data.length + 48;
-  const mL = 268, mR = 30;
+  const mL = 310, mR = 30;
 
   // ── unit / axis toggles (per-session only) ──
   const tg = document.createElement("div");
@@ -544,9 +612,9 @@ window.CH = (() => {
       .attr("transform", (d, i) => `translate(0,${padT + i * rowH})`);
 
     rows.append("text").attr("x", mL - 12).attr("y", 10).attr("text-anchor", "end")
-      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 12.5).attr("fill", "#051c2c")
-      .each(function (d) { CH.wrap2(d3.select(this), d.srank + ". " + d.vertical, 24); });
-    rows.append("text").attr("x", mL - 12).attr("y", 44).attr("text-anchor", "end")
+      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 11.5).attr("fill", "#051c2c")
+      .each(function (d) { CH.wrapN(d3.select(this), d.srank + ". " + d.vertical, 30, 2); });
+    rows.append("text").attr("x", mL - 12).attr("y", 47).attr("text-anchor", "end")
       .attr("font-family", CH.MONO).attr("font-size", 8.5)
       .attr("fill", d => {
         const c = compByKey[d.key]; if (!c) return "#42566a";

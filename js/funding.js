@@ -1,4 +1,4 @@
-// ═══ Funding: §8 landscape fate board · §9 grant register + access architecture · §10 pursuits + deadline wall ═══
+// ═══ Funding: §8 landscape fate board · §9 grant register + access architecture · §10 pursuits + deadline calendar ═══
 
 /* ────────────────────────────────────────────────────────────
    §8 · 2026 fate board — contracting climate-era money vs expanding PFAS pools
@@ -9,7 +9,7 @@
     const M = [
       { v: "$11.3B", neg: true, l: "DOE demonstration awards terminated (2025)", d: "24 awards (~$3.7B) from DOE's clean-energy demonstrations office terminated May 2025, ~$7.56B more across DOE offices in Oct 2025; the office itself was abolished in November.", src: ["K106"] },
       { v: "781", neg: true, l: "EPA environmental-justice grants terminated", d: "The July 2025 federal budget law cancelled unspent Inflation Reduction Act climate-justice money; the Office of Environmental Justice is closed. Dead money — never a fit for a for-profit vendor.", src: ["K105"] },
-      { v: "$37.33B", l: "Known addressable pools across the register", d: "Sum of disclosed award pools — grants, forgivable state loan-fund installments, federal WIFIA loan capacity, and settlement funds — across the 92-program register. Not exhaustive; loans and settlements included, and the international/NGO layer (programs G-081–G-092) adds channels rather than pooled dollars.", src: ["K149"] },
+      { v: "~$37B", l: "Identified funding pools across the register (sum of disclosed award amounts)", d: "Sum of disclosed award pools — grants, forgivable state loan-fund installments, federal water-infrastructure (WIFIA) loan capacity, and settlement funds — across the 92-program register. Not exhaustive; loans and settlements included, and the international/NGO layer (programs G-081–G-092) adds channels rather than pooled dollars.", src: ["K149"] },
       { v: "$12.75B+", l: "Settlement funds in flight to water systems", d: "3M $10.5–12.5B over 13 years (>$3.5B already paid) plus DuPont/Chemours/Corteva $1.185B, Tyco $750M, BASF $316.5M. Administrators pay utilities, not vendors — sell downstream of the checks.", src: ["K111"] },
     ];
     strip.innerHTML = M.map((m, i) => `<div class="m" data-i="${i}"><div class="v"${m.neg ? ' style="color:var(--neg)"' : ""}>${m.v}</div><div class="k">${m.l}</div></div>`).join("");
@@ -165,9 +165,12 @@
     if (CH.REDUCE) g.style("opacity", 1);
     else g.transition().delay(900 + i * 220).duration(400).style("opacity", 1);
   });
-  svg.append("text").attr("x", LX).attr("y", 452)
+  svg.append("text").attr("x", LX).attr("y", 446)
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo)
-    .text("FUNDED DEMONSTRATION → SERVICE LICENSE → HUB · PROPOSAL WRITTEN BY THE UTILITY");
+    .text("FUNDED DEMONSTRATION → SERVICE LICENSE → HUB");
+  svg.append("text").attr("x", LX).attr("y", 460)
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo)
+    .text("PROPOSAL WRITTEN BY THE UTILITY");
 })();
 
 /* ────────────────────────────────────────────────────────────
@@ -288,7 +291,7 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   §10 · The 12-month deadline wall (piecewise time scale, urgent flags)
+   §10 · The 12-month deadline calendar (piecewise time scale, urgent flags)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("fundwall-chart");
@@ -298,7 +301,7 @@
     sub: "WALL-CHART TIMELINE SEP 2026 – Q3 2027 · SOLID BLUE = HARD DEADLINE · INK = EXPECTED CYCLE · DASHED = PROGRAM STILL FORMING · MUTED RED, STRUCK = CLOSED (DEADLINE PASSED SEP 2026) · ⚑ = MISSING IT COSTS A FULL ANNUAL CYCLE · CLICK PLAQUES",
     src: "Industry & official — agency grant-notice pages, settlement administrators, state program bulletins · dates as published (K116–K132)",
   });
-  const W = 880, H = 472, axisY = 384;
+  const W = 880, H = 480, axisY = 384;
   // piecewise scale: Sep 2026–Feb 2027 expanded (deadline cluster), Mar–Sep 2027 compressed
   const x = v => v <= 2027.15 ? 56 + (v - 2026.6) / 0.55 * 560 : 616 + (v - 2027.15) / 0.65 * 208;
   const svg = CH.svg(body, W, H);
@@ -321,52 +324,81 @@
       .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(lab);
   });
 
-  // greedy plaque layering — width measured off both text lines (fonts are floored ≥12px rendered)
-  const layers = [];
-  const placed = RPT.funding_calendar.map(c => {
-    const dateStr = (c.closed ? "CLOSED · " : c.urgent ? "⚑ " : "") + c.date.toUpperCase();
-    const wpx = Math.max(96, dateStr.length * 10 + 16, c.label.length * 8.8 + 16);
-    const cx = U.clamp(x(c.y), 40 + wpx / 2, W - 16 - wpx / 2);
-    let li = 0;
-    for (;;) {
-      if (!layers[li] || cx - wpx / 2 > layers[li] + 10) { layers[li] = cx + wpx / 2; break; }
-      li++;
-    }
-    return { ...c, dateStr, wpx, cx, li };
-  });
-  const layerY = li => 322 - li * 38; // keeps every plaque below the NOW strip and inside the frame
+  // plaque layout — real measured widths (fonts floored ≥12px rendered), packed
+  // onto layers with a short horizontal lead allowed per plaque, so plaques never
+  // cover the NOW label row or leave the frame
   const stemG = svg.append("g"), plqG = svg.append("g");
-
-  placed.forEach((p, i) => {
-    const py = layerY(p.li), col = p.closed ? closedCol : clsCol[p.cls];
-    stemG.append("line").attr("x1", p.cx).attr("x2", p.cx).attr("y1", py + 22).attr("y2", axisY - 2)
-      .attr("stroke", col).attr("stroke-width", 0.9).attr("opacity", p.closed ? 0.35 : 0.55);
-    stemG.append("circle").attr("cx", p.cx).attr("cy", axisY).attr("r", p.cls === "hard" ? 3.4 : 2.6)
-      .attr("fill", p.closed ? "none" : col).attr("stroke", p.closed ? col : null).attr("stroke-width", p.closed ? 1.4 : null);
+  const plaques = RPT.funding_calendar.map((c, i) => {
+    const dateStr = (c.closed ? "CLOSED · " : c.urgent ? "⚑ " : "") + c.date.toUpperCase();
+    const col = c.closed ? closedCol : clsCol[c.cls];
+    const stem = stemG.append("line")
+      .attr("stroke", col).attr("stroke-width", 0.9).attr("opacity", c.closed ? 0.35 : 0.55);
+    const dot = stemG.append("circle").attr("cy", axisY).attr("r", c.cls === "hard" ? 3.4 : 2.6)
+      .attr("fill", c.closed ? "none" : col).attr("stroke", c.closed ? col : null).attr("stroke-width", c.closed ? 1.4 : null);
     const g = plqG.append("g").style("opacity", 0);
-    g.append("rect").attr("x", p.cx - p.wpx / 2).attr("y", py - 14).attr("width", p.wpx).attr("height", 38)
+    const rect = g.append("rect")
       .attr("rx", 2).attr("fill", "#fff").attr("stroke", col)
-      .attr("stroke-width", p.cls === "hard" && !p.closed ? 1.8 : 1.1)
-      .attr("stroke-dasharray", p.cls === "forming" ? "5 3" : p.closed ? "3 3" : null);
-    g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py - 2)
+      .attr("stroke-width", c.cls === "hard" && !c.closed ? 1.8 : 1.1)
+      .attr("stroke-dasharray", c.cls === "forming" ? "5 3" : c.closed ? "3 3" : null);
+    const t1 = g.append("text")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("font-weight", 700).attr("fill", col)
-      .text(p.dateStr);
-    g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py + 14)
-      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 10.5).attr("fill", p.closed ? inkLo : ink)
-      .attr("text-decoration", p.closed ? "line-through" : null).text(p.label);
+      .text(dateStr);
+    const t2 = g.append("text")
+      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 10.5).attr("fill", c.closed ? inkLo : ink)
+      .attr("text-decoration", c.closed ? "line-through" : null).text(c.label);
     CH.drill(g, () => ({
-      title: p.date.toUpperCase() + " · " + p.label.toUpperCase(),
-      value: p.closed ? "CLOSED — DEADLINE PASSED SEP 2026" : p.urgent ? "⚑ HARD DEADLINE — ANNUAL CYCLE" : p.cls === "hard" ? "HARD DEADLINE" : p.cls === "forming" ? "PROGRAM FORMING — ENGAGE NOW" : "EXPECTED CYCLE",
-      sub: p.ev, source: CH.srcLink(p.src),
+      title: c.date.toUpperCase() + " · " + c.label.toUpperCase(),
+      value: c.closed ? "CLOSED — DEADLINE PASSED SEP 2026" : c.urgent ? "⚑ HARD DEADLINE — ANNUAL CYCLE" : c.cls === "hard" ? "HARD DEADLINE" : c.cls === "forming" ? "PROGRAM FORMING — ENGAGE NOW" : "EXPECTED CYCLE",
+      sub: c.ev, source: CH.srcLink(c.src),
     }));
     if (CH.REDUCE) g.style("opacity", 1);
     else g.transition().delay(i * 100).duration(350).style("opacity", 1);
+    return { c, dateStr, col, stem, dot, g, rect, t1, t2 };
   });
+  const MAX_LAYER = 6, NUDGE = 96;
+  function layoutWall() {
+    if (!svg.node().isConnected) return;
+    CH.fitText();
+    const edges = [];
+    plaques.forEach(p => {
+      const wpx = Math.max(96, p.t1.node().getBBox().width + 16, p.t2.node().getBBox().width + 16);
+      const cx0 = x(p.c.y);
+      let best = null;
+      for (let li = 0; li <= MAX_LAYER; li++) {
+        const edge = edges[li] || 0;
+        const px = Math.max(40 + wpx / 2, edge + 10 + wpx / 2, Math.min(cx0, W - 16 - wpx / 2));
+        if (px - wpx / 2 >= edge + 10 - 0.01 && px + wpx / 2 <= W - 16 + 0.01 && Math.abs(px - cx0) <= NUDGE
+          && (!best || Math.abs(px - cx0) < Math.abs(best.px - cx0))) best = { li, px };
+      }
+      if (!best) best = { li: edges.length, px: U.clamp(cx0, 40 + wpx / 2, W - 16 - wpx / 2) };
+      edges[best.li] = best.px + wpx / 2;
+      const py = 322 - best.li * 42;
+      p.rect.attr("x", best.px - wpx / 2).attr("y", py - 16).attr("width", wpx).attr("height", 40);
+      p.t1.attr("x", best.px - wpx / 2 + 7).attr("y", py + 1);
+      p.t2.attr("x", best.px - wpx / 2 + 7).attr("y", py + 17);
+      p.stem.attr("x1", best.px).attr("x2", cx0).attr("y1", py + 24).attr("y2", axisY - 2);
+      p.dot.attr("cx", cx0);
+    });
+  }
+  layoutWall();
+  addEventListener("load", () => setTimeout(layoutWall, 80));
 
-  svg.append("text").attr("x", 56).attr("y", axisY + 44)
-    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("RECLAMATION GRANTS + NAVY RESEARCH CALL CLOSED SEP 2026 — ANNUAL CYCLES, TRACK FY2027");
-  svg.append("text").attr("x", 56).attr("y", axisY + 60)
-    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("FOLLOW THE Q4→Q3 STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
+  // bottom notes — measured-width wrap so a line can never run past the frame
+  function wallNote(txt, ny, maxW) {
+    const t = svg.append("text").attr("x", 56).attr("y", ny)
+      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo);
+    CH.fitText();
+    const fs = parseFloat(t.attr("font-size")) || 8.5;
+    const per = Math.max(12, Math.floor(maxW / (fs * 0.62)));
+    const lines = [""];
+    txt.split(" ").forEach(wd => {
+      const cand = (lines[lines.length - 1] + " " + wd).trim();
+      if (cand.length <= per) lines[lines.length - 1] = cand; else lines.push(wd);
+    });
+    t.text(lines[0]);
+    for (let i = 1; i < lines.length; i++) t.append("tspan").attr("x", 56).attr("dy", "1.5em").text(lines[i]);
+    return lines.length;
+  }
+  const n1 = wallNote("RECLAMATION GRANTS + NAVY RESEARCH CALL CLOSED SEP 2026 — ANNUAL CYCLES, TRACK FY2027", axisY + 38, W - 72);
+  wallNote("FOLLOW THE Q4→Q3 STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM", axisY + 38 + n1 * 14 + 8, W - 72);
 })();

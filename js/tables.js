@@ -105,11 +105,11 @@
   });
 })();
 
-/* ── v2 · backup-power storage comparison (§3B) ── */
+/* ── backup-power storage comparison (§3B) ── */
 (function () {
   const t = document.getElementById("storage-table");
   if (!t) return;
-  const roleCls = { niche: "", default: "hl", incumbent: "", excluded: "" };
+  const roleCls = { niche: "", default: "hl", "default today": "", incumbent: "", excluded: "" };
   t.innerHTML = `<thead><tr><th>Chemistry</th><th>Cycle life</th><th>Calendar life</th><th>Self-discharge</th><th>Round-trip</th><th>Cost $/kWh</th><th>Verdict for HCSP duty</th></tr></thead>` +
     "<tbody>" + RPT.storage.map((r, i) =>
       `<tr data-i="${i}" class="${roleCls[r.role]}"><td><b>${r.chem}</b></td><td style="font-size:12px">${r.cycles}</td><td style="font-size:12px">${r.calendar}</td><td class="num">${r.role === "niche" ? '<span class="vc-contra">' + r.selfdis + "</span>" : r.selfdis}</td><td class="num">${r.rte}</td><td class="num">${r.cost}</td><td style="font-size:12px">${r.verdict}</td></tr>`).join("") + "</tbody>";
@@ -126,7 +126,7 @@
   }
 })();
 
-/* ── v3 · dual-lens ranking (§3): composite attractiveness ⇄ what existing suppliers charge to clean it up $/gal ── */
+/* ── dual-lens ranking (§3): composite attractiveness ⇄ what existing suppliers charge to clean it up $/gal ── */
 (function () {
   const t = document.getElementById("league-lens-table");
   const tog = document.getElementById("lens-toggle");
@@ -150,7 +150,7 @@
     const rows = merged.slice().sort((a, b) => lens === "savings" ? a.s.srank - b.s.srank : a.c.rank - b.c.rank);
     const head = lens === "savings"
       ? `<thead><tr><th>#</th><th>Vertical / stream</th><th>Existing supplier cost $/gal</th><th>Composite rank</th><th>Basis</th></tr></thead>`
-      : `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Tier</th><th>Savings-lens rank</th><th>Net time to earn back the cost (pending)</th></tr></thead>`;
+      : `<thead><tr><th>#</th><th>Industry</th><th>Score /10</th><th>Fit</th><th>Savings-lens rank</th><th>Earn-back time</th></tr></thead>`;
     t.innerHTML = head + "<tbody>" + rows.map(m => {
       const s = m.s, c = m.c, i = merged.indexOf(m);
       if (lens === "savings") {
@@ -158,7 +158,7 @@
         const delta = s.na ? "—" : (dv > 0 ? "▲" + dv : dv < 0 ? "▼" + (-dv) : "=");
         return `<tr data-i="${i}" class="${s.srank <= 3 ? "hl" : ""}"><td class="num">${s.srank}</td><td><b>${s.vertical}</b></td><td class="num">${band(s)}</td><td class="num">#${c.rank} ${delta}</td><td style="font-size:12px;color:var(--ink-md)">${s.note}</td></tr>`;
       }
-      return `<tr data-i="${i}" class="${c.tier === 1 ? "hl" : ""}"><td class="num">${c.rank}</td><td><b>${c.name}</b></td><td class="num">${c.score}</td><td class="num">${c.tier}</td><td class="num">#${s.srank} · ${s.na ? "N/A" : band(s)}</td><td class="num">${c.payback}</td></tr>`;
+      return `<tr data-i="${i}" class="${c.tier === 1 ? "hl" : ""}"><td class="num">${c.rank}</td><td><b>${c.name}</b></td><td class="num">${c.score}</td><td>${RPT.league_fit[c.tier]}</td><td class="num">#${s.srank} · ${s.na ? "N/A" : band(s)}</td><td class="num">${c.payback}</td></tr>`;
     }).join("") + "</tbody>";
     t.querySelectorAll("tr[data-i]").forEach(tr => {
       const m = merged[+tr.dataset.i], s = m.s, c = m.c;
@@ -166,7 +166,7 @@
       tr.onclick = e => U.showDrill({
         title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase().slice(0, 40),
         value: s.na ? "N/A — buyer of the output" : band(s).replace(/<[^>]+>/g, "").replace("LOW CONFIDENCE", "(low confidence)") + " /gal",
-        sub: s.note + " Composite lens: #" + c.rank + " (" + c.score + "/10, Tier " + c.tier + "). " + c.why + " " + RPT.savings_meta.qualifier + ".",
+        sub: s.note + " Composite lens: #" + c.rank + " (" + c.score + "/10 — " + RPT.league_fit[c.tier] + "). " + c.why + " " + RPT.savings_meta.qualifier + ".",
         source: CH.srcLink(s.src.concat(c.src.filter(k => !s.src.includes(k))).concat(["K150"])),
         x: e.clientX, y: e.clientY,
       });

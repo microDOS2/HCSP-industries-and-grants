@@ -69,12 +69,12 @@
   const SG = RPT.scalegap;
   const body = U.frame(host, {
     title: "The scale gap: where each competitor's offering begins",
-    sub: "X = DEAL SIZE, $M, LOG SCALE · SOLID = EQUIPMENT A CUSTOMER CAN BUY · DASHED/HOLLOW = SERVICES & PILOTS, NOT SOLD UNITS · BLUE = SUB-$1M ZONE NO COMPETITOR SERVES · CLICK ANY LANE",
+    sub: "X = DEAL SIZE, $M, LOG SCALE · SOLID = EQUIPMENT A CUSTOMER CAN BUY · DASHED/HOLLOW = SERVICES & PILOTS, NOT SOLD UNITS · BLUE = SUB-$1M ZONE THE FOUR SCWO OPERATORS DON'T SERVE · CLICK ANY LANE",
     src: "Company primary + registry + synthesis — 374Water SEC filings & investor deck, General Atomics deck & EPA record, Danish company registry & Danish EPA grants, state take-back records (K151–K166)",
   });
 
-  const W = 1000, H = 452;
-  const L = 128, R = 26, TOP = 84, BOT = 40;
+  const W = 1000, H = 464;
+  const L = 128, R = 26, TOP = 84, BOT = 52;
   const lanes = SG.lanes;
   const laneH = (H - TOP - BOT) / lanes.length;
   const x = d3.scaleLog().domain(SG.domain).range([L, W - R]);
@@ -99,22 +99,35 @@
   const zoneLab = CH.halo(svg.append("text")
     .attr("x", (zx0 + zx1) / 2).attr("y", TOP - 34).attr("text-anchor", "middle")
     .attr("font-size", 11).attr("font-weight", 700).attr("fill", ACC)
-    .text("NO COMPETITOR SELLS HERE"), 3.5);
+    .text("NO SCWO COMPETITOR SELLS HERE"), 3.5);
   CH.drill(zoneLab, () => lanes.find(l => l.kind === "hcsp").drill && {
     ...lanes.find(l => l.kind === "hcsp").drill, source: CH.srcLink(lanes.find(l => l.kind === "hcsp").src),
   });
 
   // ── facility-size landmark labels + gridlines ──
   const landmarks = [
-    { v: 0.2, t: "SMALL FARM · FAB · REMOTE" },
-    { v: 1.8, t: "MID INDUSTRIAL PLANT" },
-    { v: 18, t: "MUNICIPAL UTILITY" },
-    { v: 70, t: "NATIONAL PROGRAM" },
+    { v: 0.2, t: "SMALL FARM · FAB · REMOTE", row: 0 },
+    { v: 1.8, t: "MID INDUSTRIAL PLANT", row: 0 },
+    { v: 18, t: "MUNICIPAL UTILITY", row: 0 },
+    { v: 70, t: "NATIONAL PROGRAM", row: 1 },
   ];
+  const lmEls = [];
   landmarks.forEach(m => {
-    CH.halo(svg.append("text").attr("x", x(m.v)).attr("y", TOP - 12)
-      .attr("text-anchor", "middle").attr("font-size", 9.5).attr("fill", INKLO).text(m.t), 3);
+    lmEls.push(CH.halo(svg.append("text").attr("x", x(m.v)).attr("y", TOP - 12 - m.row * 15)
+      .attr("text-anchor", "middle").attr("font-size", 9.5).attr("fill", INKLO).text(m.t), 3));
   });
+  const clampLm = () => {
+    if (!svg.node().isConnected) return;
+    CH.fitText();
+    lmEls.forEach(t => {
+      const bb = t.node().getBBox();
+      if (!bb.width) return;
+      if (bb.x < 2) t.attr("x", +t.attr("x") + (2 - bb.x));
+      else if (bb.x + bb.width > W - 2) t.attr("x", +t.attr("x") - (bb.x + bb.width - (W - 2)));
+    });
+  };
+  clampLm();
+  addEventListener("load", () => setTimeout(clampLm, 80));
   [0.1, 1, 10, 100].forEach(v => {
     svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", TOP - 6).attr("y2", H - BOT)
       .attr("stroke", v === 1 ? ACC : LINE).attr("stroke-dasharray", v === 1 ? "4 3" : "2 4")
@@ -124,7 +137,7 @@
       .attr("font-weight", v === 1 ? 700 : 400)
       .text(v === 0.1 ? "$0.1M" : v === 1 ? "$1M" : v === 10 ? "$10M" : "$100M");
   });
-  svg.append("text").attr("x", L).attr("y", H - 8).attr("font-size", 9).attr("fill", INKLO)
+  svg.append("text").attr("x", L).attr("y", H - 4).attr("font-size", 9).attr("fill", INKLO)
     .text("DEAL SIZE ($M, LOG) — READ AGAINST FACILITY SIZE ABOVE");
 
   // ── lanes ──
@@ -149,8 +162,9 @@
         .attr("stroke", INKLO).attr("stroke-width", barH * 0.55).attr("stroke-dasharray", "3 4")
         .attr("stroke-linecap", "butt").attr("opacity", 0.85);
       drill(g);
-      const gl = CH.halo(svg.append("text").attr("x", (gx0 + gx1) / 2).attr("y", cy + barH / 2 + 15)
-        .attr("text-anchor", "middle").attr("font-size", 9.5).attr("fill", INKLO).text(ln.ghost.lab), 3);
+      // label sits left of the ghost span, clear of the bar's $ value labels
+      const gl = CH.halo(svg.append("text").attr("x", gx0 - 8).attr("y", cy + barH / 2 + 15)
+        .attr("text-anchor", "end").attr("font-size", 9.5).attr("fill", INKLO).text(ln.ghost.lab), 3);
       drill(gl);
       svg.append("circle").attr("cx", gx0).attr("cy", cy).attr("r", 3).attr("fill", INKLO);
     }

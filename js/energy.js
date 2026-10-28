@@ -86,7 +86,7 @@
       <g>
         <rect x="290" y="118" width="240" height="120" rx="6" fill="#ffffff" stroke="${PAL.red}" stroke-width="2.4"/>
         <text class="es-svg-lab" x="306" y="142" fill="${PAL.red}">HCSP PLANT</text>
-        ${wrapSvg("Runs 24/7 — a firm heat source no competitor sells", 306, 164, 30, 16, "es-svg-val")}
+        ${wrapSvg("Runs 24/7 — a firm heat source none of the four SCWO rivals sells", 306, 164, 30, 16, "es-svg-val")}
       </g>
       ${outBox(20, "POWER OUT", d.power, PAL.red)}
       ${outBox(136, "COOLING OUT", d.cooling, PAL.red)}
