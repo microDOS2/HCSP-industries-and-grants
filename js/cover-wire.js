@@ -208,7 +208,30 @@
   let initial = alias[q] || q;
   if (!initial) { try { initial = localStorage.getItem("hcsp-cover"); } catch (e) {} }
   if (!["a", "b", "c", "d"].includes(initial)) initial = "a";
-  setMode(initial);
+
+  // ── SHOW/HIDE ANIMATION toggle: art is opt-in; nothing animates until pressed ──
+  let artOn = false;
+  const artBtn = document.getElementById("art-toggle");
+  function stopAll() {
+    Object.entries(modes).forEach(([key, cv]) => { cv.style.display = "none"; });
+    try { COVER_A.setActive(false); COVER_X.setActive(false); } catch (e) {}
+    active = false; cancelAnimationFrame(raf);
+  }
+  function setArt(on) {
+    artOn = on;
+    if (artBtn) {
+      artBtn.setAttribute("aria-pressed", artOn ? "true" : "false");
+      artBtn.textContent = artOn ? "HIDE ANIMATION" : "SHOW ANIMATION";
+    }
+    if (artOn) { cur = initial; setMode(cur); }
+    else stopAll();
+  }
+  if (artBtn) artBtn.addEventListener("click", () => {
+    setArt(!artOn);
+    if (artOn) document.getElementById("cover").scrollIntoView({ behavior: "smooth" });
+  });
+  if (q || new URLSearchParams(location.search).get("art") === "on") setArt(true);
+  else stopAll();
 
   // chips: smooth scroll
   document.querySelectorAll("[data-goto]").forEach(b => {
