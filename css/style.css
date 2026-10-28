@@ -631,3 +631,6 @@ tr.bad .t15-rank { color: var(--ink-lo); }
 .art-toggle:hover { border-color: var(--ink, #051c2c); color: var(--ink, #051c2c); }
 .art-toggle[aria-pressed="true"] { border-color: var(--blue, #2251ff); color: var(--blue, #2251ff); }
 @media (max-width: 900px) { .art-toggle { top: auto; bottom: 14px; right: 14px; font-size: 10px; padding: 7px 14px; } }
+
+/* Kill all floating cover artwork and its controls (owner directive: too distracting) */
+#cover-canvas, #cover-canvas-x, #cover-canvas-w, .cover-mode, .art-toggle { display: none !important; }

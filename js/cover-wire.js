@@ -208,7 +208,10 @@
   let initial = alias[q] || q;
   if (!initial) { try { initial = localStorage.getItem("hcsp-cover"); } catch (e) {} }
   if (!["a", "b", "c", "d"].includes(initial)) initial = "a";
-  setMode(initial);   // cover art runs by default, A/B/C/D buttons visible
+  // Cover artwork disabled by owner request — no animation, no background images
+  Object.entries(modes).forEach(([key, cv]) => { cv.style.display = "none"; });
+  try { COVER_A.setActive(false); COVER_X.setActive(false); } catch (e) {}
+  active = false; cancelAnimationFrame(raf);
 
   // chips: smooth scroll
   document.querySelectorAll("[data-goto]").forEach(b => {
