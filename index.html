@@ -3,49 +3,86 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>HCSP Cross-Industry Value &amp; Financial Impact Analysis — Interactive Research Edition</title>
-<meta name="description" content="Where a modular supercritical water oxidation system delivers the most value: industry ranking, unit economics, and go-to-market strategy.">
+<title>Market Analysis — HCSP Cross-Industry Value &amp; Financial Impact Analysis</title>
+<meta name="description" content="Where a modular supercritical water oxidation system delivers the most value: industry ranking, cost per unit, and go-to-market strategy.">
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ═══ Cover · four-state engine (A recursion / B exploded / C blueprint / D unboxing) ═══ -->
+<!-- ═══ Shared shell · sticky top nav ═══ -->
+<nav id="topnav" aria-label="Site">
+  <a class="tn-brand" href="index.html">HCSP<span> · </span>REPORT</a>
+  <div class="tn-links">
+    <a href="index.html">Market Analysis</a>
+    <a href="competitors.html">Competitive Intelligence</a>
+    <a href="funding.html">Funding &amp; Grants</a>
+  </div>
+  <div class="tn-right">
+    <button class="art-toggle" id="art-toggle" type="button" aria-pressed="false">SHOW ANIMATION</button>
+    <button id="reader-toggle" type="button" aria-pressed="false">READING&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
+    <button id="tn-burger" type="button" aria-expanded="false" aria-label="Toggle navigation">☰</button>
+  </div>
+</nav>
+
+<!-- ═══ Cover · text on a solid paper panel; skid art confined to a faded backdrop stage ═══ -->
 <header id="cover">
-  <canvas id="cover-canvas" style="display:none"></canvas>
-  <canvas id="cover-canvas-x" style="display:none"></canvas>
-  <canvas id="cover-canvas-w" style="display:none"></canvas>
+  <div class="cover-stage" aria-hidden="true">
+    <canvas id="cover-canvas"></canvas>
+    <canvas id="cover-canvas-x" style="display:none"></canvas>
+    <canvas id="cover-canvas-w" style="display:none"></canvas>
+  </div>
   <div class="cover-inner">
-    <p class="cover-kicker">Cross-industry value &amp; financial impact · Part III: non-dilutive funding · compiled September 2026</p>
+    <div class="cover-panel">
+    <p class="cover-kicker">Cross-industry value &amp; financial impact · Part III: funding that gives up no ownership · compiled September 2026</p>
     <h1 class="cover-title">HCSP Cross-Industry Value<br>&amp; <span class="cover-num">Financial Impact Analysis</span></h1>
-    <p class="cover-sub">A destruction business, not a water business — where a supercritical water oxidation skid actually pays, now including the non-dilutive funding layer</p>
-    <p class="cover-lede">The HCSP is a containerized supercritical water oxidation module: it mineralizes concentrated hazardous
+    <p class="cover-sub">A destruction business, not a water business — where a supercritical water oxidation (SCWO) skid — a factory-built unit that arrives on a steel frame, ready to bolt down — actually pays, now including the funding layer — grants and awards that give up no ownership. SCWO is a way of destroying waste with very hot, high-pressure water.</p>
+    <p class="cover-lede">The HCSP is a containerized SCWO module: it completely breaks down concentrated hazardous
       streams at 380–420 °C and 250 bar, and its byproduct happens to be distilled water. Scored across fifteen candidate
-      industries, value concentrates where customers pay $5–28 per gallon to make a regulated liability disappear — PFAS
-      destruction, defense, India's zero-liquid-discharge clusters, and v2's standout entrant, distillery vinasse — while
+      industries, value concentrates where customers pay $5–28 per gallon to make a regulated liability disappear —
+      destruction of PFAS "forever chemicals", defense, India's zero-liquid-discharge clusters, and v2's standout
+      entrant, distillery vinasse — while
       the briefing's anchor market, indoor agriculture, ranks twelfth of fifteen. Two organizing facts: a self-fueling
       hydrogen loop — fuel generated on demand from process water, negligible net energy cost once started — with
       energy export on concentrated feeds. Part III adds the funding layer: a 92-program grant register, a ranked
       Top-15 pursuit board, and a 12-month deadline wall across $37.33B of known pools — with rolling federal
       cycles through 2027.</p>
+    <nav class="page-links" aria-label="Report sections">
+      <a class="page-link" href="#sec-exec">
+        <span class="pl-no">Page 1 · This page</span>
+        <span class="pl-name">Market Analysis</span>
+        <span class="pl-desc">Key findings, the machine, the economics, scale &amp; energy, the energy advantage, the verdict, appendix</span>
+        <span class="pl-go">READ ↓</span>
+      </a>
+      <a class="page-link" href="competitors.html">
+        <span class="pl-no">Page 2</span>
+        <span class="pl-name">Competitive Intelligence</span>
+        <span class="pl-desc">The field, four survivor profiles, the cross-company matrix, the scale gap</span>
+        <span class="pl-go">OPEN →</span>
+      </a>
+      <a class="page-link" href="funding.html">
+        <span class="pl-no">Page 3</span>
+        <span class="pl-name">Funding &amp; Grants</span>
+        <span class="pl-desc">Funding landscape, the 92-program register, Top-15 pursuits, deadline wall</span>
+        <span class="pl-go">OPEN →</span>
+      </a>
+    </nav>
     <div class="cover-chips">
       <button class="chip" data-goto="#sec-exec">Key findings</button>
       <button class="chip" data-goto="#sec-mech">The machine</button>
       <button class="chip" data-goto="#sec-state">The economics</button>
       <button class="chip" data-goto="#sec-scale">Scale &amp; energy</button>
-      <button class="chip" data-goto="#sec-players">The field</button>
-      <button class="chip" data-goto="#sec-deepdive">§4B The field, up close</button>
+      <button class="chip" data-goto="#sec-energy">The energy advantage</button>
       <button class="chip" data-goto="#sec-verdict">The verdict</button>
-      <button class="chip" data-goto="#sec-funding">§8 Funding landscape</button>
-      <button class="chip" data-goto="#sec-register">§9 The grant register</button>
-      <button class="chip" data-goto="#sec-pursuits">§10 Top-15 pursuits</button>
+      <button class="chip" data-goto="#sec-appendix">Appendix</button>
     </div>
     <p class="cover-anchor">Evidence graded: company primary &gt; industry &amp; official &gt; broker relay &gt; derived [flagged] · No ratings, no price targets</p>
-    <div class="cover-mode" id="cover-mode" aria-label="Cover artwork variant" style="display:none">
+    <div class="cover-mode" id="cover-mode" aria-label="Cover artwork variant">
       <button data-mode="a" class="on">A · The array</button>
       <button data-mode="b">B · The exploded skid</button>
       <button data-mode="c">C · The blueprint</button>
       <button data-mode="d">D · The unboxing</button>
+    </div>
     </div>
     <div class="scroll-hint"><span></span>SCROLL</div>
   </div>
@@ -58,38 +95,41 @@
   <div class="prose">
     <p class="sec-no">§0 · Executive summary</p>
     <h2>Buyers pay to eliminate liability, not to buy water</h2>
-    <p class="dek">HCSP — a modular, 10 m³/day supercritical water oxidation system — is a destruction business whose
+    <p class="dek">HCSP — a modular, 10 m³/day SCWO system (10 cubic meters of waste per day, about 2,640 gallons) — is a destruction business whose
       byproduct happens to be distilled water, and the industries that gain the most from it are those that pay the most
       to make a regulated liability disappear.</p>
     <p>Scored on six criteria across fifteen candidate industries, the ranking is led by PFAS destruction and landfill
-      leachate (<b>8.0/10</b>), defense, maritime and remote installations (<b>7.5</b>), and India's zero-liquid-discharge
-      textile clusters (<b>7.4</b>) — with distillery and ethanol vinasse the standout v2 entrant at <b>7.0</b> — while
+      leachate — the contaminated liquid that drains out of landfills — (<b>8.0/10</b>), defense, maritime and remote installations (<b>7.5</b>), and India's zero-liquid-discharge
+      textile clusters (factories that may not let any wastewater leave the site) (<b>7.4</b>) — with distillery and ethanol vinasse the standout v2 entrant at <b>7.0</b> — while
       indoor agriculture, the anchor market of the originating technical briefing, scores only <b>4.2</b>, twelfth of
       fifteen. The organizing fact is the energy model: per the manufacturer briefing, the HCSP is <b>self-fueling once
       started</b> — it generates hydrogen fuel on demand from a portion of the process water (electrolysis → clean
-      H₂/O₂ combustion → SCWO heat), so net operating energy cost is negligible, and a working prototype exists. The
+      H₂/O₂ combustion → reactor heat), so net operating energy cost is negligible, and a working prototype exists. The
       economics therefore turn not on buying energy but on what the outputs are worth — and recovered water earns only
       <b>~$3.5/m³</b>. No water sale can carry the business; only destruction-priced streams can.</p>
     <p>HCSP's energy cost — negligible in operation per the manufacturer (self-fueling loop; grid power covers only the
-      75–95 kW startup/auxiliary spec) — sits far below incumbent
-      destruction pricing — $5–10/gal for PFAS incineration, up to $28/gal for hazardous landfilling of firefighting
+      75–95 kW startup/auxiliary spec) — sits far below what existing suppliers
+      charge for destruction — $5–10/gal for PFAS incineration, up to $28/gal for hazardous landfilling of firefighting
       foam, $15–50+/gal for
-      halogenated solvents. Consolidated serviceable demand across viable verticals is <b>~$9–20B per year</b> — roughly
-      double the v1 reading once distillery, CAFO, island, and mining pools are added — with the widest gross
-      addressable savings on halogenated solvents and PFAS concentrates (net payback pending the manufacturer cost
+      halogenated solvents. Reachable demand across the viable industries adds up to <b>~$9–20B per year</b> — roughly
+      double the v1 reading once distillery, CAFO, island, and mining pools are added — with the widest
+      savings before our costs are known on halogenated solvents and PFAS concentrates (time to earn back the cost is
+      pending the manufacturer cost
       model; HCSP has no published cost benchmark). And v2 adds a second organizing fact: past
-      ~35–40 g/L COD and hub scale, the energy line inverts — the self-fueling plant starts exporting power. Both
+      ~35–40 g/L COD — COD measures how much organic waste is in the water — and hub scale, the energy line inverts:
+      the self-fueling plant starts exporting power. Both
       facts are contingent on third-party publication of prototype long-run data on salty feeds. Salt deposition is
       the documented failure mode of conventional SCWO designs — one HCSP answers by design, combusting hydrogen above
       3,000 °F directly in the reactor so deposition never starts; the manufacturer reports no salt issues, and the
       residual item is a constructive validation agenda, not a red flag.</p>
-    <p>The v3 addendum re-ranks the same fifteen industries through a <b>cost-savings lens</b> — incumbent remediation
-      cost per gallon against HCSP's negligible net energy cost (manufacturer-stated, self-fueling loop — no $/gal
+    <p>The v3 addendum re-ranks the same fifteen industries through a <b>cost-savings lens</b> — what existing
+      suppliers charge per gallon to clean up or dispose of the waste, set against HCSP's negligible net energy cost
+      (manufacturer-stated, self-fueling loop — no $/gal
       figure is attached to HCSP while its cost model is pending), the primary framing while
-      manufacturer pricing remains TBD. Under that lens the ladder is led by <b>halogenated solvents at $15–50+/gal</b> and defense AFFF at
+      manufacturer pricing remains TBD. Under that lens the ladder is led by <b>halogenated solvents at $15–50+/gal</b> and defense firefighting foam (AFFF) at
       $5–28/gal; <b>PFAS concentrates hold top-3 under both lenses</b> — the report's most robust finding — and the
-      CEA hauling-captive niche jumps from #12 to #6. The same lens demotes distillery vinasse and textiles: their
-      incumbents cost ~1¢/gal, so they are regulation-and-energy plays, not savings plays. The qualifier that travels
+      indoor-farming niche that has no choice but to haul its waste away jumps from #12 to #6. The same lens demotes distillery vinasse and textiles: their
+      existing disposal routes cost ~1¢/gal, so they are regulation-and-energy plays, not savings plays. The qualifier that travels
       with every savings figure: margin × volume = pool.</p>
   </div>
 
@@ -98,20 +138,20 @@
   <div class="prose">
     <blockquote class="quote-card">
       <p class="q-text">The top of the ranking is not a technology verdict but an economics verdict: every Tier 1 and
-        Tier 2 market pairs a concentrated feed with an incumbent disposal price one to two orders of magnitude above
+        Tier 2 market pairs a concentrated feed with an existing disposal price ten to a hundred times higher than
         HCSP's negligible net energy cost (self-fueling loop; manufacturer cost model pending — no $/gal attached).</p>
-      <p class="q-who">— <b>Report v2, Chapter 3</b>, cross-industry league table</p>
+      <p class="q-who">— <b>Report v2, Chapter 3</b>, cross-industry ranking</p>
       <div class="q-why"><span class="q-lab">Context</span> Fifteen industries scored on six criteria; ranges indicate documented uncertainty.
-        <span class="q-lab why">Why it matters</span> The league table orders attractiveness, not order of entry — the top eight scores compress into a narrow 6.6–8.0 band, so go-to-market sequencing follows sales-cycle friction, evidence maturity, and feed access instead. Below 4.5 the cliff is physics: four v2 tail markets (CEA, CAFO, mining, data centers) fail the feed screen outright.</div>
+        <span class="q-lab why">Why it matters</span> The ranking orders attractiveness, not order of entry — the top eight scores compress into a narrow 6.6–8.0 band, so the order of attack is set instead by how fast each market buys, how much proof exists, and how easy the feed is to reach. Below 4.5 the cliff is physics: four v2 tail markets (indoor farming, factory farms, mining, data centers) fail the feed-strength test outright.</div>
     </blockquote>
     <p>Three risks discipline the opportunity. <b>First-mover fragility</b>: the field's listed leader, 374Water,
-      reported FY2025 revenue of just $215,037 against a $21.0M net loss with going-concern financing language — SCWO
+      reported FY2025 revenue of just $215,037 against a $21.0M net loss, and its auditors warn it may run out of money — SCWO
       commercialization has a 30-year graveyard built on corrosion and salt plugging in conventional preheater
       designs — a history HCSP answers by design, with &gt;3,000 °F in-reactor hydrogen combustion that prevents salt
       deposition (the manufacturer reports no salt issues), leaving published prototype long-run data as the
       credibility item. <b>Regulatory lag and reversal</b>: EPA's April 2026 interim guidance still classes SCWO as "commercially
       unproven at scale" even as commercial units operate, and the Environmental Business Journal cut its 30-year PFAS
-      market estimate 43%, from $230B to $132B, on federal deregulation. <b>Incumbent re-entry</b>: DoD lifted its PFAS
+      market estimate 43%, from $230B to $132B, on federal deregulation. <b>Existing suppliers fight back</b>: the US Department of Defense lifted its PFAS
       incineration moratorium in early 2026, re-opening the competing pathway. None of these kills demand; each argues
       for the staged, evidence-first entry this report prescribes.</p>
   </div>
@@ -130,14 +170,14 @@
     <div class="term-mag">
       <article class="term" tabindex="0">
         <h3 class="t-abbr">60–150 g/L</h3>
-        <p class="t-full">The autothermal threshold</p>
-        <p class="t-gist">Above ~120–150 g/L COD the reaction heats itself; below it, SCWO is an energy sink.</p>
-        <div class="t-more"><p>Oxidizing organics releases heat. If the feed carries enough chemical energy — roughly
-          ≥2 MJ/kg, equivalent to ~120–150 g/L COD — SCWO approaches autothermal operation; below that threshold the
+        <p class="t-full">The point where the waste heats itself</p>
+        <p class="t-gist">Above ~120–150 g/L COD the reaction makes its own heat from the waste; below it, SCWO is an energy sink.</p>
+        <div class="t-more"><p>Burning organic waste in supercritical water releases heat. If the feed carries enough chemical energy — roughly
+          ≥2 MJ/kg, equivalent to ~120–150 g/L COD — the system makes its own heat from the waste; below that threshold the
           preheat duty falls on the machine's self-fueling hydrogen loop rather than the feed itself. The v2 LANL
-          modeling refines the picture into a crossover
-          (§3B): with heat recovery and a power cycle, net electricity crosses zero near ~35–40 g/L COD, meaningful
-          export begins above ~60 g/L, and at 150 g/L the plant exports ~60 kWhₑ per cubic meter. This one variable
+          modeling refines the picture into a crossover point
+          (§3B): with heat recovery and a power cycle, net electricity crosses zero near ~35–40 g/L COD — the point where the system powers itself — meaningful
+          export begins above ~60 g/L, and at 150 g/L the plant exports ~60 kilowatt-hours of electricity per cubic meter (kWhₑ/m³). This one variable
           predicts success or failure in every market examined — concentrated streams clear it directly or via an
           upstream separator; dilute streams sit 10–100× below it. The natural product form is therefore a
           concentrate-and-destroy train, not direct purification of dilute wastewater.</p></div>
@@ -146,9 +186,10 @@
       <article class="term" tabindex="0">
         <h3 class="t-abbr">No air permit</h3>
         <p class="t-full">The hidden economic moat</p>
-        <p class="t-gist">A sealed system emitting water vapor bypasses a permitting wall that incumbents cannot.</p>
-        <div class="t-more"><p>US hazardous-waste incineration is capacity-constrained: roughly 24 permitted RCRA
-          combustors running at 88–92% utilization, one new unit permitted in three decades, and sustained 5–7%/yr price
+        <p class="t-gist">A sealed system emitting water vapor bypasses a permitting wall that existing suppliers cannot.</p>
+        <div class="t-more"><p>US hazardous-waste incineration is capacity-constrained: roughly 24 licensed
+          hazardous-waste incinerators (RCRA combustors) running at 88–92% utilization, one new unit permitted in three
+          decades, and sustained 5–7%/yr price
           escalation. The sealed design — the only gaseous stream is vented excess oxygen — requires no air permit, a
           structural cost and schedule advantage over every thermal-destruction asset that must run a multi-year
           permitting gauntlet. Quantifying permitting time-to-operation is part of every sale.</p></div>
@@ -158,8 +199,8 @@
         <h3 class="t-abbr">Self-fueling</h3>
         <p class="t-full">The on-demand hydrogen fuel loop</p>
         <p class="t-gist">Once started, the machine generates its own fuel from process water — negligible net energy cost in operation.</p>
-        <div class="t-more"><p>The briefing powers the reactor by electrolyzing a portion of the process water on demand
-          and combusting the resulting clean H₂/O₂ for SCWO process heat — a self-fueling loop: fuel is generated as
+        <div class="t-more"><p>The briefing powers the reactor by using electricity to split a portion of the process
+          water on demand, then burning the resulting clean hydrogen and oxygen to heat the reactor — a self-fueling loop: fuel is generated as
           needed, never purchased or stored in bulk, and net energy cost in operation is negligible once started. A
           working prototype exists. Grid electricity remains relevant only to the startup/auxiliary draw (75–95 kW spec),
           and the energy analysis in this report concerns the value of exported energy on concentrated feeds — not an
@@ -174,14 +215,15 @@
       California State Water Resources Control Board in August 2025, initially positioned for indoor-agriculture
       wastewater. Every row below traces to that briefing <span id="spec-src"></span>; the analyst notes are this
       report's.</p>
-    <table class="dt" id="spec-table"></table>
+    <div class="table-scroll"><table class="dt" id="spec-table"></table></div>
     <div class="note-box">
       <p><b>The chemistry is settled science.</b> SCWO holds the strongest third-party destruction record of any
-        emerging PFAS technology: 99.9993% destruction-and-removal efficiency on firefighting foam in a US Army Corps of
-        Engineers ERDC evaluation, &gt;99.9% across four concentrated streams in a DIU/ESTCP demonstration, and
-        &gt;99.9999% on chemical-weapons hydrolysate over ~5,800 NRC-reviewed operating hours. Nothing in this report's
-        risk assessment questions destruction efficacy — the risks lie entirely in reliability engineering and energy
-        economics.</p>
+        emerging PFAS technology: 99.9993% of the chemical destroyed and removed from firefighting foam in a US Army Corps of
+        Engineers lab evaluation, &gt;99.9% across four concentrated streams in a US defense research demonstration, and
+        &gt;99.9999% on the liquid left over from neutralized chemical weapons over ~5,800 operating hours reviewed by the US National Research Council.
+        Nothing in this report's
+        risk assessment questions how well destruction works — the risks lie entirely in reliability engineering and
+        energy economics.</p>
     </div>
   </div>
 </section>
@@ -191,15 +233,18 @@
   <div class="prose">
     <p class="sec-no">§2 · The machine</p>
     <h2>One skid, four stages, past the critical point</h2>
-    <p class="dek">Pressurize to 250 bar, heat past 374 °C, and water becomes a single-phase fluid in which organics and
-      oxygen are fully miscible — and oxidize completely in seconds to minutes. What leaves is distilled water, carbon
-      dioxide, and a contained, inert sludge.</p>
-    <p>Per the briefing, the machine runs four stages: <b>electrolysis</b> of a portion of the process water on demand →
-      <b>combustion</b> of the clean H₂/O₂ so generated, supplying process heat → <b>supercritical water oxidation</b> of
+    <p class="dek">Pressurize to 250 bar, heat past 374 °C, and water enters a state where it is neither liquid nor gas.
+      In that state, organic waste and oxygen mix completely — and the waste burns up entirely in seconds to minutes.
+      What leaves is distilled water, carbon dioxide, and a contained, harmless sludge.</p>
+    <p>Per the briefing, the machine runs four stages: <b>splitting</b> a portion of the process water into hydrogen and
+      oxygen on demand →
+      <b>combustion</b> of the clean hydrogen and oxygen so generated, supplying process heat → <b>supercritical water oxidation</b> of
       the feed → <b>separation</b> into distilled water, CO₂, and inert sludge. Once started, the fuel loop is
       self-fueling — hydrogen is generated on demand from the process water itself, at negligible net energy cost — and a
-      working prototype exists. SCWO does not concentrate, adsorb, or transfer pollutants — it mineralizes them. Above
-      the critical point, carbon-hydrogen-oxygen organics oxidize to carbon dioxide and water; heteroatoms emerge as
+      working prototype exists. SCWO does not concentrate, soak up, or move pollutants elsewhere — it destroys them
+      completely. Above
+      the critical point, carbon-hydrogen-oxygen waste burns down to carbon dioxide and water; other atoms, such as
+      chlorine or nitrogen, come out as
       inorganic acids or salts; nothing combustible remains. The chart below draws the process the way an engineer would:
       as a path through the pressure–temperature plane, crossing the critical point into the supercritical region where
       the reactor operates — with the self-fueling hydrogen loop annotated where it attaches.</p>
@@ -207,18 +252,42 @@
   <div class="wide xl"><div id="mechanism-chart" class="chart-frame"></div></div>
   <div class="prose">
     <p>The second physical constraint is materials. Salts soluble in feed water become nearly insoluble in supercritical
-      water, precipitating on reactor walls and causing plugging, heat-transfer loss, and under-deposit corrosion; the
+      water, precipitating on reactor walls and causing plugging, heat-transfer loss, and corrosion under the deposits; the
       2019–2024 literature consensus is that an economical salt-management solution has not yet been found for
       conventional preheater designs. The casualty
       list — HydroProcessing, Chematur's AquaCat, Hanwha, Innoveox, the Blue Grass program — is why feed screening is
-      mandatory, and why the field's history is told in §4 as a flow of fates, not a list of vendors.</p>
+      mandatory, and why the field's history is told in §4 as who survived and who failed, not a list of vendors.</p>
     <p>HCSP's design answer is to attack the deposition mechanism directly: instead of preheating the feed ahead of
       the reactor, it combusts hydrogen — generated on demand from the process water itself — at above <b>3,000 °F
       (≈1,650 °C)</b> inside the reactor, so the walls never see the cold, salt-dropping zone that plugged the
       historical plants. The manufacturer reports <b>no salt issues</b>, and the approach has research footing:
-      in-reactor hydrothermal flames are a documented salt-management strategy in the published SCWO literature.
+      flames burning inside hot pressurized water are a documented salt-management strategy in the published SCWO literature.
       What remains is constructive, not cautionary: third-party publication of prototype long-run data on salty feeds —
-      the validation agenda item that converts a manufacturer-stated design answer into bankable evidence.</p>
+      the validation agenda item that converts a manufacturer-stated design answer into evidence banks and investors will accept.</p>
+  </div>
+</section>
+
+<!-- ═══ §2B Inside the HCSP — interactive 3D skid ═══ -->
+<section id="sec-inside" class="band" data-win="mech">
+  <div class="prose">
+    <p class="sec-no">§2B · Inside the HCSP — the skid in three dimensions</p>
+    <h2>Open the skid and look inside.</h2>
+    <p class="dek">A stylized but faithful walk around the 10&nbsp;m³/day module — orbit it, pull it apart, and click any
+      component for its role and its numbers. Everything here is the same hardware the "how it works" chart describes;
+      nothing is a rendering of claims the report does not make.</p>
+  </div>
+  <div class="wide xl">
+    <div class="skid3d-wrap" id="skid3d">
+      <canvas class="skid3d-stage" id="skid3d-canvas" aria-label="Interactive 3D model of the HCSP skid"></canvas>
+      <div class="skid3d-ui"><button type="button" id="skid3d-explode">EXPLODE ⇕</button></div>
+      <p class="skid3d-hint">DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT</p>
+    </div>
+  </div>
+  <div class="prose">
+    <p>The train reads left to right: the feed pump pressurizes, the electrolyzer makes the fuel, the combustor turns it
+      into preheat, the reactor destroys the waste completely, and the separator hands back distilled water and a contained
+      sludge. On concentrated feeds, the surplus heat the preheat loop does not reclaim is what the economics section
+      turns into power and cooling.</p>
   </div>
 </section>
 
@@ -229,78 +298,80 @@
     <h2>Grid-price context, pricing umbrella, savings cliff</h2>
     <p class="dek">The investment case rests on one sentence: it is a waste-destruction business whose economics are set
       by disposal prices, not water prices.</p>
-    <p>Geography moves HCSP's economics through exactly two variables: the local disposal baseline it displaces, and the
+    <p>Geography moves HCSP's economics through exactly two variables: the local disposal price it replaces, and the
       local grid power price — which prices the startup/auxiliary draw and sets the value of every exported kWh. Because
       the HCSP is self-fueling once started (per the manufacturer briefing), these prices are <b>context, not an
       operating-cost floor</b>: the same 75–95 kW startup/auxiliary spec reads as $10.8/m³-equivalent in Saudi Arabia or
       Texas and $55.7/m³-equivalent in Germany — a 5× swing in what auxiliary power costs and exported energy earns.
       Grid price also benchmarks the byproduct: the ~$3.5/m³ recovered-water value confirms water sales alone cannot
       carry the business — destruction pricing and energy export do.</p>
-    <p>v3 adds a second ranking alongside the composite league table. Because manufacturer HCSP pricing is still TBD at
-      this early phase, the primary unit-economics framing is the <b>savings lens</b>: rank each vertical by what
-      incumbents charge per gallon to remediate or dispose of the target stream — the savings pool HCSP can capture —
+    <p>v3 adds a second ranking alongside the composite ranking. Because manufacturer HCSP pricing is still TBD at
+      this early phase, the primary way we frame cost per unit of waste treated is the <b>savings lens</b>: rank each industry by what
+      existing suppliers charge per gallon to clean up or dispose of the target stream — the savings pool HCSP can capture —
       against the machine's negligible manufacturer-stated net energy cost (self-fueling loop; no $/gal is attached to
-      HCSP — cost model pending). Every bar below is the documented incumbent price
+      HCSP — cost model pending). Every bar below is the documented existing-supplier price
       range for that stream; click any bar for the value, its basis, and the dated source.</p>
   </div>
   <div class="wide xl"><div id="savings-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="savings-calculator"></div></div>
   <div class="prose">
     <div class="note-box">
       <p><b>Two lenses, two questions.</b> The savings lens asks <i>where is the margin umbrella?</i>; the composite
         lens asks <i>where do all forces align?</i> They answer different questions, and the honest consequences run
-        both ways: the savings lens elevates chemical/hazmat to #1, defense AFFF to #2, and the CEA hauling-captive
-        niche from #12 to #6 — while it demotes distillery vinasse and textiles, whose composite strength is regulatory
-        compulsion plus energy export, not $/gal savings (their incumbents cost ~1¢/gal). PFAS concentrates remain
+        both ways: the savings lens elevates chemicals and hazardous materials to #1, defense firefighting foam to #2, and the
+        indoor-farming niche (whose waste must be hauled away) from #12 to #6 — while it demotes distillery vinasse and textiles, whose composite strength is regulatory
+        compulsion plus energy export, not $/gal savings (their existing disposal routes cost ~1¢/gal). PFAS concentrates remain
         top-3 under <b>both</b> lenses — the most robust finding in the report.</p>
       <p><b>The volume qualifier.</b> Margin × volume = pool: $50/gal on a tiny stream can be a smaller prize than
         $5/gal on a ubiquitous one. And the framing qualifier: manufacturer HCSP pricing is TBD (early phase), so every
-        unit-economics panel in this section is ranked by <b>addressable savings</b> against incumbent cost — not by
-        manufacturer margin.</p>
+        cost-per-unit panel in this section is ranked by <b>savings before our costs are known</b>, measured against what
+        existing suppliers charge — not by manufacturer margin.</p>
     </div>
     <h3 class="sub-h">Two rankings, side by side</h3>
-    <p>Toggle between the composite league table (all six criteria) and the savings ranking (incumbent $/gal). Each row
-      keeps its drill-down — value, basis, and dated sources. The deltas are the story: ▲ marks verticals the savings
+    <p>Toggle between the composite ranking (all six criteria) and the savings ranking (what existing suppliers charge,
+      $/gal). Each row
+      keeps its drill-down — value, basis, and dated sources. The changes are the story: ▲ marks industries the savings
       lens promotes, ▼ those it demotes.</p>
   </div>
   <div class="wide xl">
     <div class="lens-toggle" id="lens-toggle" aria-label="Ranking lens"></div>
     <div class="table-scroll"><table class="dt" id="league-lens-table"></table></div>
-    <p class="pending-note">Manufacturer cost inputs pending — addressable savings basis</p>
+    <p class="pending-note">Manufacturer cost inputs pending — shown as savings before our costs are known</p>
   </div>
   <div class="wide xl"><div id="energy-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <p>Then the umbrella: incumbent destruction and disposal prices run from $1–2/gal for
+    <p>Then the umbrella: what existing suppliers charge for destruction and disposal runs from $1–2/gal for
       capacity-constrained deep-well injection to $15–50+/gal for halogenated-solvent incineration — all public market
       data. HCSP's own cost and service pricing are <b>TBD — manufacturer cost model pending</b>; figures previously
       shown here came from SCWO industry literature, not the manufacturer, and have been withdrawn.
-      The addressable spread between the cheapest destructive incumbent and any viable HCSP offer is the widest in any
-      vertical in this report — and it exists because customers currently pay for transport and burial, not treatment.</p>
+      The spread between the cheapest destructive existing supplier and any viable HCSP offer is the widest in any
+      industry in this report — and it exists because customers currently pay for transport and burial, not treatment.</p>
   </div>
   <div class="wide xl"><div id="umbrella-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <p>The savings ladder is not a continuum — it is a cliff. Wherever the displaced baseline is destruction-priced,
-      gross addressable savings are largest and the sales conversation concerns capacity and permitting speed. Wherever
-      the baseline is disposal-priced, the case depends on regulatory compulsion, grant funding, or crisis pricing. Net
-      payback in years is withheld everywhere: it requires HCSP cost inputs, and the manufacturer cost model is
+    <p>The savings ladder is not a continuum — it is a cliff. Wherever the price being replaced is destruction-priced,
+      savings before our costs are known are largest, and the sales conversation concerns capacity and permitting speed. Wherever
+      the baseline is disposal-priced, the case depends on regulatory compulsion, grant funding, or crisis pricing. The
+      time to earn back the cost, in years, is withheld everywhere: it requires HCSP cost inputs, and the manufacturer cost model is
       pending.</p>
   </div>
   <div class="wide xl"><div id="payback-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <p>Across viable verticals, the consolidated serviceable market is approximately <b>$9–20B per year</b> — an
-      order-of-magnitude synthesis of per-vertical estimates, not a single measured figure. The v1 core (hazardous
-      organic liquids $2–4B/yr, PFAS concentrates $300M–1.6B/yr by 2030, pharma, textile, biosolids) is joined in v2 by
-      distillery ZLD ($2–5B cumulative), CAFO ($1–3B), islands ($0.5–1.5B), mining ($0.3–0.8B), and an honestly shrunk
-      produced-water niche — while data centers enter as offtakers rather than customers. Drawn in machines rather than
+    <p>Across viable industries, the reachable market adds up to approximately <b>$9–20B per year</b> — an
+      order-of-magnitude synthesis of per-industry estimates, not a single measured figure. The v1 core (hazardous
+      organic liquids $2–4B/yr, PFAS concentrates $300M–1.6B/yr by 2030, pharma, textile, sewage sludge) is joined in v2 by
+      distillery zero-liquid-discharge work (no wastewater leaves the site) ($2–5B cumulative), factory farms ($1–3B), islands ($0.5–1.5B), mining ($0.3–0.8B), and an honestly shrunk
+      produced-water niche — while data centers enter as buyers of the plant's output rather than customers for destruction. Drawn in machines rather than
       dollars, the core pools look like this:</p>
   </div>
   <div class="wide xl"><div id="sizing-chart" class="chart-frame"></div></div>
   <div class="prose">
     <h3 class="sub-h">The per-module cost stack</h3>
-    <p>Module rated 10 m³/day (~2,640 gal/day); ~0.9M gal/yr at high utilization. Module CapEx is <b>TBD</b> — the only
+    <p>Module rated 10 m³/day (~2,640 gal/day); ~0.9M gal/yr at high utilization. Module purchase cost is <b>TBD</b> — the only
       verifiable commercial SCWO transaction of this class, the AirSCWO 6's $5.2M equipment-plus-operation contract at
       Orange County Sanitation District, is the market reference point, not an HCSP price.</p>
-    <table class="dt" id="cost-table"></table>
-    <p class="pending-note">Manufacturer cost model pending — every $ figure in the stack is TBD: no $/gal or $/m³ is attached to HCSP; verticals are ranked by the incumbent $/gal they displace (gross addressable savings basis)</p>
+    <div class="table-scroll"><table class="dt" id="cost-table"></table></div>
+    <p class="pending-note">Manufacturer cost model pending — every $ figure in the stack is TBD: no $/gal or $/m³ is attached to HCSP; industries are ranked by the existing-supplier $/gal they replace (savings before our costs are known)</p>
   </div>
 </section>
 
@@ -308,126 +379,99 @@
 <section id="sec-scale" class="band" data-win="scale">
   <div class="prose">
     <p class="sec-no">§3B · Scale &amp; energy — the v2 chapters</p>
-    <h2>The scale ladder, the crossover, and the trigeneration stack</h2>
+    <h2>The scale ladder, the point where the system powers itself, and making three useful things at once: clean water, power, and cooling</h2>
     <p class="dek">v1 priced a 10 m³/day module and stopped there. v2 asks the two questions that decide whether HCSP is
       a skid business or an infrastructure business: what does scale do to cost, and at what feed strength does the
-      energy balance invert?</p>
-    <p>The ladder has four rungs — 10, 100, 1,000, and 1,900 m³/day. Two effects move down it together: capital cost
-      per cubic meter follows a scaling exponent of n ≈ 0.5–0.7 per train, and net energy collapses from 130–250 kWh/m³
+      energy balance flip from importing power to exporting it?</p>
+    <p>The ladder has four rungs — 10, 100, 1,000, and 1,900 m³/day. Two effects move down it together: purchase cost
+      per cubic meter follows a scaling exponent of n ≈ 0.5–0.7 per train (bigger plants get cheaper per unit of capacity),
+      and net energy collapses from 130–250 kWh/m³
       at module scale to 35–88 kWh/m³ at hub scale as heat-exchanger area outgrows duty. What scale does to fully loaded
       cost is <b>withheld</b>: earlier $/m³ figures came from a modeled stack, not the manufacturer, and are pending the
       manufacturer cost model. One honesty marker rides on the chart: the largest single-train SCWO plant ever built processed
-      306 t/d, and both of the largest plants ever built are defunct. Everything above that line is interpolated design
+      306 t/d, and both of the largest plants ever built are defunct. Everything above that line is estimated design
       economics, and the report prices the ladder on the pessimistic parallel-train branch accordingly.</p>
   </div>
   <div class="wide xl"><div id="scale-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <p>Scale moves the intercept; feed strength moves the slope. The LANL integrated model is the cleanest statement of
-      the crossover: with heat recovery and a Rankine power cycle, net electricity falls from <b>+18 kWhₑ/m³ imported to
+    <p>Scale moves the starting point; feed strength moves the slope. The LANL integrated model is the cleanest statement of
+      the point where the system powers itself: with heat recovery and a standard steam power cycle, net electricity falls from <b>+18 kWhₑ/m³ imported to
       −60 kWhₑ/m³ exported</b> as feed rises from zero to ~160 g/L COD. Net-zero sits near <b>~35–40 g/L</b>; meaningful
       export — ≥10 kWhₑ/m³ — begins above <b>~60 g/L</b>. The module without a power cycle approaches the line and never
-      crosses it. The stream rail below the chart shows why the league table sorts the way it does: brewery effluent,
+      crosses it. The stream rail below the chart shows why the ranking sorts the way it does: brewery effluent,
       fab bulk water, and most produced water sit structurally below the line; dewatered biosolids, Brazilian vinasse,
       and molasses spent wash sit squarely above it.</p>
   </div>
   <div class="wide xl"><div id="crossover-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <p>Above the crossover, the plant becomes a small utility, and the question shifts from cost to revenue stacking.
-      At 1,000 m³/day on 100 g/L feed, oxidation releases <b>16.1 MW_th</b> of gross reaction heat — but ~60% of it is
-      spoken for: preheating the feed is the price of autothermal operation. The exportable surplus, <b>9.6 MW_th</b>
-      (6.4–11.2 across the 70–85% heat-recovery band), cascades through an extraction turbine into <b>1.4 MWₑ of power</b>
-      and 8.2 MW_th of 150–180 °C heat into <b>4.9 MW_c of absorption cooling</b> (~1,392 refrigeration tons) — worth
-      ≈$1.15M/yr against $0.79M/yr for an all-cooling configuration. The hierarchy beneath the cascade is the strategy:
-      power earns $15–20 per MWh_th, cooling only ~$10 — unless chilled water sells at district tariffs of $30–48, in
-      which case cooling leapfrogs power and data centers become the anchor offtaker.</p>
+    <p>Above the point where the system powers itself, the plant becomes a small utility, and the question shifts from cost to stacking up revenue.
+      At 1,000 m³/day on 100 g/L feed, oxidation releases <b>16.1 MW of heat</b> from the reaction — but ~60% of it is
+      spoken for: preheating the feed is the price of making its own heat from the waste. The exportable surplus, <b>9.6 MW of heat</b>
+      (6.4–11.2 across the 70–85% heat-recovery band), flows through an extraction turbine into <b>1.4 MW of electric power</b>
+      and 8.2 MW of 150–180 °C heat into <b>4.9 MW of cooling from heat-driven chillers</b> (~1,392 refrigeration tons, a standard measure of cooling capacity) — worth
+      ≈$1.15M/yr against $0.79M/yr for an all-cooling configuration. The hierarchy beneath where the heat goes is the strategy:
+      power earns $15–20 per MWh of heat, cooling only ~$10 — unless chilled water sells at district tariffs of $30–48, in
+      which case cooling leapfrogs power and data centers become the anchor buyer.</p>
   </div>
   <div class="wide xl"><div id="heat-chart" class="chart-frame"></div></div>
   <div class="prose">
-    <h3 class="sub-h">The backup-power verdict: LFP by default</h3>
+    <h3 class="sub-h">The backup-power verdict: lithium iron phosphate (LFP) by default</h3>
     <p>One v2 engineering chapter settles a component question the hard way. Nickel-iron batteries carry a century of
       durability legend — but standby duty is exactly where their 20–30%/month self-discharge is disqualifying: a site
-      dark for six weeks arrives at the emergency with a flat battery. LFP wins every row that governs UPS and
-      black-start duty, most by an order of magnitude, at $70/kWh pack prices. <span id="storage-rule-src"></span></p>
+      dark for six weeks arrives at the emergency with a flat battery. LFP wins every row that governs backup power and
+      restarting a dead site, most by a factor of ten, at $70/kWh pack prices. <span id="storage-rule-src"></span></p>
   </div>
-  <div class="wide xl"><table class="dt" id="storage-table"></table></div>
+  <div class="wide xl"><div class="table-scroll"><table class="dt" id="storage-table"></table></div></div>
   <div class="prose">
     <div class="note-box">
-      <p><b>The decision rule.</b> Specify LFP as the standard UPS/black-start battery on every unit — default bill of
-        materials, not a site option. NiFe only where the unit is daily-cycled off-grid, ambient extremes are sustained,
-        and replacement logistics dominate lifecycle cost — and even then as a hybrid with a small LFP string for
-        instant black-start. Underwrite absorption cooling at field-measured COP (0.28–0.45 on waste heat), never the
+      <p><b>The decision rule.</b> Specify LFP as the standard backup/restart battery on every unit — default bill of
+        materials, not a site option. Nickel-iron (NiFe) only where the unit is charged and discharged daily off-grid, temperature extremes are sustained,
+        and the difficulty of shipping replacements dominates lifetime cost — and even then as a hybrid with a small LFP string for
+        instant restart. Count on heat-driven absorption chillers only at their field-measured efficiency (0.28–0.45 on waste heat), never the
         design figure.</p>
     </div>
   </div>
 </section>
 
-<!-- ═══ §4 Players ═══ -->
-<section id="sec-players" class="band" data-win="players">
+<!-- ═══ §3C The energy advantage ═══ -->
+<section id="sec-energy" class="band" data-win="energy">
   <div class="prose">
-    <p class="sec-no">§4 · The field</p>
-    <h2>A forty-year graveyard, and four organizations still standing</h2>
-    <p class="dek">Commercial SCWO has a long casualty list built on corrosion and salt plugging — which is precisely why
-      the survivors' operating records, and their finances, carry the evidentiary weight.</p>
-    <p>As of 2021 only about six commercial SCWO plants operated worldwide; a 2019 review found all commercially
-      constructed plants except two had closed — mainly on corrosion, plugging, and economics. The flow below follows the
-      field from the 1980s pioneers to today's four verifiable commercial operators. Dashed spans mark entities whose
-      dates are graded estimates rather than documented; the ✕ endpoints are the lesson.</p>
+    <p class="sec-no">§3C · The energy advantage</p>
+    <h2>One waste stream, three ways to earn — and no competitor sells the energy</h2>
+    <p class="dek">Because the HCSP runs continuously, day and night, it is a <b>firm</b> source of heat — steady,
+      dependable, always on. The four companies that sell rival machines sell destruction and stop there. None of them
+      sells the energy. That difference turns one waste stream into three revenue streams: getting paid to destroy the
+      waste, selling the clean water it leaves behind, and selling the spare heat as electricity, cooling, or warmth.</p>
+    <p>Six scenarios show what that looks like in practice — pick any card below to open it. Every figure is
+      <b>illustrative, drawn from engineering studies</b>, not a quote or a promise. And three ground rules apply to
+      every scenario, so they are printed here in the open rather than buried in a footnote:</p>
   </div>
-  <div class="wide xl"><div id="destiny-chart" class="chart-frame"></div></div>
+  <div class="wide">
+    <div class="term-mag" id="energy-guardrails"></div>
+  </div>
   <div class="prose">
-    <p>Only four organizations operate verifiable commercial-scale SCWO today. <b>374Water</b> (NASDAQ: SCWO), a Duke
-      University spinout and the closest analogue to the HCSP, sells the containerized AirSCWO 6 — yet its FY2025 Form
-      10-K shows revenue of $215,037 against a $21.0M net loss. <b>General Atomics</b> fields PERSES, the incumbent:
-      commercial since ~2012, more than 6 million gallons destroyed, EPA-verified, but with a mixed reliability record.
-      <b>Aquarden</b> (Denmark) sells the all-electric SuperOx — the field's all-electric benchmark. <b>Revive
-      Environmental</b> operates Battelle's PFAS Annihilator as North America's first fully permitted commercial-scale
-      SCWO PFAS destruction service.</p>
+    <p>With those rules on the table: the six ways a plant turns spare heat into money. Each card opens a diagram of
+      where the heat goes, the three revenue streams, the indicative economics, and what has to be true before anyone
+      signs.</p>
   </div>
-  <div class="wide xl"><div id="vendor-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="energy-scenarios"></div></div>
+  <div class="prose">
+    <h3 class="sub-h">The next revenue stream: recovering valuable materials</h3>
+  </div>
+  <div class="prose" id="materials-intro"></div>
+  <div class="wide xl"><div id="materials-recovery"></div></div>
+  <div class="prose">
+    <div class="note-box" id="materials-rule"></div>
+  </div>
   <div class="prose">
     <div class="note-box">
-      <p><b>The incineration incumbency is the real competitor.</b> Roughly 24 permitted US RCRA combustors run at
-        87–92% utilization with one new unit permitted in three decades and 5–7%/yr price escalation. HCSP does not need
-        to beat their price by a little; the no-air-permit moat and on-site liability elimination let it sell speed and
-        certainty while pricing at $2–5/gal beneath a $5–50/gal umbrella.</p>
+      <p><b>Why this section exists.</b> The verdict in §5 tells you <i>where</i> to sell destruction first. This
+        section is about what changes once the plant is running: at the right sites, the energy and water it exports
+        are worth real money on top of the destruction fees — and the ability to sell them is the difference between
+        HCSP and every competitor, none of whom offers the energy. The scenarios also discipline the claim: each one
+        names the feed strength, the scale, the buyer, and the backup power it depends on, because a scenario that
+        cannot name those four things is marketing, not engineering.</p>
     </div>
-  </div>
-</section>
-
-<!-- ═══ §4B The field, up close ═══ -->
-<section id="sec-deepdive" class="band" data-win="deepdive">
-  <div class="prose">
-    <p class="sec-no">§4B · The field, up close</p>
-    <h2>Four survivors, one shared blind spot: everything below a million dollars</h2>
-    <p class="dek">Read the filings and registries, not the websites: a going-concern listed pure-play, a niche line
-      inside a $3.2B defense prime, a negative-equity Danish shop of eleven people, and a centralized service JV that
-      just changed CEOs. None of them sells anything a small facility can buy and run itself.</p>
-    <p>The four profiles below are built only from primary records — SEC filings and prospectuses, the Danish CVR
-      registry, state procurement and settlement documents, EPA and DIU/ESTCP program records — each dated and
-      drillable. For each operator: the balance sheet as filed, the customers that actually pay versus the pipeline
-      that is claimed, the smallest thing they will sell or do, who they are built to serve, and where that leaves the
-      low end of the market.</p>
-  </div>
-  <div class="wide xl"><div id="comp-profiles"></div></div>
-  <div class="prose">
-    <h3 class="sub-h">The cross-company read</h3>
-    <p>Put side by side, the four survivors are financially nothing alike — going concern, fortress, insolvent-on-equity,
-      patient JV — yet their commercial floors cluster in the same place. Every cell drills to its dated source.</p>
-  </div>
-  <div class="wide xl"><div class="table-scroll"><table class="dt" id="comp-table"></table></div></div>
-  <div class="prose">
-    <h3 class="sub-h">The scale gap, drawn</h3>
-    <p>Each lane starts where that competitor's smallest evidenced offering begins, on a deal-size axis read against
-      facility size — small farm or fabrication shop at the left, national programs at the right. Dashed or hollow spans
-      are services and pilots, not equipment a customer can buy and run. The blue zone below ≈$1M is what nobody
-      serves: that is HCSP's opening.</p>
-  </div>
-  <div class="wide xl"><div id="scalegap-chart" class="chart-frame"></div></div>
-  <div class="prose">
-    <h3 class="sub-h">Watch items — five things that would redraw this picture</h3>
-    <p>The gap is real today and defensible by structure, but it is not sealed. These are the dated events worth
-      tracking; each drills to its source.</p>
-    <ul class="laws" id="watch-list"></ul>
   </div>
 </section>
 
@@ -435,42 +479,41 @@
 <section id="sec-verdict" class="band" data-win="verdict">
   <div class="prose">
     <p class="sec-no">§5 · The verdict</p>
-    <h2>A real market, gated by reliability — and by dates on a calendar</h2>
+    <h2>The bottom line — what to do, in what order</h2>
     <p class="dek">The opportunity is real but not yet banked. The dominant risk is execution under HCSP's own control —
       uptime, feed discipline, and publishing the prototype data behind its salt-free combustion design — not market
       existence.</p>
-    <p>The scale below weighs the two cases across the fifteen-industry v2 ranking. On the right pan, the demand-side
-      evidence: federally validated destruction, a $5–28/gal incumbent umbrella, the no-air-permit moat, dated
-      regulatory clocks — now including India's CPCB distillery-ZLD mandate — and the v2 finding that scale and feed
-      strength invert the energy line into export. On the left, the supply-side record: a 30-year graveyard, a
-      pre-scale listed leader, a downgraded market estimate, and the new v2 weight — no SCWO train above 306 t/d has
-      ever operated, so hub economics remain interpolated until a rung is proven. The dashed weights hovering above are
-      the upgrade triggers, and the hatched seal at the base carries the falsification lines. The reading is
-      qualitative, not a score.</p>
+    <p>The board below puts all fifteen industries into three plain groups: three markets to enter now, seven to
+      enter once prototypes and pilot results prove the machines run reliably, and five to touch only where the
+      stated condition holds. Each row shows the industry's score out of ten, one sentence on why, and — where it
+      matters — what has to happen first. Click any row for the full evidence and the dated sources behind it. The
+      boxed list at the end names the four things that would change this advice. The groups, not the decimal points,
+      should drive where money and effort go.</p>
   </div>
   <div class="wide xl"><div id="verdict-chart" class="chart-frame"></div></div>
   <div class="prose">
     <h3 class="sub-h">The per-industry call</h3>
-    <p>Go where the stream is concentrated and the baseline is destruction-priced; hold where compulsion is regional;
-    walk away where the physics forecloses. The tiers, not the decimal points, should drive resource allocation.</p>
-    <table class="dt" id="call-table"></table>
-    <h3 class="sub-h">The demand clock</h3>
-    <p>Several of the report's risks and catalysts are dated and therefore tradeable: EPA's guidance revision, the
-      October 2026 AFFF deadline, the landfill ELG window, and the 2031 compliance horizon all carry known clocks,
-      allowing scenario-triggered capital deployment rather than blind staging.</p>
+    <p>Go where the stream is concentrated and the price being replaced is destruction-priced; hold where compulsion is regional;
+    walk away where the physics rules a market out. The tiers, not the decimal points, should drive where money and effort go.</p>
+    <div class="table-scroll"><table class="dt" id="call-table"></table></div>
+    <h3 class="sub-h">Key dates ahead — and what they mean for you</h3>
+    <p>Several of the report's risks and opportunities carry known dates, so they can be planned around rather than guessed at.
+      The list below shows every dated event in plain date order: the items that have already passed are shown first, marked
+      CLOSED; everything after that is still ahead. Each row gives the date, what the event is, what it means for HCSP, and —
+      where there is a clear next step — what to do about it. Click any row for the full detail and the dated sources behind it.</p>
   </div>
   <div class="wide xl"><div id="horizon-chart" class="chart-frame"></div></div>
   <div class="prose">
     <h3 class="sub-h">Eight recommendations (abbreviated, v2)</h3>
     <ul class="laws">
       <li><b>1 · Publish the self-fueling energy balance with prototype data</b> — the on-demand hydrogen loop (fuel generated from process water, negligible net energy cost once started) is a differentiator; independent documentation converts it from claim to diligence asset.</li>
-      <li><b>2 · Lead with waste-destruction-as-a-service at $2–5/gal</b>, using equipment sales only for high-credit industrial buyers — pharma, fabs, distilleries.</li>
-      <li><b>3 · Gate every opportunity on feed concentration</b> — the v2 crossover refines the screen: net-zero near 35–40 g/L COD with power recovery, export above ~60 g/L — and keep the four sub-4.5 verticals (CEA, CAFO, mining, data centers) out of the equipment pipeline.</li>
-      <li><b>4 · Quantify permitting time-to-operation in every sale</b>, monetizing the air-permit moat against capacity-constrained incineration.</li>
-      <li><b>5 · Retain indoor agriculture strictly as a regulatory showcase</b> under California's zero-waste invitation; never make CEA revenue load-bearing.</li>
-      <li><b>6 · Publish the produced-water model on independently benchmarked inputs</b> — the Marcellus-hub case prices the niche against documented disposal economics ($3–15/bbl trucking corridor), not basin-scale placeholder figures; its IRR/payback is restated only once the manufacturer cost model lands.</li>
-      <li><b>7 · Build the scale ladder as parallel trains, not giant vessels</b> — accept the weaker n ≈ 0.85 exponent for replicated, proven pressure envelopes; stage-gate each rung on the availability data of the rung below.</li>
-      <li><b>8 · Site trigeneration plants against anchor chilled-water buyers</b> — data centers as offtakers, not hosts: the plant sits at the waste (wastewater plant, distillery, F&amp;B complex) and sells power, cooling, and reclaimed water across the fence to campuses facing 4–7-year grid queues. Never build one without a ≥500 RT contracted offtaker.</li>
+      <li><b>2 · Lead with a destruction service (we run it for you) at $2–5/gal</b>, using equipment sales only for high-credit industrial buyers — pharma, fabs, distilleries.</li>
+      <li><b>3 · Gate every opportunity on feed concentration</b> — the v2 energy findings refine the screen: the system powers itself near 35–40 g/L COD with power recovery, and exports power above ~60 g/L — and keep the four sub-4.5 industries (CEA, CAFO, mining, data centers) out of the equipment pipeline.</li>
+      <li><b>4 · Quantify permitting time-to-operation in every sale</b>, turning the air-permit moat into money against capacity-constrained incineration.</li>
+      <li><b>5 · Retain indoor agriculture strictly as a regulatory showcase</b> under California's zero-waste invitation; never let the business depend on indoor-agriculture revenue.</li>
+      <li><b>6 · Publish the produced-water model on independently benchmarked inputs</b> — the Marcellus-hub case prices the niche against documented disposal economics ($3–15/bbl trucking corridor), not basin-scale placeholder figures; its returns and time to earn back the cost are restated only once the manufacturer cost model lands.</li>
+      <li><b>7 · Build the scale ladder as parallel trains, not giant vessels</b> — accept the weaker n ≈ 0.85 scaling exponent for replicated, proven pressure vessels; stage-gate each rung on the reliability data of the rung below.</li>
+      <li><b>8 · Site plants that make clean water, power, and cooling at once next to anchor chilled-water buyers</b> — data centers as buyers of the output, not hosts: the plant sits at the waste (sewage treatment plant, distillery, food-and-beverage complex) and sells power, cooling, and reclaimed water across the fence to campuses facing 4–7-year waits for a grid connection. Never build one without a contracted buyer for at least 500 refrigeration tons of cooling (about 1.8 MW).</li>
     </ul>
   </div>
 </section>
@@ -479,205 +522,25 @@
 <section id="sec-appendix" class="band" data-win="appendix">
   <div class="prose">
     <p class="sec-no">§7 · Appendix</p>
-    <h2>Variant portfolio and risk register</h2>
-    <p class="dek">Nine variants on one platform; eleven risks that govern the investment case.</p>
-    <h3>The variant portfolio</h3>
-    <p>Six of nine variants depend on a pre-module concentrator — the economic heavy lifting is in the front end, not the
-      reactor. The portfolio is one reactor platform differentiated by materials package, feed screening, and business
-      model; v2 adds the vinasse ZLD retrofit (VIN), the trigeneration cascade (TRI), and the island micro-utility (ISL).</p>
+    <h2>Models by industry, and what could go wrong</h2>
+    <p class="dek">Nine models built on one platform; eleven risks that govern the investment case.</p>
+    <h3>The models, by industry</h3>
+    <p>Six of nine models depend on a pre-module concentrator — the economic heavy lifting is in the front end, not the
+      reactor. The lineup is one reactor platform differentiated by materials package, feed screening, and business
+      model; v2 adds the vinasse ZLD retrofit (VIN), the three-outputs-at-once design that makes clean water, power, and cooling (TRI), and the island micro-utility (ISL).</p>
   </div>
-  <div class="wide xl"><table class="dt" id="variant-table"></table></div>
+  <div class="wide xl"><div class="table-scroll"><table class="dt" id="variant-table"></table></div></div>
   <div class="prose">
-    <h3 class="sub-h">The risk register</h3>
-    <p>Three features should shape how investors price the v2 opportunity. First, the risks remain asymmetric in kind:
-      regulatory rollback and incineration re-opening are demand-side risks that compress the market but leave the cost
+    <h3 class="sub-h">What could go wrong</h3>
+    <p>Three features should shape how investors price the v2 opportunity. First, the risks are different in kind:
+      regulatory rollback and incineration re-opening are demand-side risks that shrink the market but leave the cost
       umbrella intact, whereas scale-up beyond the 306 t/d envelope is the supply-side
       risk that can invalidate the unit itself. Salt-plugging and corrosion — the supply-side killers of conventional
       designs — are answered by HCSP's &gt;3,000 °F in-reactor combustion design (no salt issues reported by the
-      manufacturer); the residual is publishing prototype long-run data, not re-engineering. Second, the NiFe sole-sourcing row is unusual in being cheap to fix:
-      it can be retired within two quarters at zero performance cost. Third, several risks are dated and therefore
-      tradeable.</p>
+      manufacturer); what remains is publishing prototype long-run data, not re-engineering. Second, the nickel-iron battery single-supplier row is unusual in being cheap to fix:
+      it can be retired within two quarters at zero performance cost. Third, several risks have known dates and can be planned around.</p>
   </div>
-  <div class="wide xl"><table class="dt" id="risk-table"></table></div>
-</section>
-
-<!-- ═══ §8 Funding landscape (Part III) ═══ -->
-<section id="sec-funding" class="band" data-win="funding">
-  <div class="prose">
-    <p class="sec-no">§8 · Funding landscape — Part III</p>
-    <h2>Climate-era money is contracting; PFAS money is at its all-time peak</h2>
-    <p class="dek">The addressable grant universe for a wastewater-destruction technology vendor is smaller than it was
-      in 2024 — but better targeted. The programs that died were ones HCSP was unlikely to win anyway; the money that
-      survived concentrates in PFAS destruction, water reuse, and defense resilience — precisely HCSP's value
-      proposition. The strategic error to avoid is writing proposals to dead programs; the strategic opportunity is
-      that PFAS funding is counter-cyclical.</p>
-    <p>Four structural events define the year. First, the One Big Beautiful Bill Act (OBBBA, P.L. 119-21, July 4, 2025)
-      rescinded unobligated IRA climate-justice appropriations, and EPA terminated <b>781 environmental justice
-      grants</b> and closed the Office of Environmental Justice entirely — dead as funding sources, and never a fit for
-      a for-profit technology company anyway. Second, the Department of Energy's demonstration arm is gone: the Office
-      of Clean Energy Demonstrations was abolished in the November 2025 reorganization after terminating 24 awards
-      (~$3.7B) in May 2025 and roughly <b>$7.56B more</b> across DOE offices in October 2025. There is no successor
-      office and no reason to plan around one.</p>
-    <p>Third, two programs were interrupted and restored. FEMA's BRIC program — cancelled in April 2025 — was
-      court-restored, and a combined FY2024–25 NOFO for <b>$1B closed July 23, 2026</b>; BRIC funds states and
-      localities, so HCSP is at most an indirect vendor partner. More consequentially, SBIR/STTR lapsed 6.5 months and
-      were reauthorized on April 13, 2026 <b>through September 30, 2031</b>, with higher ceilings and a new "Strategic
-      Breakthrough" Phase II worth up to $30M at large agencies — the most reliable direct-apply channel for a company
-      of HCSP's profile is fully restarted. Fourth, the BIL's PFAS-dedicated water money is in its final appropriation
-      year: the last $1B of the $5B EC-SDC program (May 2026), a reaffirmed $4B of DWSRF PFAS money, and the closing
-      $1B CWSRF Emerging Contaminants supplement — which covers wastewater, stormwater, and landfill leachate.</p>
-  </div>
-
-  <div class="prose"><div class="metric-strip" id="fate-strip"></div></div>
-  <div class="wide xl"><div id="fate-board" class="fate-board"></div></div>
-
-  <div class="prose">
-    <p>The counterweight — and the thesis of this layer — is that PFAS-specific money is expanding even as general
-      climate money contracts. The 3M public-water-system settlement alone has paid out more than <b>$3.5B</b> to
-      Phase 1 claimants, with installments running through 2033–2036; Tyco ($750M) and BASF ($316.5M) payouts began in
-      March–April 2026. New Jersey's court-approved PFAS Abatement Fund (August 7, 2026) stands up a <b>$795M</b> state
-      vehicle with at least $150M routed to POTWs. Wisconsin's Acts 200/201 release more than <b>$130M</b>, including
-      direct grants to landfills for on-site leachate treatment. The market signal is unambiguous: destruction
-      technology is moving from pilot novelty to funded line item. HCSP's task is to be specified, not just eligible.</p>
-  </div>
-</section>
-
-<!-- ═══ §9 The Grant Register (Part III) ═══ -->
-<section id="sec-register" class="band" data-win="register">
-  <div class="prose">
-    <p class="sec-no">§9 · The grant register</p>
-    <h2>Ninety-two programs, screened — and three doors into them</h2>
-    <p class="dek">Roughly 90% of the dollar volume relevant to HCSP flows to utilities, municipalities, and public
-      systems — not to technology vendors. Winning this money is therefore primarily a business-development exercise
-      (getting HCSP written into other entities' applications), not a grant-writing exercise.</p>
-    <p>Pursuit resources should be organized around three access modes, in descending order of dollar potential.
-      <b>Mode (b) — named technology in a partner's application</b> — is where the big money is, and the template
-      transaction already exists: the City of Orlando secured a federal BIL grant through Florida's CWSRF (~$800K,
-      February 2024) to fund an SCWO demonstration by 374Water at its Iron Bridge facility; that demonstration converted
-      into a five-year waste-destruction-services license (March 2026) and then a $3M–$5M full-scale PFAS destruction
-      hub (June 2026). The pattern repeats at OC San (6-ton/day SCWO through the standing RISE program) and in Minnesota
-      (an ENRTF-funded SCWO biosolids project, December 2025). The lesson: the grant proposal is written by the utility;
-      the vendor's job is to supply the engineering package, cost data, and performance evidence that make the
-      application winnable.</p>
-  </div>
-  <div class="wide xl"><div id="access-chart" class="chart-frame"></div></div>
-  <div class="prose">
-    <p><b>Mode (a) — direct-apply programs</b> — are fewer but actionable now: Reclamation's DWPR, the ONR Long-Range
-      BAA, SERDP/ESTCP, all SBIR/STTR vehicles, NYSERDA's waste-to-fuels solicitation, PA PENNVEST (unusually, private
-      owner/operators are eligible), AZ WIFA augmentation project teams, and USDA B&amp;I loan guarantees. <b>Mode (c) —
-      vendor/subrecipient to prime contractors</b> — monetizes demand HCSP cannot touch directly: DoD's AFFF stockpile
-      disposal is executed through installation-level contracts with prime environmental contractors, and DoD's 2024–25
-      demonstration series concluded on-site destruction beats off-site disposal. Allocate roughly <b>40% of pursuit
-      effort to Mode (b), 35% to Mode (a), 25% to Mode (c)</b>: the direct applications generate credibility; the
-      partnerships generate dollars.</p>
-    <h3 class="sub-h">The full register — 92 programs</h3>
-    <p>Every program screened for this strategy, kept on record including the dead ones (so nobody re-litigates them).
-      Search, filter, and sort; click any row for the full notes and its dated source. Match scores grade fit to HCSP's
-      outputs and verticals on a 1–5 scale.</p>
-  </div>
-  <div class="wide xl">
-    <div class="grant-tools" id="grant-tools"></div>
-    <div class="table-scroll"><table class="dt grant-dt" id="grant-table"></table></div>
-  </div>
-  <div class="prose">
-    <h3 class="sub-h">International &amp; NGO channels — G-081 through G-092</h3>
-    <p>Twelve non-US-federal channels round out the register, and they split honestly into three kinds of access.
-      <b>Direct doors</b> — ADB's Technology Innovation Challenge (a true $450K grant a for-profit can apply for
-      itself, Pacific islands included), AB InBev's 100+ Accelerator ($100K pilots with beverage majors, built for the
-      distillery/brewery vertical), the GEF Challenge Program for Adaptation Innovation (the one GEF window inviting
-      private-sector innovators directly), IDB Lab, the Water-AI Nexus at Penn, and WEF/WRF LIFT vetting (free, but
-      non-cash). <b>Via-host doors</b> — GCF's Simplified Approval Process (up to $25M per project, but only through an
-      Accredited Entity), EREF research grants (academic PI required; HCSP is the industry partner and site host),
-      Caribbean Development Bank (supplier/EPC procurement on sovereign water projects), and Rotary Global Grants
-      (club-hosted; HCSP can only be the equipment supplier). <b>Not grants at all</b> — WaterEquity's Water &amp;
-      Climate Resilience Fund is $2–15M of equity/mezzanine patient capital, and Breakthrough Energy Discovery mixes
-      small TRL 0–2 grants with a dilutive SAFE behind a ≥500 Mt CO2e/yr screen HCSP may not pass. None of these
-      replace the Mode (b) utility-partner route for dollars; they add islands, data-center, and beverage-vertical
-      surface area the federal register does not reach.</p>
-  </div>
-  <div class="prose">
-    <h3 class="sub-h">Closed doors — the candid no-go list</h3>
-    <p>Killing pursuits is as valuable as starting them. The following receive zero proposal effort, regardless of
-      surface appeal:</p>
-    <ul class="laws nogo">
-      <li><b>USDA REAP grants — paused.</b> No FY2026 NOFO; no grant awards until regulations are rewritten under EO 14315, and prior applicants without executed agreements must reapply. (Guaranteed loans remain open.)</li>
-      <li><b>EPA environmental justice programs — dead.</b> 781 grants terminated, offices closed, unobligated funds rescinded by OBBBA; litigation is ongoing but these programs targeted community nonprofits, not technology vendors.</li>
-      <li><b>DOE OCED — abolished.</b> No successor office, ~$11.3B in awards terminated, FY2026 request was $0; do not build a plan on revival.</li>
-      <li><b>48C Advanced Energy Project Credit — closed.</b> All $10B allocated across two rounds; OBBBA capped the program with no Round 3 expected.</li>
-      <li><b>Brewers Association / Distilled Spirits Council — no programs.</b> Neither runs sustainability grants or cost-share pilots; distillery/brewery verticals must be funded by customer-paid pilots or state programs (e.g., CEC FPIP for food processors).</li>
-      <li><b>XPRIZE Water Scarcity ($119M) — closed to new entrants.</b> Registration is shut, 37 semifinalists were named in May 2026, and the scope is seawater desalination, not wastewater destruction. Monitor future Mohamed bin Zayed Water Initiative competitions only.</li>
-      <li><b>India distillery ZLD finance — inaccessible to a US vendor.</b> The interest-subvention scheme (~6% p.a. for five years) funds Indian distilleries' CPCB-certified zero-liquid-discharge capital, not foreign equipment makers; the only route is an Indian JV or EPC partnership, with Imagine H2O Asia as the regional on-ramp.</li>
-      <li><b>CalRecycle Organics Grant Program — excludes the core feedstock.</b> Biosolids are explicitly ineligible; only landfill-diverted food/green waste qualifies, so the program cannot fund an HCSP biosolids project even though for-profits may apply.</li>
-      <li><b>Also-rans to deprioritize:</b> DARPA (water program concluded; no current water/PFAS topics), DHS S&amp;T SBIR (no water topics; one cycle per year), EPA STAR (for-profits ineligible as prime), and CA cannabis wastewater funding (no program exists).</li>
-    </ul>
-    <p>The common thread: every dead program is one where either the applicant type was wrong, the feedstock was wrong,
-      or the politics moved. The pipeline should be re-screened against these three filters quarterly — the 2026–2027
-      environment is volatile enough that §8's list of the living and the dead will need a refresh by mid-2027.</p>
-  </div>
-</section>
-
-<!-- ═══ §10 Top-15 pursuits (Part III) ═══ -->
-<section id="sec-pursuits" class="band" data-win="pursuits">
-  <div class="prose">
-    <p class="sec-no">§10 · The Top-15 pursuits</p>
-    <h2>Fifteen pursuits, ranked by expected value — rolling federal cycles through 2027</h2>
-    <p class="dek">Ranked by expected value (award size × probability × strategic leverage), the portfolio balances
-      three near-term direct applications, five partner-mediated mega-pools, and the two best private programs.
-      Everything not on this list is either dead, closed, or low-yield.</p>
-    <p>Two readings of the board matter more than any single row. First, the distribution of access modes confirms the
-      §9 thesis: only eight of fifteen are direct-apply, and all five of the largest pools (WI, NJ, TX, EC-SRF, WIFIA at
-      scale) are partner-mediated — HCSP's most valuable grant asset is a portfolio of host utilities and landfills, not
-      a proposal-writing team. Second, notice the barbell: rows 1–4 are small-dollar, high-probability credibility plays
-      (sub-$1M federal R&amp;D), while rows 6, 9, 10, and 12 are large-dollar, long-cycle infrastructure plays. There is
-      almost nothing worth pursuing in the middle, which is why effort should be sequenced rather than spread evenly.
-      The outliers to watch are WI Act 200/201 (unusually direct for a state program, because private landfills
-      themselves are grantees) and PENNVEST (the only major state water-finance program where a private owner/operator
-      applies directly) — both reward an owner-operator project structure.</p>
-  </div>
-  <div class="wide xl">
-    <div class="table-scroll"><table class="dt grant-dt" id="top15-table"></table></div>
-  </div>
-  <div class="prose">
-    <h3 class="sub-h">Immediate actions — the next 60 days</h3>
-    <p>The two September federal deadlines have now passed — Reclamation's DWPR NOFO and the ONR Long-Range BAA are
-      <b>closed</b>. The next open gates are NC DEQ's rolling window (through November 2, 2026), Imagine H2O's 2027
-      cohort applications (November–December 2026), and the SERDP/ESTCP FY28 cycle (December 2026–March 2027).
-      Missing a hard gate costs a full annual cycle.</p>
-    <ul class="laws">
-      <li><b>1 · Reclamation DWPR FY2026 NOFO — CLOSED September 29, 2026.</b> $5.7M total; laboratory projects up to $300K federal, pilot projects up to $800K federal. For-profit companies apply directly; eligible source waters explicitly include municipal wastewater and oil-and-gas produced water. The FY2026 window has closed — DWPR runs on an annual cycle, so pre-position the SCWO pilot proposal on produced water or PFAS-laden concentrate now for the FY2027 NOFO.</li>
-      <li><b>2 · ONR Long-Range BAA N0001425SB001 — CLOSED September 30, 2026.</b> Full proposals are no longer accepted under this BAA. The waste-heat-driven SCWO white paper for expeditionary/shipboard water production and waste destruction remains valid positioning for the successor Long-Range BAA — verify the current solicitation number before submitting; for-profits are eligible.</li>
-      <li><b>3 · SERDP FY28 and ESTCP FY27/FY28 positioning.</b> SERDP's FY28 solicitation is expected ~October–November 2026; ESTCP's FY28 cycle (with "Water Resilience on DoW Installations" and energy-resilience topic areas that both map directly to HCSP) is expected ~December 2026 with pre-proposals ~March 2027. SCWO has direct funded precedents in both programs (ER20-5350; ER23-7939), and FY2027 budgets are fully funded ($60.8M SERDP; $125.1M ESTCP). Begin lining up a DoD installation demonstration host now — the pre-proposal is the gate.</li>
-      <li><b>4 · DoW SBIR FY27 Release 1 (pre-release ~October 2026).</b> Watch for NAVFAC water/PFAS topics succeeding N254-123 (expeditionary greywater reuse) and N233-117 (PFAS defluorination, which names AFCEC and USACE as Phase III transition partners).</li>
-      <li><b>5 · Register standing channels:</b> the DIU interest portal (Commercial Solutions Opening awards in 60–120 days when an Area of Interest posts; none open at this writing), and AFWERX Open Topic (rolling; Phase I $75K; seek a Customer Memorandum from AFCEC, the AFFF-transition end user).</li>
-    </ul>
-    <h3 class="sub-h">The 12-month deadline wall</h3>
-    <p>The calendar below converts the landscape into a workload; the two September federal plaques are now marked
-      CLOSED and kept on the wall so the annual cycles stay visible. Q4 2026: respond to SERDP FY28 and DoW SBIR
-      FY27 R1, file Imagine H2O, close the NC DEQ rolling window (November 2), engage WI DNR and NJDEP while their
-      programs are being designed, and begin TX Prop 4 positioning. Q1 2027: the ESTCP FY28 pre-proposal — the
-      highest-strategic-value submission — plus WRF Tailored Collaboration with an anchor utility and AFWERX with an
-      AFCEC Customer Memorandum. Q2 2027: AZ WIFA team entry, PENNVEST for the first owner-operator site, NYSERDA.
-      Q3 2027: a WIFIA Letter of Interest for the first utility-hosted deployment, now backed by a reference site and
-      state cost-share.</p>
-    <p class="colophon" style="margin-top:10px">Deadline status as of September 2026 — solicitation dates shift;
-      verify current NOFOs at the agency pages before applying.</p>
-  </div>
-  <div class="wide xl"><div id="fundwall-chart" class="chart-frame"></div></div>
-  <div class="prose">
-    <h3 class="sub-h">Stacking rules</h3>
-    <ul class="laws">
-      <li><b>Rule 2 · Stack vertically, never horizontally.</b> The correct stack is sequential across project phases and non-overlapping across cost categories: a DWPR pilot ($800K federal) funds technology validation → a state grant or cost-share (WI Act 201, NJ Water Bank, CEC EPIC matching funds) funds the first commercial deployment → WIFIA debt (49% of eligible costs) finances scale-out at the utility host, with USDA B&amp;I guarantees covering HCSP's own manufacturing expansion. Federal programs generally prohibit using one federal grant as the non-federal cost share for another on the same scope; cost share must come from state money, settlement money, customer payments, or private capital. Assume every application is audited on this point.</li>
-      <li><b>Rule 3 · One anchor utility per state program.</b> SRF and EC funds flow through state priority lists; two HCSP-sponsored applications competing in the same state's Intended Use Plan dilute both. Pick one anchor host per state (a POTW with a biosolids/PFAS cost crisis, a landfill with ELG exposure, or a small water system with settlement cash), put HCSP in their application as the named technology, and replicate the Orlando conversion path: funded demonstration → service license → hub.</li>
-    </ul>
-    <div class="note-box">
-      <p><b>Private &amp; catalytic capital, disciplined.</b> The genuinely non-dilutive private money is real but small:
-        Imagine H2O's zero-equity accelerator and recoverable Pilot Fund, PRIME Coalition's recoverable grants for
-        first-of-a-kind hardware, WRF's 1:1 Tailored Collaboration match (≤$150K), and Elemental Impact's DCII
-        ($500K–$5M per project through 2027). Burnt Island, Microsoft CIF, Breakthrough Energy, and S2G are
-        <b>equity — not grants</b> — and route to the capital-raise track. Hyperscaler water-replenishment programs are
-        offtake revenue, not grants. Discipline about this distinction saves months of misdirected effort.</p>
-    </div>
-  </div>
+  <div class="wide xl"><div class="table-scroll"><table class="dt" id="risk-table"></table></div></div>
 </section>
 
 <!-- ═══ Sources ═══ -->
@@ -687,7 +550,7 @@
     <h2>Method, discipline, and sources</h2>
     <div class="note-box">
       <p><b>Evidence grading.</b> Scores are cross-verified composites from the v1 dimension studies (D1–D10) plus the
-        v2 dimensions (V2D1 scale, V2D2 trigeneration, V2D3 verticals, V2D4 storage), weighted
+        v2 dimensions (V2D1 scale, V2D2 making three useful things at once, V2D3 industries, V2D4 storage), weighted
         across six framework criteria; ranges indicate documented uncertainty. Dual-basis numbers are shown side by side
         but never divided into each other; dated sources (e.g., the 1995 DOE/API refinery basis, the 2007 Census
         establishment count) are used as conservative anchors and flagged. Company-published illustrative figures are
@@ -704,29 +567,62 @@
   </div>
   <div class="wide xl">
     <div style="margin-top:26px">
-      <p class="chart-title">Anchor register · K1–K178</p>
+      <p class="chart-title">Anchor register · K1–K202</p>
       <p class="chart-sub">EVERY NUMBER THE REPORT LEANS ON, WITH ITS DATED SOURCE · CLICK ANY ROW FOR THE BACKED FACT</p>
     </div>
     <div id="source-list"></div>
   </div>
   <div class="prose">
-    <div class="downloads">
-      <p class="dl-head">Downloads</p>
-      <p class="dl-line"><a href="downloads/HCSP_Industry_Value_Report_v7.pdf">HCSP Industry Value Report, v7 — PDF</a><br>
-        <a href="downloads/HCSP_Industry_Value_Report_v7.docx">HCSP Industry Value Report, v7 — DOCX</a><br>
-        <a href="downloads/HCSP_Grants_Strategy.docx">HCSP Grants Strategy — DOCX</a><br>
-        <a href="downloads/HCSP_Grants_Database.xlsx">HCSP Grants Database — XLSX</a><br>
-        <a href="downloads/HCSP_Competitor_Intelligence.pdf">HCSP Competitor Intelligence (374Water · GA · Aquarden · Revive) — PDF</a><br>
-        <a href="downloads/HCSP_Competitor_Intelligence.docx">HCSP Competitor Intelligence — DOCX</a></p>
-      <p class="dl-note">Print and working-copy editions of this report and its Part III funding layer. This site is
-        also distributed as a single self-contained HTML file for offline reading; the downloads above are the
-        citable sources of record.</p>
-    </div>
     <p class="colophon">Interactive research edition · Compiled September 2026 · Source of record: HCSP Cross-Industry
-      Value &amp; Financial Impact Analysis, report v2 (scale ladder, energy crossover, trigeneration, storage)
-      · v3 addendum: the cost-savings lens — dual composite / incumbent-$/gal rankings,
+      Value &amp; Financial Impact Analysis, report v2 (scale ladder, the point where the system powers itself, making clean water, power, and cooling at once, storage)
+      · v3 addendum: the cost-savings lens — dual composite / existing-supplier-$/gal rankings,
       manufacturer pricing TBD · Part III: HCSP Non-Dilutive Funding Strategy + 92-program grants register (funding
-      status as of September 2026 — verify current NOFOs before applying) · No investment advice</p>
+      status as of September 2026 — verify current grant application notices before applying) · No investment advice</p>
+  </div>
+</footer>
+
+<!-- ═══ Shared page footer · cross-links + compact downloads ═══ -->
+<footer class="page-foot">
+  <div class="prose">
+    <nav class="pf-links" aria-label="Report pages">
+      <a href="index.html" class="here">Market Analysis</a>
+      <a href="competitors.html">Competitive Intelligence</a>
+      <a href="funding.html">Funding &amp; Grants</a>
+    </nav>
+    <div class="dl-compact">
+      <p class="dl-head">Downloads</p>
+      <p class="dl-line"><a href="downloads/HCSP_Industry_Value_Report_v7.pdf">Report v7 · PDF</a> ·
+        <a href="downloads/HCSP_Industry_Value_Report_v7.docx">DOCX</a> ·
+        <a href="downloads/HCSP_Grants_Strategy.docx">Grants Strategy · DOCX</a> ·
+        <a href="downloads/HCSP_Grants_Database.xlsx">Grants Database · XLSX</a> ·
+        <a href="downloads/HCSP_Competitor_Intelligence.pdf">Competitor Intelligence · PDF</a> ·
+        <a href="downloads/HCSP_Competitor_Intelligence.docx">DOCX</a></p>
+    </div>
+    <details class="glossary">
+      <summary>The words we use — a plain-English glossary</summary>
+      <dl>
+        <div><dt>SCWO</dt><dd>Supercritical water oxidation — a way of destroying waste with very hot, high-pressure water.</dd></div>
+        <div><dt>PFAS</dt><dd>"Forever chemicals" — man-made chemicals that barely break down in nature.</dd></div>
+        <div><dt>COD</dt><dd>Chemical oxygen demand — a measure of how much organic waste is in the water.</dd></div>
+        <div><dt>AFFF</dt><dd>Firefighting foam — a major source of PFAS pollution.</dd></div>
+        <div><dt>Autothermal</dt><dd>The system makes its own heat from the waste it destroys.</dd></div>
+        <div><dt>CapEx / OpEx</dt><dd>Purchase cost / running cost.</dd></div>
+        <div><dt>TAM / SAM / SOM</dt><dd>Total market / reachable market / what we could win.</dd></div>
+        <div><dt>TRL</dt><dd>Technology readiness level — how proven the technology is, on a 1–9 scale.</dd></div>
+        <div><dt>WDS</dt><dd>Waste destruction service — we run the destruction for you.</dd></div>
+        <div><dt>ZLD</dt><dd>Zero liquid discharge — a rule that no liquid waste may leave a site.</dd></div>
+        <div><dt>Skid</dt><dd>A factory-built machine delivered on a steel frame — you hook it up and switch it on.</dd></div>
+        <div><dt>Leachate</dt><dd>The contaminated liquid that drains out of a landfill.</dd></div>
+        <div><dt>Biosolids</dt><dd>Sewage sludge — the solid leftovers of wastewater treatment.</dd></div>
+        <div><dt>MCL</dt><dd>The legal limit for a chemical in drinking water.</dd></div>
+        <div><dt>ELG</dt><dd>Federal limits on what a factory may discharge in its wastewater.</dd></div>
+        <div><dt>CERCLA</dt><dd>The US Superfund cleanup law — it decides who pays to clean up pollution.</dd></div>
+        <div><dt>NOFO</dt><dd>A grant application notice — the government announcing money you can apply for.</dd></div>
+        <div><dt>SBIR / STTR</dt><dd>US small-business research grant programs.</dd></div>
+        <div><dt>SRF</dt><dd>State water-infrastructure loan funds — cheap public loans for water projects.</dd></div>
+        <div><dt>Refrigeration ton</dt><dd>A standard measure of cooling capacity; 500 tons ≈ 1.8 MW of cooling.</dd></div>
+      </dl>
+    </details>
   </div>
 </footer>
 
@@ -738,20 +634,29 @@
 <!-- Drill-down card -->
 <div id="drill-card" hidden></div>
 
+<!-- Back to top -->
+<button id="to-top" type="button">↑ TOP</button>
+
 <script src="vendor/d3.min.js"></script>
+<script src="js/shell.js"></script>
 <script src="js/data.js"></script>
 <script src="js/sources.js"></script>
 <script src="js/utils.js"></script>
+<script>window.DASH_SECTIONS = ["exec", "concepts", "mech", "state", "scale", "energy", "verdict", "appendix"];</script>
 <script src="js/cover.js"></script>
 <script src="js/cover-exploded.js"></script>
 <script src="js/cover-wire.js"></script>
 <script src="js/charts-core.js"></script>
 <script src="js/charts-exec.js"></script>
 <script src="js/charts-v2.js"></script>
-<script src="js/charts-players.js"></script>
-<script src="js/deepdive.js"></script>
 <script src="js/charts-verdict.js"></script>
-<script src="js/funding.js"></script>
+<script src="js/chart_modal.js"></script>
+<script src="js/calculator.js"></script>
+<script src="js/energy.js"></script>
+<script src="js/materials.js"></script>
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="js/skid3d.js"></script>
 <script src="js/tables.js"></script>
 <script src="js/dashboard.js"></script>
 <script src="js/main.js"></script>

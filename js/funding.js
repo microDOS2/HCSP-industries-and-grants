@@ -7,16 +7,16 @@
   const strip = document.getElementById("fate-strip");
   if (strip) {
     const M = [
-      { v: "$11.3B", neg: true, l: "DOE demonstration awards terminated (2025)", d: "24 OCED awards (~$3.7B) terminated May 2025, ~$7.56B more across DOE offices in Oct 2025; the office itself was abolished in November.", src: ["K106"] },
-      { v: "781", neg: true, l: "EPA environmental-justice grants terminated", d: "OBBBA (P.L. 119-21) rescinded unobligated IRA climate-justice appropriations; the Office of Environmental Justice is closed. Dead money — never a fit for a for-profit vendor.", src: ["K105"] },
-      { v: "$37.33B", l: "Known addressable pools across the register", d: "Sum of disclosed award pools — grants, forgivable SRF tranches, WIFIA credit capacity, and settlement funds — across the 92-program register. Not exhaustive; loans and settlements included, and the international/NGO layer (G-081–G-092) adds channels rather than pooled dollars.", src: ["K149"] },
+      { v: "$11.3B", neg: true, l: "DOE demonstration awards terminated (2025)", d: "24 awards (~$3.7B) from DOE's clean-energy demonstrations office terminated May 2025, ~$7.56B more across DOE offices in Oct 2025; the office itself was abolished in November.", src: ["K106"] },
+      { v: "781", neg: true, l: "EPA environmental-justice grants terminated", d: "The July 2025 federal budget law cancelled unspent Inflation Reduction Act climate-justice money; the Office of Environmental Justice is closed. Dead money — never a fit for a for-profit vendor.", src: ["K105"] },
+      { v: "$37.33B", l: "Known addressable pools across the register", d: "Sum of disclosed award pools — grants, forgivable state loan-fund installments, federal WIFIA loan capacity, and settlement funds — across the 92-program register. Not exhaustive; loans and settlements included, and the international/NGO layer (programs G-081–G-092) adds channels rather than pooled dollars.", src: ["K149"] },
       { v: "$12.75B+", l: "Settlement funds in flight to water systems", d: "3M $10.5–12.5B over 13 years (>$3.5B already paid) plus DuPont/Chemours/Corteva $1.185B, Tyco $750M, BASF $316.5M. Administrators pay utilities, not vendors — sell downstream of the checks.", src: ["K111"] },
     ];
     strip.innerHTML = M.map((m, i) => `<div class="m" data-i="${i}"><div class="v"${m.neg ? ' style="color:var(--neg)"' : ""}>${m.v}</div><div class="k">${m.l}</div></div>`).join("");
     strip.querySelectorAll(".m").forEach(el => {
       const m = M[+el.dataset.i];
       el.style.cursor = "pointer"; el.setAttribute("data-drill-keep", "");
-      el.onclick = e => U.showDrill({ title: "THE 2026 LANDSCAPE", value: m.v, sub: m.d, source: CH.srcStr(m.src), x: e.clientX, y: e.clientY });
+      el.onclick = e => U.showDrill({ title: "THE 2026 LANDSCAPE", value: m.v, sub: m.d, source: CH.srcLink(m.src), x: e.clientX, y: e.clientY });
     });
   }
 
@@ -42,7 +42,7 @@
     const f = RPT.funding_landscape.filter(x => x.fate === el.dataset.g)[+el.dataset.i];
     el.onclick = e => U.showDrill({
       title: f.name.toUpperCase(), value: f.amount,
-      sub: f.note, source: CH.srcStr(f.src), x: e.clientX, y: e.clientY,
+      sub: f.note, source: CH.srcLink(f.src), x: e.clientX, y: e.clientY,
     });
   });
 })();
@@ -57,11 +57,11 @@
   const body = U.frame(host, {
     title: "The access architecture: 40/35/25, and the Orlando template to replicate",
     sub: "LANE WIDTH = SHARE OF PURSUIT EFFORT (%) · ORLANDO CHAIN NODE AREA ∝ DOLLARS · CLICK EVERY LANE AND NODE",
-    src: "Industry & official — Orlando/FL DEP award records, OC San RISE, MN LCCMR, DoD AFFF program (K114, K115, K143, K144, K133)",
+    src: "Industry & official — Orlando/Florida DEP award records, Orange County CA innovation program, Minnesota trust fund, Defense Dept foam program (K114, K115, K143, K144, K133)",
   });
   const W = 880, H = 470;
   const svg = CH.svg(body, W, H);
-  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#8595a6", blue = "#2251ff", lineLo = "#eef1f6";
+  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff", lineLo = "#eef1f6";
 
   // ── upper flow: 100% pursuit effort → three access modes ──
   const LX = 40, LW = 150, MX = 560, MW = 280; // left bar / mode nodes
@@ -115,13 +115,13 @@
     if (l2) node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 53 : 43))
       .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", nf).attr("fill", ink).text(l2);
     if (tall) {
-      const tag = { b: "WHERE THE BIG MONEY IS — THE UTILITY WRITES THE PROPOSAL", a: "CREDIBILITY PLAYS — DIRECT APPLICATIONS, ACTIONABLE NOW", c: "A REVENUE CHANNEL DISGUISED AS A GRANTS CHANNEL" }[L.mode];
+      const tag = { b: "WHERE THE BIG MONEY IS", a: "DIRECT, ACTIONABLE NOW", c: "A REVENUE CHANNEL IN DISGUISE" }[L.mode];
       node.append("text").attr("x", MX + 12).attr("y", my + mh - 9)
         .attr("font-family", CH.MONO).attr("font-size", 7.6).attr("fill", inkLo).text(tag);
     }
     const drillData = () => ({
       title: "ACCESS MODE (" + L.mode + ") — " + L.effort + "% OF EFFORT", value: L.name,
-      sub: L.gist + " " + L.template, source: CH.srcStr(L.src),
+      sub: L.gist + " " + L.template, source: CH.srcLink(L.src),
     });
     CH.drill(laneG, drillData); CH.drill(node, drillData);
     if (CH.REDUCE) { laneG.style("opacity", 1); node.style("opacity", 1); }
@@ -136,12 +136,12 @@
   svg.append("line").attr("x1", LX).attr("x2", W - 40).attr("y1", 326).attr("y2", 326).attr("stroke", lineLo);
 
   const chain = [
-    { lab: "CWSRF-BIL GRANT", val: "~$0.8M", date: "FEB 2024", r: Math.sqrt(0.8) * 26,
-      sub: "The City of Orlando secured a federal BIL grant through Florida's CWSRF (~$800K, February 2024) to fund an SCWO demonstration by 374Water at its Iron Bridge facility. The utility wrote the proposal; the vendor supplied the engineering package.", src: ["K114"] },
+    { lab: "STATE WATER FUND GRANT", val: "~$0.8M", date: "FEB 2024", r: Math.sqrt(0.8) * 26,
+      sub: "The City of Orlando secured a federal infrastructure-law grant through Florida's clean-water state loan fund (~$800K, February 2024) to fund an SCWO demonstration by 374Water at its Iron Bridge facility. The utility wrote the proposal; the vendor supplied the engineering package.", src: ["K114"] },
     { lab: "WDS SERVICE LICENSE", val: "5 YEARS", date: "MAR 2026", r: Math.sqrt(2.5) * 26,
       sub: "The funded demonstration converted into a five-year waste-destruction-services license (March 2026) — grant-funded proof converting into recurring service revenue.", src: ["K115"] },
     { lab: "FULL-SCALE PFAS HUB", val: "$3–5M", date: "JUN 2026", r: Math.sqrt(4) * 26,
-      sub: "Then a $3M–$5M full-scale PFAS destruction hub (June 2026). The pattern repeats: OC San's 6-ton/day RISE demonstration and Minnesota's ENRTF-funded SCWO biosolids project (Dec 2025).", src: ["K115", "K144", "K143"] },
+      sub: "Then a $3M–$5M full-scale PFAS destruction hub (June 2026). The pattern repeats: Orange County CA's 6-ton/day demonstration and Minnesota's trust-fund SCWO sewage-sludge project (Dec 2025).", src: ["K115", "K144", "K143"] },
   ];
   const xs = [200, 470, 740];
   chain.forEach((c, i) => {
@@ -161,13 +161,13 @@
       g.append("path").attr("d", `M${xs[i + 1] - chain[i + 1].r - 14},${cy - 4} L${xs[i + 1] - chain[i + 1].r - 6},${cy} L${xs[i + 1] - chain[i + 1].r - 14},${cy + 4} Z`)
         .attr("fill", inkMd);
     }
-    CH.drill(g, () => ({ title: "ORLANDO TEMPLATE · " + c.lab, value: c.val + " · " + c.date, sub: c.sub, source: CH.srcStr(c.src) }));
+    CH.drill(g, () => ({ title: "ORLANDO TEMPLATE · " + c.lab, value: c.val + " · " + c.date, sub: c.sub, source: CH.srcLink(c.src) }));
     if (CH.REDUCE) g.style("opacity", 1);
     else g.transition().delay(900 + i * 220).duration(400).style("opacity", 1);
   });
   svg.append("text").attr("x", LX).attr("y", 452)
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo)
-    .text("FUNDED DEMONSTRATION → SERVICE LICENSE → HUB · THE GRANT PROPOSAL IS WRITTEN BY THE UTILITY; THE VENDOR SUPPLIES THE WINNING EVIDENCE");
+    .text("FUNDED DEMONSTRATION → SERVICE LICENSE → HUB · PROPOSAL WRITTEN BY THE UTILITY");
 })();
 
 /* ────────────────────────────────────────────────────────────
@@ -222,7 +222,9 @@
     table.querySelector("tbody").innerHTML = out.map(r =>
       `<tr data-id="${r.id}" class="${r.status === "DEAD" || r.status === "CLOSED" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : ""}" data-drill-keep="" style="cursor:pointer">
         <td class="num">${r.id}</td>
-        <td><b>${r.program}</b><br><span class="g-ag">${r.agency}</span></td>
+        <td><b>${r.program}</b><br>${r.url
+          ? `<a class="g-ag src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">${r.agency} ↗</a>`
+          : `<span class="g-ag">${r.agency}</span>`}</td>
         <td>${r.level}</td>
         <td>${r.type}</td>
         <td class="num g-award">${r.award}</td>
@@ -237,11 +239,12 @@
     });
     table.querySelectorAll("tbody tr").forEach(tr => {
       const r = rows.find(x => x.id === tr.dataset.id);
+      tr.querySelectorAll("a.src-link").forEach(a => a.onclick = ev => ev.stopPropagation());
       tr.onclick = e => U.showDrill({
         title: r.id + " · " + r.program.toUpperCase(),
         value: r.award,
         sub: r.notes + " · Access: " + r.access + ". Fit: " + r.fit + " — " + r.vertical + ". Next: " + r.deadline + ".",
-        source: CH.srcStr(r.src) + (r.url ? " · " + r.url : ""),
+        source: CH.srcLink(r.src) + (r.url ? ` · <a class="src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Program page ↗</a>` : ""),
         x: e.clientX, y: e.clientY,
       });
     });
@@ -279,7 +282,7 @@
       title: "PURSUIT #" + r.rank + " · " + r.program.toUpperCase(),
       value: r.award,
       sub: r.why + " · Type: " + r.type + ". Access: " + r.access + ". Status: " + r.status + ". Next: " + r.deadline + ". Match " + r.match + "/5.",
-      source: CH.srcStr(r.src), x: e.clientX, y: e.clientY,
+      source: CH.srcLink(r.src), x: e.clientX, y: e.clientY,
     });
   });
 })();
@@ -293,13 +296,13 @@
   const body = U.frame(host, {
     title: "Twelve months of dated pursuits — rolling federal cycles through 2027",
     sub: "WALL-CHART TIMELINE SEP 2026 – Q3 2027 · SOLID BLUE = HARD DEADLINE · INK = EXPECTED CYCLE · DASHED = PROGRAM STILL FORMING · MUTED RED, STRUCK = CLOSED (DEADLINE PASSED SEP 2026) · ⚑ = MISSING IT COSTS A FULL ANNUAL CYCLE · CLICK PLAQUES",
-    src: "Industry & official — agency NOFO pages, settlement administrators, state program bulletins · dates as published (K116–K132)",
+    src: "Industry & official — agency grant-notice pages, settlement administrators, state program bulletins · dates as published (K116–K132)",
   });
   const W = 880, H = 420, axisY = 342;
   // piecewise scale: Sep 2026–Feb 2027 expanded (deadline cluster), Mar–Sep 2027 compressed
   const x = v => v <= 2027.15 ? 56 + (v - 2026.6) / 0.55 * 560 : 616 + (v - 2027.15) / 0.65 * 208;
   const svg = CH.svg(body, W, H);
-  const ink = "#051c2c", inkLo = "#8595a6", blue = "#2251ff", closedCol = "#c22f4e";
+  const ink = "#051c2c", inkLo = "#42566a", blue = "#2251ff", closedCol = "#c22f4e";
   const clsCol = { hard: blue, window: ink, forming: inkLo };
 
   // "now" marker (compiled September 2026)
@@ -321,7 +324,7 @@
   // greedy plaque layering
   const layers = [];
   const placed = RPT.funding_calendar.map(c => {
-    const wpx = Math.max(76, c.label.length * 6.6 + 20);
+    const wpx = Math.max(88, c.label.length * 7.8 + 22);
     const cx = U.clamp(x(c.y), 40 + wpx / 2, W - 16 - wpx / 2);
     let li = 0;
     for (;;) {
@@ -353,7 +356,7 @@
     CH.drill(g, () => ({
       title: p.date.toUpperCase() + " · " + p.label.toUpperCase(),
       value: p.closed ? "CLOSED — DEADLINE PASSED SEP 2026" : p.urgent ? "⚑ HARD DEADLINE — ANNUAL CYCLE" : p.cls === "hard" ? "HARD DEADLINE" : p.cls === "forming" ? "PROGRAM FORMING — ENGAGE NOW" : "EXPECTED CYCLE",
-      sub: p.ev, source: CH.srcStr(p.src),
+      sub: p.ev, source: CH.srcLink(p.src),
     }));
     if (CH.REDUCE) g.style("opacity", 1);
     else g.transition().delay(i * 100).duration(350).style("opacity", 1);
@@ -361,5 +364,5 @@
 
   svg.append("text").attr("x", 56).attr("y", axisY + 42)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("RULE 1: DWPR + ONR BAA CLOSED SEP 2026 (ANNUAL CYCLES — TRACK FY2027) · SEQUENCE Q4→Q3 PER THE STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
+    .text("RULE 1: RECLAMATION GRANTS + NAVY RESEARCH CALL CLOSED SEP 2026 (ANNUAL CYCLES — TRACK FY2027) · FOLLOW THE Q4→Q3 STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
 })();

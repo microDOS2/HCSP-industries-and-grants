@@ -18,10 +18,12 @@
   bands.forEach(b => io.observe(b));
   if (sources) io.observe(sources);
 
-  // rail visibility: only after the cover scrolls out
+  // rail visibility: only after the cover (or, on coverless pages, the hero) scrolls out
+  const hero = document.querySelector(".page-hero");
+  const gate = cover || hero;
   function onScroll() {
-    if (!window.DASH || !cover) return;
-    const past = scrollY > cover.offsetHeight * 0.55;
+    if (!window.DASH || !gate) return;
+    const past = scrollY > gate.offsetHeight * 0.55;
     DASH.show(past);
   }
   let tick = false;

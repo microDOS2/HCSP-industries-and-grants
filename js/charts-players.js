@@ -1,7 +1,7 @@
-// ═══ §4 players: destiny flow (P2) + vendor small multiples (P9-style panel) ═══
+// ═══ §4 players: who survived and who failed (P2) + vendor small multiples (P9-style panel) ═══
 
 /* ────────────────────────────────────────────────────────────
-   8 · Destiny flow — forty years of SCWO, flowing to outcomes
+   8 · Who survived and who failed — forty years of SCWO, flowing to outcomes
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("destiny-chart");
@@ -9,15 +9,16 @@
   const body = U.frame(host, {
     title: "The graveyard is the context; the four survivors are the evidence",
     sub: "COMMERCIAL SCWO ENTITIES 1980–2026 · DASHED SPAN = GRADED DATE ESTIMATE · ✕ = EXITED · RIBBON = OUTCOME · CLICK LINES AND PLAQUES",
-    src: "Industry & official — SCWO literature reviews (2019/2021), NRC (2002), EPA OLEM · Company disclosure — vendor PRs, SEC EDGAR",
+    src: "Industry & official — SCWO literature reviews (2019/2021), US National Research Council (2002), US EPA waste office · Company disclosure — vendor press releases, SEC filings",
   });
-  const W = 880, padT = 46, rowH = 34;
+  const W = 880, padT = 46, rowH = 40;
   const rows = RPT.players;
   const H = padT + rows.length * rowH + 52;
+  const rowEls = [];
   const mL = 196, tX0 = 214, tX1 = 636, pX = 706; // timeline + plaque column
   const x = d3.scaleLinear().domain([1980, 2027]).range([tX0, tX1]);
   const svg = CH.svg(body, W, H);
-  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#8595a6", blue = "#2251ff", neg = "#c22f4e";
+  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff", neg = "#c22f4e";
 
   // axis
   [1980, 1990, 2000, 2010, 2020, 2027].forEach(v => {
@@ -36,7 +37,7 @@
   CH.drill(cenT, () => ({
     title: "THE GRAVEYARD CENSUS", value: "~6 plants (2021)",
     sub: RPT.field_stats.note + " — mainly corrosion, plugging, and economics.",
-    source: CH.srcStr(RPT.field_stats.src),
+    source: CH.srcLink(RPT.field_stats.src),
   }));
 
   // cohort kickers
@@ -73,7 +74,7 @@
     CH.drill(g, () => ({
       title: "OUTCOME · " + o.label, value: rows.filter(r => r.outcome === o.id).length + " entities",
       sub: rows.filter(r => r.outcome === o.id).map(r => r.name).join(" · "),
-      source: CH.srcStr(["K49"]),
+      source: CH.srcLink(["K49"]),
     }));
   });
 
@@ -81,14 +82,15 @@
   rows.forEach((r, i) => {
     const yy = padT + i * rowH + rowH / 2;
     const g = svg.append("g");
+    rowEls.push(g);
     // name (left column, serif)
-    const nm = g.append("text").attr("x", mL - 12).attr("y", yy + 4).attr("text-anchor", "end")
-      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 11.5)
-      .attr("fill", r.cohort === "The graveyard" ? inkMd : ink)
-      .text(r.name.length > 22 ? r.name.slice(0, 21).replace(/[ ,;–—(]+$/, "") + " …" : r.name);
+    const nm = g.append("text").attr("x", mL - 12).attr("y", yy - 5).attr("text-anchor", "end")
+      .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 12.5)
+      .attr("fill", r.cohort === "The graveyard" ? inkMd : ink);
+    CH.wrap2(nm, r.name, 20);
     CH.halo(nm);
     // birth label
-    g.append("text").attr("x", x(r.from) - 6).attr("y", yy - 7).attr("text-anchor", "end")
+    g.append("text").attr("x", x(r.from) - 10).attr("y", yy - 7).attr("text-anchor", "end")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(r.from + (r.graded ? "*" : ""));
     // lifeline
     const alive = r.outcome === "operating";
@@ -113,17 +115,17 @@
     CH.drill(line, () => ({
       title: r.name.toUpperCase() + (r.graded ? " · DATES GRADED [DERIVED]" : ""),
       value: `${r.from}–${r.to === 2026 ? "today" : r.to} → ${r.out}`,
-      sub: r.note, source: CH.srcStr(r.src),
+      sub: r.note, source: CH.srcLink(r.src),
     }));
     if (end) CH.drill(end, () => ({
-      title: r.name.toUpperCase(), value: "✕ " + r.out, sub: r.note, source: CH.srcStr(r.src),
+      title: r.name.toUpperCase(), value: "✕ " + r.out, sub: r.note, source: CH.srcLink(r.src),
     }));
   });
 
   // footnote
   svg.append("text").attr("x", tX0).attr("y", H - 18)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("* GRADED DATE ESTIMATE [DERIVED] · RIBBON WIDTH ENCODES DEAL SIZE — UNDISCLOSED = HAIRLINE THROUGHOUT");
+    .text("* GRADED DATE ESTIMATE [DERIVED] · RIBBON WIDTH WOULD SHOW DEAL SIZE — UNDISCLOSED = HAIRLINE THROUGHOUT");
 
   CH.enter(host, () => {
     svg.selectAll("line[data-x1]").transition().duration(700).delay((d, i) => i * 45)
@@ -138,22 +140,44 @@
     svg.selectAll(".ribbon").style("opacity", null);
     svg.selectAll(".plaque").style("opacity", 1);
   }
+
+  // ── walkthrough registration (the who survived and who failed) ──
+  window.CXT = window.CXT || { table: {}, walk: {} };
+  CXT.walk["destiny-chart"] = {
+    title: "Forty years of SCWO, in four moves",
+    steps: [
+      { els: rows.map((r, i) => r.cohort === "The graveyard" ? rowEls[i] : null).filter(Boolean),
+        label: "The graveyard",
+        cap: "Most commercial SCWO ventures died. Corrosion and salt plugging in conventional preheater designs — plus weak economics — ended every one of these lifelines." },
+      { el: cen, label: "The 2021 census",
+        cap: "By 2021 only ~6 commercial SCWO plants were left worldwide. The technology worked chemically; the industry failed on reliability and cost." },
+      { els: rows.map((r, i) => r.outcome === "operating" ? rowEls[i] : null).filter(Boolean),
+        label: "The operating field",
+        cap: "Four survivors still operate today — 374Water, General Atomics, Aquarden, and Revive Environmental — each with verifiable plants or programs. They are the evidence base, not the graveyard." },
+      { els: Object.values(plaqueEls), label: "Where entities end up",
+        cap: "Every lifeline flows to one of four outcomes: exited, technology sold, licensed into a revival, or still operating. Ribbons are hairlines because deal sizes are undisclosed." },
+    ],
+  };
+  CXT.table["destiny-chart"] = {
+    cols: ["Entity", "Active", "Outcome", "Notes"],
+    rows: rows.map(r => [r.name + (r.graded ? " *" : ""), `${r.from}–${r.to === 2026 ? "today" : r.to}`, r.out, r.note]),
+  };
 })();
 
 /* ────────────────────────────────────────────────────────────
-   9 · Vendor benchmark — four verifiable operators, shared TRL axis
+   9 · Vendor benchmark — four verifiable operators, shared TRL (how proven the technology is) axis
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("vendor-chart");
   if (!host) return;
   const body = U.frame(host, {
     title: "Four verifiable operators — and the benchmark the HCSP must beat",
-    sub: "SHARED TRL AXIS (1–9) · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
+    sub: "SHARED TRL (HOW PROVEN THE TECHNOLOGY IS) AXIS (1–9) · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
     src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25) · Industry & official — EPA interim guidance v3 (2026-04)",
   });
   const W = 880, H = 316, padT = 22, padB = 56;
   const svg = CH.svg(body, W, H);
-  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#8595a6", blue = "#2251ff";
+  const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff";
   const cols = 4, cw = (W - 40) / cols;
   const trlX = d3.scaleLinear().domain([1, 9]).range([0, cw - 44]);
 
@@ -166,8 +190,8 @@
     g.append("text").attr("x", 0).attr("y", 14).attr("font-family", CH.SERIF).attr("font-weight", 700)
       .attr("font-size", 14.5).attr("fill", main ? blue : ink).text(v.name);
     g.append("text").attr("x", 0).attr("y", 31).attr("font-family", CH.MONO).attr("font-size", 8.5)
-      .attr("fill", inkLo).text(("SCALE " + v.scale).toUpperCase());
-    // TRL range
+      .attr("fill", inkLo).each(function () { CH.wrap2(d3.select(this), ("SCALE " + v.scale).toUpperCase(), 22); });
+    // TRL (how proven the technology is) range
     g.append("text").attr("x", 0).attr("y", 66).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("TECHNOLOGY READINESS");
     g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 84).attr("y2", 84).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
@@ -175,7 +199,7 @@
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(tick));
     const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 79).attr("height", 10).attr("rx", 3)
       .attr("fill", main ? blue : inkMd).attr("width", 0).attr("data-w", trlX(v.trl[1]) - trlX(v.trl[0]));
-    g.append("text").attr("x", trlX(v.trl[1]) + 6).attr("y", 88).attr("font-family", CH.MONO).attr("font-size", 9.5)
+    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 88).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
       .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`TRL ${v.trl[0]}–${v.trl[1]}`);
     // energy + cost
     g.append("text").attr("x", 0).attr("y", 126).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
@@ -189,9 +213,9 @@
     const cst = g.append("text").attr("x", 0).attr("y", 242).attr("font-family", CH.SERIF).attr("font-style", "italic")
       .attr("font-size", 11.5).attr("fill", inkMd).text(v.constraint.length > 34 ? v.constraint.slice(0, 33) + "…" : v.constraint);
     CH.drill(g, () => ({
-      title: v.name.toUpperCase(), value: `TRL ${v.trl[0]}–${v.trl[1]}`,
+      title: v.name.toUpperCase(), value: `TRL ${v.trl[0]}–${v.trl[1]} (how proven the technology is, 1–9)`,
       sub: `Scale: ${v.scale}. Energy: ${v.energy}. Cost: ${v.cost}. Constraint: ${v.constraint}.`,
-      source: CH.srcStr(v.src),
+      source: CH.srcLink(v.src),
     }));
     if (CH.REDUCE) { g.style("opacity", 1); rb.attr("width", rb.attr("data-w")); }
     else {
@@ -201,10 +225,18 @@
   });
 
   function wrap(g, text, x0, y0, maxW, fs, fill, fam, fw) {
-    // greedy two-line wrap at ~6px/char mono 9.5
-    const per = Math.floor(maxW / 5.9);
-    const t1 = text.slice(0, per), t2 = text.length > per ? text.slice(per, per * 2 - 3).replace(/[ ,;–—-]+$/, "") + " …" : "";
+    // word-boundary two-line wrap (sized for the ≥12px readability floor)
+    const per = Math.floor(maxW / 8.2);
+    let t1 = text, t2 = "";
+    if (text.length > per) {
+      const cut = text.slice(0, per + 1);
+      const sp = cut.lastIndexOf(" ");
+      const idx = sp > per * 0.45 ? sp : per;
+      t1 = text.slice(0, idx);
+      t2 = text.slice(idx).trim();
+      if (t2.length > per) t2 = t2.slice(0, per - 1).replace(/[ ,;–—(/-]+$/, "") + " …";
+    }
     g.append("text").attr("x", x0).attr("y", y0).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t1);
-    if (t2) g.append("text").attr("x", x0).attr("y", y0 + 13).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t2);
+    if (t2) g.append("text").attr("x", x0).attr("y", y0 + 15).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t2);
   }
 })();

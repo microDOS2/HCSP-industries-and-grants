@@ -172,15 +172,46 @@
   const modes = { a: cvA, b: cvB, c: cvX };
   let cur = "a";
 
+  // ── Artwork is opt-in: nothing animates until SHOW ANIMATION is pressed ──
+  let artOn = false;
+  const artBtn = document.getElementById("art-toggle");
+  const narrowMQ = matchMedia("(max-width: 900px)");
+
+  function stopAll() {
+    COVER_A.setActive(false);
+    COVER_X.setActive(false);
+    active = false; cancelAnimationFrame(raf);
+  }
+
+  function setArt(on) {
+    artOn = on && !narrowMQ.matches &&
+      !document.documentElement.classList.contains("reader");
+    document.documentElement.classList.toggle("cover-art", artOn);
+    if (artBtn) {
+      artBtn.setAttribute("aria-pressed", artOn ? "true" : "false");
+      artBtn.textContent = artOn ? "HIDE ANIMATION" : "SHOW ANIMATION";
+    }
+    if (artOn) setMode(cur);
+    else stopAll();
+  }
+
+  if (artBtn) artBtn.addEventListener("click", () => {
+    setArt(!artOn);
+    if (artOn) window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  // viewport shrinks past the art cutoff → art off, clean text
+  (narrowMQ.addEventListener ? narrowMQ.addEventListener.bind(narrowMQ, "change") : narrowMQ.addListener.bind(narrowMQ))(() => { if (artOn) setArt(false); });
+
   function setMode(m, opts = {}) {
     if (!modes[m === "d" ? "b" : m]) m = "a";
     cur = m;
     document.querySelectorAll("#cover-mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === m));
     Object.entries(modes).forEach(([key, cv]) => { cv.style.display = "none"; });
+    try { localStorage.setItem("hcsp-cover", m); } catch (e) {}
+    if (!artOn) { stopAll(); return; }   // hidden stage: no canvas work at all
     const useX = (m === "b" || m === "d");
     const cv = useX ? cvB : modes[m];
     cv.style.display = "";
-    try { localStorage.setItem("hcsp-cover", m); } catch (e) {}
     if (useX) {
       COVER_X.setMode(m);
       COVER_X.setActive(false);
@@ -202,22 +233,17 @@
     b.addEventListener("click", () => setMode(b.dataset.mode));
   });
 
-  // direct links: ?cover=a|b|c|d  (+ legacy x/w aliases)
+  // direct links: ?cover=a|b|c|d  (+ legacy x/w aliases) — an explicit request
+  // for the artwork, so it also turns the art layer on
   const q = new URLSearchParams(location.search).get("cover");
   const alias = { x: "b", w: "c" };
   let initial = alias[q] || q;
   if (!initial) { try { initial = localStorage.getItem("hcsp-cover"); } catch (e) {} }
   if (!["a", "b", "c", "d"].includes(initial)) initial = "a";
-  // Cover artwork disabled by owner request — no animation, no background images
-  Object.entries(modes).forEach(([key, cv]) => { cv.style.display = "none"; });
-  try { COVER_A.setActive(false); COVER_X.setActive(false); } catch (e) {}
-  active = false; cancelAnimationFrame(raf);
+  cur = initial;
+  document.querySelectorAll("#cover-mode button").forEach(b => b.classList.toggle("on", b.dataset.mode === cur));
+  if (q || new URLSearchParams(location.search).get("art") === "on") setArt(true);   // deep link opts in
+  else stopAll();        // default: clean text, no animation
 
-  // chips: smooth scroll
-  document.querySelectorAll("[data-goto]").forEach(b => {
-    b.addEventListener("click", () => {
-      const el = document.querySelector(b.dataset.goto);
-      if (el) el.scrollIntoView({ behavior: REDUCE ? "auto" : "smooth" });
-    });
-  });
+  // chips: smooth scroll — handled by js/shell.js (shared across all pages)
 })();
