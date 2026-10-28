@@ -109,7 +109,7 @@
     { v: 0.2, t: "SMALL FARM · FAB · REMOTE" },
     { v: 1.8, t: "MID INDUSTRIAL PLANT" },
     { v: 18, t: "MUNICIPAL UTILITY" },
-    { v: 70, t: "NATIONAL PROGRAM / DEFENSE" },
+    { v: 70, t: "NATIONAL PROGRAM" },
   ];
   landmarks.forEach(m => {
     CH.halo(svg.append("text").attr("x", x(m.v)).attr("y", TOP - 12)

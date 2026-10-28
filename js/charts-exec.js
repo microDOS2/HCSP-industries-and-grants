@@ -72,11 +72,11 @@
   const sites = [
     { sx: 278, sy: 277, px: 96, py: 226, anchor: "start", head: "10 M³/DAY", sub: "≈0.925M GAL/YR THROUGHPUT",
       val: "10 m³/day", basis: "Rated throughput (~2,640 gal/day); ~0.9M gal/yr at 90% utilization — sized to a mid-size industrial site's generation rate.", src: ["K1"] },
-    { sx: 560, sy: 196, px: 636, py: 128, anchor: "start", head: "380–420 °C · 25 MPA", sub: "JUST ABOVE THE CRITICAL POINT",
+    { sx: 560, sy: 196, px: 630, py: 128, anchor: "start", head: "380–420 °C · 25 MPA", sub: "JUST ABOVE THE CRITICAL POINT",
       val: "380–420 °C · 25 MPa", basis: "Water above 374 °C and 22.1 MPa enters a state that is neither liquid nor gas, in which organic waste and oxygen mix completely and oxidize in seconds to minutes.", src: ["K1"] },
-    { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "STARTUP POWER SPEC · GRID-PRICE CONTEXT",
+    { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "STARTUP POWER SPEC",
       val: "75–95 kW", basis: "Startup/auxiliary power draw spec (180–228 kilowatt-hours per cubic meter × 8.62 ¢/kWh US industrial ≈ $15–20/m³-equivalent). Operating energy itself is negligible per the manufacturer — the self-fueling hydrogen loop generates fuel on demand from process water; grid price values the startup draw and every exported kilowatt-hour.", src: ["K23", "K1"] },
-    { sx: 690, sy: 306, px: 706, py: 366, anchor: "start", head: "≈$3.5/M³", sub: "RECOVERED-WATER VALUE (BYPRODUCT)",
+    { sx: 690, sy: 306, px: 696, py: 366, anchor: "start", head: "≈$3.5/M³", sub: "RECOVERED-WATER VALUE",
       val: "≈ $3.53/m³", basis: "85–95% distilled recovery at <10 µS/cm earns a credit worth roughly US average commercial water + sewer tariffs — valuable, never sufficient to carry the economics.", src: ["K31", "K1"] },
     { sx: 500, sy: 150, px: 300, py: 96, anchor: "middle", head: "PRICING TBD", sub: "VS $5–28/GAL DOCUMENTED EXISTING SUPPLIERS",
       val: "TBD — pending", basis: "HCSP service pricing is TBD — manufacturer cost model pending. The documented existing suppliers it would undercut: incineration $5–10/gal, existing SCWO service $6–10/gal, hazardous landfilling of AFFF at $28/gal (Michigan 2020).", src: ["K21", "K10"] },
@@ -133,7 +133,7 @@
   const W = 880, H = 500;
   const svg = CH.svg(body, W, H);
   const x = d3.scaleLinear().domain([0, 600]).range([86, W - 60]);
-  const y = d3.scaleLinear().domain([0, 30]).range([H - 70, 60]);
+  const y = d3.scaleLinear().domain([0, 30]).range([H - 86, 60]);
   const ink = "#051c2c", inkLo = "#42566a", blue = "#2251ff", neg = "#c22f4e";
 
   // axes
@@ -157,9 +157,12 @@
     .attr("fill", "rgba(34,81,255,.06)");
   sc.append("line").attr("x1", x(374)).attr("x2", x(374)).attr("y1", y(22.1)).attr("y2", y(30)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
   sc.append("line").attr("x1", x(374)).attr("x2", x(600)).attr("y1", y(22.1)).attr("y2", y(22.1)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
-  const scl = sc.append("text").attr("x", x(500)).attr("y", y(28.2)).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("SUPERCRITICAL REGION — WASTE + OXYGEN MIX COMPLETELY");
+  const scl = sc.append("text").attr("x", x(487)).attr("y", y(28.4)).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("SUPERCRITICAL REGION");
   CH.halo(scl);
+  const scl2 = sc.append("text").attr("x", x(487)).attr("y", y(28.4) + 13).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("WASTE + OXYGEN MIX COMPLETELY");
+  CH.halo(scl2);
   // critical point
   svg.append("circle").attr("cx", x(374)).attr("cy", y(22.1)).attr("r", 4).attr("fill", blue).attr("stroke", "#fff").attr("stroke-width", 1.6);
   svg.append("line").attr("x1", x(374) + 4).attr("y1", y(22.1) + 4).attr("x2", x(386) + 8).attr("y2", y(20.6) - 4)
@@ -212,13 +215,13 @@
 
   // stage nodes
   const stages = [
-    { n: 1, t: 25, p: 0.6, dx: 12, dy: 26, name: "HIGH-PRESSURE PUMP", note: "PRESSURIZE TO 250 BAR",
+    { n: 1, t: 25, p: 0.6, dx: 16, dy: -18, name: "HIGH-PRESSURE PUMP · 250 BAR", note: "",
       sub: "Feed arrives concentrated (≥60–150 g/L COD — COD measures how much organic waste is in the water — or an upstream concentrate). Pressurization is the first of two energy inputs.", src: ["K58", "K1"] },
     { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "PREHEAT — H₂/O₂ COMBUSTION", note: "SELF-FUELING LOOP · 75–95 KW STARTUP/AUX SPEC",
       sub: "Per the briefing: on-demand electrolysis of a portion of the process water → clean H₂/O₂ combustion supplies the preheat. Self-fueling once started, negligible net energy cost in operation; the 75–95 kW grid spec covers startup and auxiliary draw. Feeds strong enough to make their own heat (>~30 g/L organics) carry more of the duty themselves.", src: ["K1", "K59"] },
     { n: 3, t: 400, p: 25, dx: 26, dy: -12, name: "SCWO REACTOR", note: "ORGANICS → CO₂ + H₂O · SECONDS",
       sub: "Complete destruction in seconds to minutes: 99.9993% of the PFAS destroyed and removed, federally validated in a US Army Corps of Engineers lab test. Salts precipitate in supercritical water — the failure mode that killed conventional preheater designs — but HCSP combusts hydrogen above 3,000 °F (≈1,650 °C) directly in the reactor, preventing salt deposition; the manufacturer reports no salt issues, consistent with published research on flames burning inside hot pressurized water.", src: ["K2", "K20", "K1"] },
-    { n: 4, t: 90, p: 0.8, dx: 30, dy: -22, name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",
+    { n: 4, t: 90, p: 0.8, dx: 126, dy: -33, lead: [14, -8, 118, -28], name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",
       sub: "Cool, separate, let down. The distilled-quality output (conductivity <10 µS/cm — purer than tap water) earns a ~$3.5/m³ byproduct credit; the contained inert sludge is the fully broken-down residue.", src: ["K1", "K31"] },
   ];
   const nodes = svg.append("g");
@@ -233,6 +236,9 @@
       .attr("text-anchor", s.n === 2 ? "end" : s.n === 3 ? "start" : "start")
       .attr("font-family", CH.MONO).attr("font-size", 10.5).attr("font-weight", 700).attr("fill", ink).text(s.n + " · " + s.name);
     CH.halo(t1);
+    if (s.lead) g.append("line").attr("x1", x(s.t) + s.lead[0]).attr("y1", y(s.p) + s.lead[1])
+      .attr("x2", x(s.t) + s.lead[2]).attr("y2", y(s.p) + s.lead[3])
+      .attr("stroke", ink).attr("stroke-width", 0.8).attr("opacity", 0.5);
     const t2 = g.append("text").attr("x", x(s.t) + s.dx).attr("y", y(s.p) + s.dy + 14)
       .attr("text-anchor", s.n === 2 ? "end" : "start")
       .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").text(s.note);
@@ -241,7 +247,7 @@
   });
 
   // feed label
-  const fl = svg.append("text").attr("x", x(25) - 14).attr("y", y(0.6) + 4).attr("text-anchor", "end")
+  const fl = svg.append("text").attr("x", x(25) + 16).attr("y", y(0.6) + 16).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a").text("CONCENTRATED FEED IN · 10 M³/DAY");
   CH.halo(fl);
 
@@ -346,7 +352,7 @@
     for (let i = 0; i < nUp; i++) { glyph(field, gx, 2, false, 1); gx += GW + GAP; }
     const sam = g.append("text").attr("x", mL).attr("y", 52)
       .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a")
-      .text(("reachable market " + d.sam + " · total market " + d.tam).length > 96 ? ("reachable market " + d.sam + " · total market " + d.tam).slice(0, 94).replace(/[ ,;–—-]+$/, "") + " …" : "reachable market " + d.sam + " · total market " + d.tam);
+      .text(("reachable market " + d.sam + " · total market " + d.tam).length > 76 ? ("reachable market " + d.sam + " · total market " + d.tam).slice(0, 74).replace(/[ ,;–—-]+$/, "") + " …" : "reachable market " + d.sam + " · total market " + d.tam);
     CH.halo(sam);
     CH.drill(field, () => ({
       title: d.name.toUpperCase(),
@@ -363,14 +369,14 @@
   // consolidated note
   const nt = svg.append("text").attr("x", mL).attr("y", H - 30)
     .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", "#051c2c").attr("font-weight", 700)
-    .text("CONSOLIDATED REACHABLE DEMAND ≈ $9–20B/YR — ROUGHLY DOUBLE V1 ONCE THE V2 POOLS ARE ADDED");
+    .text("CONSOLIDATED REACHABLE DEMAND ≈ $9–20B PER YEAR ACROSS 15 INDUSTRIES");
   CH.halo(nt);
   const nt2 = svg.append("text").attr("x", mL).attr("y", H - 15)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a")
-    .text("V2 ADDS DISTILLERY $2–5B, FACTORY FARMS $1–3B, ISLANDS $0.5–1.5B, MINING $0.3–0.8B · PRODUCED WATER SHRUNK TO A NICHE");
+    .text("PLUS DISTILLERY $2–5B, FACTORY FARMS $1–3B, ISLANDS $0.5–1.5B · PRODUCED WATER SIZED AS A NICHE");
   CH.halo(nt2);
   CH.drill(nt, () => ({
-    title: "CONSOLIDATED reachable market (V2)", value: "~$9–20B /yr",
+    title: "CONSOLIDATED REACHABLE MARKET", value: "~$9–20B /yr",
     sub: RPT.market_meta.sam_note + " " + RPT.market_meta.scwo_note,
     source: CH.srcLink(["K53", "K8", "K64"]),
   }));

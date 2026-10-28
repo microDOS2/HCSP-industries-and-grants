@@ -87,7 +87,7 @@ window.CH = (() => {
   const body = U.frame(host, {
     title: "Fifteen industries, one physics filter — and the ranking is still an economics verdict",
     sub: "WEIGHTED SIX-CRITERION SCORE /10 · COLOR = TIER · RIGHT COLUMN = NET TIME TO EARN BACK THE COST (PENDING MANUFACTURER COST MODEL) · CLICK ANY BAR FOR THE RATIONALE",
-    src: "Research compilation — cross-checked composites from the report's industry studies (D1–D10) and the v2 industry chapter (2026-09)",
+    src: "Research compilation — cross-checked composites from the report's industry studies (D1–D10) and industry chapter (2026-09)",
   });
   const W = 880, rowH = 50, padT = 32, H = padT + rowH * RPT.league.length + 46;
   const mL = 236, mR = 210;
@@ -141,9 +141,9 @@ window.CH = (() => {
   });
 
   const pb = rows.append("text")
-    .attr("x", x(10) + 14).attr("y", rowH / 2 + 3.5)
+    .attr("x", x(10) + 14).attr("y", rowH / 2 - 9)
     .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a")
-    .text(d => { const s = d.payback.toUpperCase(); return s.length > 30 ? s.slice(0, 29).replace(/[ ,;–—(/-]+$/, "") + " …" : s; });
+    .each(function (d) { CH.wrap2(d3.select(this), d.payback.toUpperCase(), 22); });
   pb.style("font-style", d => /^pending/i.test(d.payback) ? "italic" : "normal");
   CH.halo(pb);
   pb.each(function (d) {
@@ -166,7 +166,7 @@ window.CH = (() => {
   CH.halo(ct);
   CH.drill(cliff.select("line"), () => ({
     title: "THE 4.5 CLIFF", value: "Tier 3 → Tier 4",
-    sub: "Every market scoring 6.0 or above sits high on feed concentration or disposal-price protection; every market below 4.5 fails both. Produced water's +1.25 v2 revision still leaves it in the conditional zone — a real niche, not a basin-scale play.",
+    sub: "Every market scoring 6.0 or above sits high on feed concentration or disposal-price protection; every market below 4.5 fails both. Produced water — scored up 1.25 points on closer review — still sits in the conditional zone: a real niche, not a basin-scale play.",
     source: CH.srcLink(["K70", "K100"]),
   }));
 
@@ -232,14 +232,14 @@ window.CH = (() => {
       .attr("fill", d.lo <= 15 ? "#2251ff" : d.lo <= 25 ? "#1233b8" : "#42566a")
       .attr("width", 0).attr("data-x0", x(d.lo)).attr("data-x1", x(d.hi));
     const lbTxt = `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)}`;
-    const lbRight = x(d.hi) + 8 + lbTxt.length * 8.8 <= W - 4;
+    const lbRight = x(d.hi) + 8 + lbTxt.length * 10 <= W - 4;
     const lb = g.append("text").attr("x", lbRight ? x(d.hi) + 8 : x(d.lo) - 8).attr("y", 20)
       .attr("text-anchor", lbRight ? "start" : "end")
       .attr("font-family", CH.MONO).attr("font-size", 11.5).attr("font-weight", 700).attr("fill", "#051c2c")
       .style("opacity", 0).text(lbTxt);
     CH.halo(lb);
-    const noteTxt = d.note.length > 46 ? d.note.slice(0, 45).replace(/[ ,;–—-]+$/, "") + " …" : d.note;
-    const noteRight = x(d.hi) + 8 + noteTxt.length * 7.4 <= W - 6;
+    const noteTxt = d.note.length > 40 ? d.note.slice(0, 39).replace(/[ ,;–—-]+$/, "") + " …" : d.note;
+    const noteRight = x(d.hi) + 8 + noteTxt.length * 8.8 <= W - 6;
     const note = g.append("text").attr("x", noteRight ? x(d.hi) + 8 : W - 6).attr("y", 35)
       .attr("text-anchor", noteRight ? "start" : "end")
       .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0)
@@ -257,7 +257,7 @@ window.CH = (() => {
   const wl = svg.append("g");
   wl.append("line").attr("x1", x(wv)).attr("x2", x(wv)).attr("y1", padT - 8).attr("y2", H - 44)
     .attr("stroke", "#2251ff").attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
-  const wt = wl.append("text").attr("x", x(wv) + 8).attr("y", padT - 2).attr("text-anchor", "start")
+  const wt = wl.append("text").attr("x", x(wv) + 8).attr("y", H - 30).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#2251ff")
     .text("WATER VALUE ≈ $3.5/M³");
   CH.halo(wt);
@@ -391,7 +391,7 @@ window.CH = (() => {
   // framing note where the year axis used to be
   const fn = svg.append("text").attr("x", mL).attr("y", padT - 14).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", "#2251ff")
-    .text("YEARS TO EARN BACK THE COST REQUIRE HCSP COST INPUTS — WITHHELD UNTIL THE MANUFACTURER PUBLISHES A COST MODEL");
+    .text("EARN-BACK YEARS: WITHHELD PENDING THE MANUFACTURER COST MODEL");
   CH.halo(fn);
 
   const rows = svg.selectAll("g.r").data(RPT.payback).join("g")
@@ -431,7 +431,7 @@ window.CH = (() => {
     CH.halo(cl);
     const basis = g.append("text").attr("x", mL + chipW + 12).attr("y", 13)
       .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").style("opacity", 0)
-      .text(d.basis.length > 52 ? d.basis.slice(0, 51).replace(/[ ,;–—-]+$/, "") + " …" : d.basis);
+      .text(d.basis.length > 44 ? d.basis.slice(0, 43).replace(/[ ,;–—-]+$/, "") + " …" : d.basis);
     CH.halo(basis);
     [chip, cl, basis].forEach(s => CH.drill(s, () => ({
       title: d.name.toUpperCase(), value: "Net earn-back time: pending",
@@ -454,7 +454,7 @@ window.CH = (() => {
 })();
 
 /* ────────────────────────────────────────────────────────────
-   5 · THE SAVINGS LADDER (v3 signature) — what existing suppliers charge to clean it up $/gal,
+   5 · THE SAVINGS LADDER — what existing suppliers charge to clean it up $/gal,
    log scale, HCSP reference reduced to a qualitative pending note (hcsp_v3_savings_ladder.md)
 ──────────────────────────────────────────────────────────── */
 (function () {
@@ -466,7 +466,7 @@ window.CH = (() => {
   const body = U.frame(host, {
     title: "The Savings Ladder — what existing suppliers charge to make each gallon disappear",
     sub: "WHAT EXISTING SUPPLIERS CHARGE TO CLEAN IT UP — UNIT & AXIS TOGGLES BELOW (REMEMBERED UNTIL YOU CLOSE THE TAB) · HCSP REFERENCE: SELF-FUELING LOOP, COST MODEL PENDING — NO $/GAL ATTACHED · DASHED OUTLINE = LOW CONFIDENCE · CLICK ANY BAR FOR VALUE + BASIS + DATED SOURCE",
-    src: "Research compilation — report v3 addendum (2026-09), all values previously sourced in the dim research · " + CH.srcStr(["K150"]),
+    src: "Research compilation — the report's cost-savings analysis (2026-09), all values previously sourced in the underlying research · " + CH.srcStr(["K150"]),
   });
   const GAL2M3 = 264.172; // 1 US gallon = 0.00378541 m³ → $/gal × 264.172 = $/m³
   let unit = "gal", axis = "log";
@@ -587,7 +587,7 @@ window.CH = (() => {
           .attr("stroke", col).attr("stroke-width", 1.6).style("opacity", 0).attr("class", "cap");
       });
       const txt = band$(d) + (d.lowConf ? " · LOW CONFIDENCE" : "");
-      const rightFits = x(cv(d.hi)) + 10 + txt.length * 8.8 <= W - 6;
+      const rightFits = x(cv(d.hi)) + 10 + txt.length * 10 <= W - 6;
       const lab = g.append("text")
         .attr("x", rightFits ? x(cv(d.hi)) + 8 : x(cv(d.lo)) - 8)
         .attr("y", 14)

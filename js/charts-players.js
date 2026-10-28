@@ -90,7 +90,7 @@
     CH.wrap2(nm, r.name, 20);
     CH.halo(nm);
     // birth label
-    g.append("text").attr("x", x(r.from) - 10).attr("y", yy - 7).attr("text-anchor", "end")
+    g.append("text").attr("x", x(r.from) - 4).attr("y", yy + 17).attr("text-anchor", "start")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(r.from + (r.graded ? "*" : ""));
     // lifeline
     const alive = r.outcome === "operating";
@@ -123,9 +123,12 @@
   });
 
   // footnote
-  svg.append("text").attr("x", tX0).attr("y", H - 18)
+  svg.append("text").attr("x", tX0).attr("y", H - 30)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("* GRADED DATE ESTIMATE [DERIVED] · RIBBON WIDTH WOULD SHOW DEAL SIZE — UNDISCLOSED = HAIRLINE THROUGHOUT");
+    .text("* GRADED DATE ESTIMATE [DERIVED]");
+  svg.append("text").attr("x", tX0).attr("y", H - 14)
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
+    .text("ALL RIBBONS HAIRLINE-THIN — DEAL SIZES ARE UNDISCLOSED");
 
   CH.enter(host, () => {
     svg.selectAll("line[data-x1]").transition().duration(700).delay((d, i) => i * 45)
@@ -173,9 +176,9 @@
   const body = U.frame(host, {
     title: "Four verifiable operators — and the benchmark the HCSP must beat",
     sub: "SHARED TRL (HOW PROVEN THE TECHNOLOGY IS) AXIS (1–9) · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
-    src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25) · Industry & official — EPA interim guidance v3 (2026-04)",
+    src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25) · Industry & official — EPA interim guidance, third release (2026-04)",
   });
-  const W = 880, H = 316, padT = 22, padB = 56;
+  const W = 880, H = 344, padT = 22, padB = 8;
   const svg = CH.svg(body, W, H);
   const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff";
   const cols = 4, cw = (W - 40) / cols;
@@ -195,23 +198,22 @@
     g.append("text").attr("x", 0).attr("y", 66).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("TECHNOLOGY READINESS");
     g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 84).attr("y2", 84).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
-    [1, 3, 5, 7, 9].forEach(tick => g.append("text").attr("x", trlX(tick)).attr("y", 98).attr("text-anchor", "middle")
+    [1, 3, 5, 7, 9].forEach(tick => g.append("text").attr("x", trlX(tick)).attr("y", 104).attr("text-anchor", "middle")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(tick));
     const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 79).attr("height", 10).attr("rx", 3)
       .attr("fill", main ? blue : inkMd).attr("width", 0).attr("data-w", trlX(v.trl[1]) - trlX(v.trl[0]));
-    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 88).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
+    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 86).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
       .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`TRL ${v.trl[0]}–${v.trl[1]}`);
     // energy + cost
-    g.append("text").attr("x", 0).attr("y", 126).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    g.append("text").attr("x", 0).attr("y", 128).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("ENERGY");
-    wrap(g, v.energy.toUpperCase(), 0, 138, cw - 30, 9.5, ink, CH.MONO, 700);
-    g.append("text").attr("x", 0).attr("y", 176).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    wrap(g, v.energy.toUpperCase(), 0, 146, cw - 30, 9.5, ink, CH.MONO, 700);
+    g.append("text").attr("x", 0).attr("y", 206).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("COST BENCHMARK");
-    wrap(g, v.cost.toUpperCase(), 0, 188, cw - 30, 9.5, ink, CH.MONO, 700);
-    g.append("text").attr("x", 0).attr("y", 228).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    wrap(g, v.cost.toUpperCase(), 0, 224, cw - 30, 9.5, ink, CH.MONO, 700);
+    g.append("text").attr("x", 0).attr("y", 270).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("KEY CONSTRAINT");
-    const cst = g.append("text").attr("x", 0).attr("y", 242).attr("font-family", CH.SERIF).attr("font-style", "italic")
-      .attr("font-size", 11.5).attr("fill", inkMd).text(v.constraint.length > 34 ? v.constraint.slice(0, 33) + "…" : v.constraint);
+    wrap(g, v.constraint.toUpperCase(), 0, 288, cw - 30, 9.5, inkMd, CH.MONO, 400);
     CH.drill(g, () => ({
       title: v.name.toUpperCase(), value: `TRL ${v.trl[0]}–${v.trl[1]} (how proven the technology is, 1–9)`,
       sub: `Scale: ${v.scale}. Energy: ${v.energy}. Cost: ${v.cost}. Constraint: ${v.constraint}.`,
@@ -226,17 +228,21 @@
 
   function wrap(g, text, x0, y0, maxW, fs, fill, fam, fw) {
     // word-boundary two-line wrap (sized for the ≥12px readability floor)
-    const per = Math.floor(maxW / 8.2);
-    let t1 = text, t2 = "";
+    const per = Math.max(8, Math.floor(maxW / 8.2));
+    let t1 = text, t2 = "", t3 = "";
     if (text.length > per) {
-      const cut = text.slice(0, per + 1);
-      const sp = cut.lastIndexOf(" ");
-      const idx = sp > per * 0.45 ? sp : per;
-      t1 = text.slice(0, idx);
-      t2 = text.slice(idx).trim();
-      if (t2.length > per) t2 = t2.slice(0, per - 1).replace(/[ ,;–—(/-]+$/, "") + " …";
+      const lines = [""];
+      text.split(" ").forEach(w => {
+        const cand = (lines[lines.length - 1] + " " + w).trim();
+        if (cand.length <= per) lines[lines.length - 1] = cand;
+        else if (lines.length < 3) lines.push(w);
+        else lines[2] = (lines[2] + " " + w).trim();
+      });
+      if (lines[2] && lines[2].length > per) lines[2] = lines[2].slice(0, per - 1).replace(/[ ,;–—(/-]+$/, "") + " …";
+      t1 = lines[0]; t2 = lines[1] || ""; t3 = lines[2] || "";
     }
-    g.append("text").attr("x", x0).attr("y", y0).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t1);
-    if (t2) g.append("text").attr("x", x0).attr("y", y0 + 15).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t2);
+    const t = g.append("text").attr("x", x0).attr("y", y0).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t1);
+    if (t2) t.append("tspan").attr("x", x0).attr("dy", "1.35em").text(t2);
+    if (t3) t.append("tspan").attr("x", x0).attr("dy", "1.35em").text(t3);
   }
 })();

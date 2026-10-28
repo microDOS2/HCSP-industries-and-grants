@@ -11,7 +11,7 @@
   const body = U.frame(host, {
     title: "Scale fixes energy first, capital second — but nothing above 306 t/d has ever operated",
     sub: "FOUR RUNGS, DILUTE-FEED BASE CASE (COD 5–20 G/L) · LOG CAPACITY AXIS · M³/DAY ↔ GALLONS/DAY TOGGLE BELOW · ENERGY BAND = SINGLE LARGE TRAIN → MANY PARALLEL UNITS · COST PANEL WITHHELD — MANUFACTURER COST MODEL PENDING · CLICK RUNGS",
-    src: "Research compilation — report v2 Ch. 11.2 model [derived] · Industry & official — Los Alamos lab cost model (OSTI 3001291), DOE scaling methodology (NETL), European refiners' review (Concawe 25-6)",
+    src: "Research compilation — the report's scale-ladder model [derived] · Industry & official — Los Alamos lab cost model (OSTI 3001291), DOE scaling methodology (NETL), European refiners' review (Concawe 25-6)",
   });
   // ── capacity unit toggle (per-session only): m³/day ↔ US gpd (×264.172) ──
   let capU = "m3d";
@@ -78,13 +78,13 @@
   const b2 = svg.append("g").style("opacity", 0);
   b2.append("rect").attr("x", mL).attr("y", p2.y0 + 18).attr("width", W - mR - mL).attr("height", p2.y1 - p2.y0 - 36).attr("rx", 3)
     .attr("fill", "rgba(66,86,106,.05)").attr("stroke", inkMd).attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
-  const b2t = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", (p2.y0 + p2.y1) / 2 - 4).attr("text-anchor", "middle")
+  const b2t = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", p2.y0 + 34).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", inkMd)
     .text("COST FIGURES WITHHELD — MANUFACTURER COST MODEL PENDING");
   CH.halo(b2t);
-  const b2s = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", (p2.y0 + p2.y1) / 2 + 12).attr("text-anchor", "middle")
+  const b2s = b2.append("text").attr("x", (mL + W - mR) / 2).attr("y", p2.y0 + 50).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("EARLIER $/M³ FIGURES HERE CAME FROM A MODELED STACK, NOT THE MANUFACTURER — NO $/M³ IS ATTACHED TO HCSP");
+    .text("NO HCSP $/M³ IS ATTACHED — LITERATURE FIGURES ARE MODELED, NOT MANUFACTURER-QUOTED");
   CH.halo(b2s);
   CH.drill(b2.select("rect"), () => ({
     title: "FULLY LOADED COST — ALL RUNGS", value: "TBD — pending",
@@ -113,7 +113,7 @@
     // rung name under bottom axis (last two rungs staggered down to avoid collision)
     const yOff = i >= 2 ? (i - 2) * 26 : 0;
     const capexTxt = `${(i === 3 ? "Regional hub" : d.name).toUpperCase()} · COST TBD`;
-    const half = capexTxt.length * 5.1 / 2 + 6;
+    const half = capexTxt.length * 9.7 / 2 + 8;
     const xc = Math.max(mL + half, Math.min(x(d.m3d), W - mR - half));
     const nm = g.append("text").attr("x", xc).attr("y", p2.y1 + 18 + yOff).attr("text-anchor", "middle")
       .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", ink)
@@ -138,11 +138,11 @@
   xo.append("line").attr("x1", x(1000)).attr("x2", x(1000)).attr("y1", yS(p1, 0)).attr("y2", yS(p1, 0) + 0).attr("stroke", blue);
   const xot = xo.append("text").attr("x", x(30)).attr("y", p1.y0 + 12)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", blue).attr("font-weight", 700)
-    .text("ABOVE ~35–40 G/L COD THE ENERGY LINE INVERTS TO NET EXPORT — SCALE STOPS MATTERING FOR ENERGY →");
+    .text("ABOVE ~35–40 G/L COD THE ENERGY LINE INVERTS TO NET EXPORT");
   CH.halo(xot);
   const xot2 = xo.append("text").attr("x", x(30)).attr("y", p1.y0 + 25)
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo)
-    .text("SEE THE POINT WHERE THE SYSTEM POWERS ITSELF CHART BELOW · MAKING ITS OWN HEAT FROM THE WASTE FLIPS THE SIGN; THE LADDER ONLY MOVES THE STARTING POINT");
+    .text("FEED STRENGTH FLIPS THE SIGN — SCALE ONLY MOVES THE STARTING POINT");
   CH.halo(xot2);
   CH.drill(xo, () => ({
     title: "WHY FEED STRENGTH DECIDES", value: "net-zero ~35–40 g/L COD",
@@ -154,7 +154,7 @@
   const lim = svg.append("g").style("opacity", 0);
   const lt = lim.append("text").attr("x", x(1900)).attr("y", p2.y0 - 26).attr("text-anchor", "end")
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", neg).attr("font-weight", 700)
-    .text("⚠ LARGEST TRAIN EVER RUN: 306 TONS/DAY — EVERYTHING ABOVE IS ESTIMATED DESIGN ECONOMICS");
+    .text("⚠ LARGEST TRAIN EVER RUN: 306 T/D — ABOVE IT, ESTIMATED ECONOMICS");
   CH.halo(lt);
   CH.drill(lim, () => ({
     title: "SCALE-UP HONESTY", value: "306 t/d max, ever",
@@ -165,7 +165,7 @@
   // module-cost reading note
   const rd = svg.append("text").attr("x", mL + 4).attr("y", p2.y1 - 10).attr("text-anchor", "start")
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkMd)
-    .text("MODULE COST IS TBD (MANUFACTURER COST MODEL PENDING) — PART I SITS ONLY UNDER DESTRUCTION-PRICED UMBRELLAS");
+    .text("MODULE COST IS TBD — THE LADDER PRICES ONLY UNDER DESTRUCTION-PRICED UMBRELLAS");
   CH.halo(rd);
 
   const final = () => { b1.style("opacity", 1); b2.style("opacity", 1); rungEls.forEach(g => g.style("opacity", 1)); xo.style("opacity", 1); lim.style("opacity", 1); };
@@ -261,10 +261,14 @@
   mbd += " Z";
   const mband = svg.append("path").attr("d", mbd).attr("fill", "rgba(66,86,106,.10)")
     .attr("stroke", inkMd).attr("stroke-width", 1).attr("stroke-dasharray", "3 3").style("opacity", 0);
-  const mbl = svg.append("text").attr("x", x(58)).attr("y", y(150)).attr("text-anchor", "middle")
+  const mbl = svg.append("text").attr("x", x(75)).attr("y", y(150)).attr("text-anchor", "middle")
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
-    .text("10 M³/DAY MODULE, NO POWER CYCLE — APPROACHES ZERO, NEVER CROSSES");
+    .text("10 M³/DAY MODULE, NO POWER CYCLE");
   CH.halo(mbl);
+  const mbl2 = svg.append("text").attr("x", x(75)).attr("y", y(150) + 15).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    .text("— APPROACHES ZERO, NEVER CROSSES");
+  CH.halo(mbl2);
   CH.drill(mband, () => ({
     title: "MODULE WITHOUT A POWER CYCLE", value: "130–250 → ~0 kWh/m³",
     sub: "A 10 m³/day module can approach but not profitably cross the zero line; a hub with a steam power-recovery stage crosses at ~35–40 g/L and exports thereafter. Scale without concentration buys cheaper imports; concentration without scale forfeits the conversion hardware.",
@@ -292,7 +296,7 @@
   const railY = bot + 52;
   svg.append("line").attr("x1", mL).attr("x2", W - mR).attr("y1", railY).attr("y2", railY).attr("stroke", inkLo).attr("stroke-width", 1);
   const streams = X0.streams.slice().sort((a, b) => a.cod[0] - b.cod[0]);
-  const rows = []; // greedy stagger: last label end-x per row
+  const labelJobs = []; // real-width stagger pass runs after fonts settle
   streams.forEach((s, i) => {
     const above = s.side === "above";
     const col = above ? blue : inkLo;
@@ -302,22 +306,14 @@
       .attr("stroke", col).attr("stroke-width", 3).attr("stroke-linecap", "round");
     g.append("line").attr("x1", x(s.cod[0])).attr("x2", x(s.cod[0])).attr("y1", railY + 1).attr("y2", railY + 9).attr("stroke", col).attr("stroke-width", 1);
     g.append("line").attr("x1", x(s.cod[1])).attr("x2", x(s.cod[1])).attr("y1", railY + 1).attr("y2", railY + 9).attr("stroke", col).attr("stroke-width", 1);
-    // label placement: staggered rows below the rail
+    // label placement: staggered rows below the rail (real measured widths)
     const label = s.name.toUpperCase() + " " + (s.cod[0] === s.cod[1] ? s.cod[0] : s.cod[0] + "–" + s.cod[1]);
-    const wpx = label.length * 10.4 + 12;
     const cxm = x((s.cod[0] + s.cod[1]) / 2);
-    let li = 0;
-    for (;;) {
-      if (!rows[li] || cxm - wpx / 2 > rows[li] + 6) { rows[li] = cxm + wpx / 2; break; }
-      li++;
-    }
-    const ly = railY + 26 + li * 21;
-    g.append("line").attr("x1", cxm).attr("x2", cxm).attr("y1", railY + 9).attr("y2", ly - 4)
-      .attr("stroke", col).attr("stroke-width", 0.8).attr("opacity", 0.55);
-    const lt = g.append("text").attr("x", Math.max(mL + wpx / 2, Math.min(cxm, W - mR - wpx / 2))).attr("y", ly)
+    const lt = g.append("text").attr("x", cxm).attr("y", railY + 26)
       .attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 7.8)
       .attr("font-weight", above ? 700 : 400).attr("fill", col).text(label);
     CH.halo(lt);
+    labelJobs.push({ s, g, lt, cxm });
     CH.drill(g, () => ({
       title: s.name.toUpperCase(), value: (s.cod[0] === s.cod[1] ? s.cod[0] : s.cod[0] + "–" + s.cod[1]) + " g/L COD",
       sub: (above ? "Above the point where the system powers itself — the feed pays the plant. " : "Below the point where the system powers itself — screening rejects this as a direct feed. ") + s.note,
@@ -326,9 +322,25 @@
     if (CH.REDUCE) g.style("opacity", 1);
     else g.transition().delay(700 + i * 90).duration(300).style("opacity", 1);
   });
-  svg.append("text").attr("x", mL).attr("y", railY + 26 + 4 * 21 + 12)
+  // second pass: stagger with measured label widths (fonts already floored)
+  CH.fitText();
+  const rowsEnd = [];
+  labelJobs.forEach(j => {
+    const wpx = j.lt.node().getBBox().width + 14;
+    let li = 0;
+    for (;;) {
+      if (rowsEnd[li] === undefined || j.cxm - wpx / 2 > rowsEnd[li] + 8) { rowsEnd[li] = j.cxm + wpx / 2; break; }
+      li++;
+    }
+    const lx = Math.max(mL + wpx / 2, Math.min(j.cxm, W - mR - wpx / 2));
+    const ly = railY + 26 + li * 22;
+    j.lt.attr("x", lx).attr("y", ly);
+    j.g.append("line").attr("x1", j.cxm).attr("x2", lx).attr("y1", railY + 9).attr("y2", ly - 5)
+      .attr("stroke", j.s.side === "above" ? blue : inkLo).attr("stroke-width", 0.8).attr("opacity", 0.55);
+  });
+  svg.append("text").attr("x", mL).attr("y", railY + 26 + 4 * 22 + 14)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("MEASURED STREAM STRENGTH (COD) — BLUE MARKERS CLEAR THE POINT WHERE THE SYSTEM POWERS ITSELF; GREY NEVER WILL");
+    .text("MEASURED STREAM STRENGTH (COD, G/L) — BLUE MARKERS CLEAR THE LINE");
 
   CH.enter(host, () => {
     ex.transition().duration(500).style("opacity", 1);
@@ -414,15 +426,15 @@
 
   // ── nodes ──
   const n1 = node(NX.gross, gY, 26, gH, "#eef1f5");
-  lab(NX.gross + 13, gY - 14, "GROSS REACTION HEAT", { anchor: "middle", size: 8.5 });
-  lab(NX.gross + 13, gY - 3, T.gross.toFixed(1) + " MW OF HEAT", { anchor: "middle", size: 11, col: blue });
+  lab(NX.gross + 13, gY - 28, "GROSS REACTION HEAT", { anchor: "middle", size: 8.5 });
+  lab(NX.gross + 13, gY - 8, T.gross.toFixed(1) + " MW OF HEAT", { anchor: "middle", size: 11, col: blue });
   lab(NX.gross + 13, gY + gH / 2, "13.88", { anchor: "middle", size: 10, col: inkMd });
   lab(NX.gross + 13, gY + gH / 2 + 13, "KJ PER G COD", { anchor: "middle", size: 7.5, col: inkMd, bold: false });
   nodes.push({ el: n1, d: { title: "GROSS REACTION HEAT", value: "16.1 MW of heat", sub: "Oxidation releases ~13.88 kJ of heat per gram of COD; at 1,000 m³/day and 100 g/L the chemical inflow is 16.1 MW of heat. At 200 g/L the surplus climbs to 22–27 MW of heat — up to ~16 MW of cooling.", source: CH.srcLink(["K80"]) } });
 
   const n2 = node(NX.surplus, surY, 26, surH, "rgba(34,81,255,.16)", blue);
-  lab(NX.surplus + 13, surY - 14, "EXPORTABLE SURPLUS", { anchor: "middle", size: 8.5, col: blue });
-  lab(NX.surplus + 13, surY - 3, "9.6 MW OF HEAT (6.4–11.2)", { anchor: "middle", size: 10, col: blue });
+  lab(NX.surplus + 13, surY - 28, "EXPORTABLE SURPLUS", { anchor: "middle", size: 8.5, col: blue });
+  lab(NX.surplus + 13, surY - 8, "9.6 MW OF HEAT (6.4–11.2)", { anchor: "middle", size: 10, col: blue });
   nodes.push({ el: n2, d: { title: "EXPORTABLE SURPLUS", value: "9.6 MW of heat (range 6.4–11.2)", sub: "The band reflects heat-recovery efficiency of 70–85%; experimental systems validated 78.8–79%. The Cádiz 1 t/h pilot recovered 118 kW = 71% of feed chemical energy — scaling to ~4.9 MW here, inside the model's band.", source: CH.srcLink(["K81", "K82"]) } });
 
   // preheat block (internal, recirculated)
@@ -448,9 +460,9 @@
   nodes.push({ el: n5, d: { title: "POWER OUTPUT", value: "1.4 MW of electricity", sub: "Worth $15–20 per megawatt-hour of surplus heat at a 15–20% efficient small steam turbine and $0.10/kWh industrial power — the top of the earnings hierarchy unless chilled water sells retail.", source: CH.srcLink(["K83"]) } });
 
   const n6 = node(NX.out, chY, 108, coolHeatH, "rgba(125,155,255,.18)", blueSoft);
-  lab(NX.out + 54, chY + coolHeatH / 2 - 6, "4.9 MW COOLING", { anchor: "middle", size: 9.5, col: blue });
-  lab(NX.out + 54, chY + coolHeatH / 2 + 8, "≈ 1,392 REFRIGERATION TONS", { anchor: "middle", size: 7.6, col: blue, bold: false });
-  lab(NX.out + 54, chY + coolHeatH / 2 + 20, "+ ~900 M³/DAY WATER", { anchor: "middle", size: 7.2, col: inkMd, bold: false });
+  lab(NX.out + 40, chY + coolHeatH / 2 - 6, "4.9 MW COOLING", { anchor: "middle", size: 9.5, col: blue });
+  lab(NX.out + 40, chY + coolHeatH / 2 + 8, "≈ 1,392 REFRIGERATION TONS", { anchor: "middle", size: 7.6, col: blue, bold: false });
+  lab(NX.out + 40, chY + coolHeatH / 2 + 20, "+ ~900 M³/DAY WATER", { anchor: "middle", size: 7.2, col: inkMd, bold: false });
   nodes.push({ el: n6, d: { title: "COOLING + WATER OUTPUTS", value: "4.9 MW of cooling ≈ 1,392 refrigeration tons", sub: "8.2 MW of heat at 150–180 °C drives an ammonia-water heat chiller returning 0.6 units of cooling per unit of heat. Lithium-bromide chillers are the default for above-freezing chilled water (0.7–0.8 units per unit of heat); ammonia only for sub-zero duty. Field-measured efficiency ran 0.28–0.45 — underwrite conservatively. The outputs replace power and cooling the neighbor would otherwise buy; they are not a primary supply.", source: CH.srcLink(["K84", "K86"]) } });
 
   // flow value labels

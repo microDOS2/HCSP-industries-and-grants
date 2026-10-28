@@ -1192,6 +1192,16 @@ html.reader .skid3d-stage { touch-action: auto; }
 .cust-head .sub-h { margin-bottom: 4px; }
 .cust-geo { font-family: var(--mono); font-size: 12px; color: var(--ink-md); line-height: 1.6; margin: 0 0 4px; }
 table.dt.cust-dt th, table#geo-table.dt th { font-size: 12px; }
+/* customer tables: fixed layout so every column stays inside the frame — no clipped cells */
+table.dt.cust-dt { table-layout: fixed; width: 100%; }
+table.dt.cust-dt th:nth-child(1), table.dt.cust-dt td:nth-child(1) { width: 26%; }
+table.dt.cust-dt th:nth-child(2), table.dt.cust-dt td:nth-child(2) { width: 15%; }
+table.dt.cust-dt th:nth-child(3), table.dt.cust-dt td:nth-child(3) { width: 17%; }
+table.dt.cust-dt th:nth-child(4), table.dt.cust-dt td:nth-child(4) { width: 16%; }
+table.dt.cust-dt th:nth-child(5), table.dt.cust-dt td:nth-child(5) { width: 26%; }
+table.dt.cust-dt td.num { white-space: normal; }
+#geo-table td.gm-cell { min-width: 0; }
+#geo-table { table-layout: fixed; width: 100%; }
 
 /* largest / smallest flag chips — filled AA pairs (white on blue ≥5.9:1; white on ink ≥14:1) */
 .flag-chip {
@@ -1319,3 +1329,8 @@ table.mr-table td { font-size: 14.5px; }
 .mr-row:focus-visible { outline: 2px solid var(--red); outline-offset: -2px; }
 .mr-sub { font-weight: 600; color: var(--ink); min-width: 170px; }
 .mr-note { color: var(--ink-md); }
+
+/* comp/geo tables: wrap instead of clipping */
+#comp-table, #geo-table { table-layout: fixed; width: 100%; }
+#comp-table td, #geo-table td, #geo-table th { white-space: normal; }
+#geo-table .flag-chip, #geo-table .gm { white-space: normal; }

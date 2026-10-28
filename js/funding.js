@@ -1,4 +1,4 @@
-// ═══ Part III — Funding: §8 landscape fate board · §9 grant register + access architecture · §10 pursuits + deadline wall ═══
+// ═══ Funding: §8 landscape fate board · §9 grant register + access architecture · §10 pursuits + deadline wall ═══
 
 /* ────────────────────────────────────────────────────────────
    §8 · 2026 fate board — contracting climate-era money vs expanding PFAS pools
@@ -25,7 +25,7 @@
   const groups = [
     { key: "died", head: "DIED · PAUSED · CLOSED", cls: "fate-died", sum: "the strategic error is writing proposals to dead programs" },
     { key: "restored", head: "INTERRUPTED → RESTORED", cls: "fate-restored", sum: "court- and Congress-driven revivals" },
-    { key: "expanding", head: "EXPANDING — THE PFAS POOLS", cls: "fate-expanding", sum: "counter-cyclical: destruction is moving from pilot novelty to funded line item" },
+    { key: "expanding", head: "EXPANDING — THE PFAS POOLS", cls: "fate-expanding", sum: "grows when other funding shrinks: destruction is moving from pilot novelty to funded line item" },
   ];
   board.innerHTML = groups.map(g => {
     const items = RPT.funding_landscape.filter(f => f.fate === g.key);
@@ -103,16 +103,16 @@
     node.append("rect").attr("x", MX).attr("y", my).attr("width", MW).attr("height", mh)
       .attr("fill", "#fff").attr("stroke", col).attr("stroke-width", L.tone === "lead" ? 1.8 : 1.1);
     const tall = mh > 62;
-    node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 19 : 14))
+    node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 19 : 13))
       .attr("font-family", CH.MONO).attr("font-size", tall ? 9 : 7.6).attr("font-weight", 700).attr("fill", col)
       .text("MODE (" + L.mode + ") · " + L.effort + "% OF EFFORT");
     // wrapped name (max ~2 lines)
     const words = L.name.split(" "); let l1 = "", l2 = "";
     words.forEach(w => { if ((l1 + " " + w).trim().length <= (tall ? 34 : 30) && !l2) l1 = (l1 + " " + w).trim(); else l2 = (l2 + " " + w).trim(); });
     const nf = tall ? 13.5 : 11.5;
-    node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 38 : 30))
+    node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 38 : 29))
       .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", nf).attr("fill", ink).text(l1);
-    if (l2) node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 53 : 43))
+    if (l2) node.append("text").attr("x", MX + 12).attr("y", my + (tall ? 55 : 46))
       .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", nf).attr("fill", ink).text(l2);
     if (tall) {
       const tag = { b: "WHERE THE BIG MONEY IS", a: "DIRECT, ACTIONABLE NOW", c: "A REVENUE CHANNEL IN DISGUISE" }[L.mode];
@@ -298,7 +298,7 @@
     sub: "WALL-CHART TIMELINE SEP 2026 – Q3 2027 · SOLID BLUE = HARD DEADLINE · INK = EXPECTED CYCLE · DASHED = PROGRAM STILL FORMING · MUTED RED, STRUCK = CLOSED (DEADLINE PASSED SEP 2026) · ⚑ = MISSING IT COSTS A FULL ANNUAL CYCLE · CLICK PLAQUES",
     src: "Industry & official — agency grant-notice pages, settlement administrators, state program bulletins · dates as published (K116–K132)",
   });
-  const W = 880, H = 420, axisY = 342;
+  const W = 880, H = 472, axisY = 384;
   // piecewise scale: Sep 2026–Feb 2027 expanded (deadline cluster), Mar–Sep 2027 compressed
   const x = v => v <= 2027.15 ? 56 + (v - 2026.6) / 0.55 * 560 : 616 + (v - 2027.15) / 0.65 * 208;
   const svg = CH.svg(body, W, H);
@@ -321,19 +321,20 @@
       .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(lab);
   });
 
-  // greedy plaque layering
+  // greedy plaque layering — width measured off both text lines (fonts are floored ≥12px rendered)
   const layers = [];
   const placed = RPT.funding_calendar.map(c => {
-    const wpx = Math.max(88, c.label.length * 7.8 + 22);
+    const dateStr = (c.closed ? "CLOSED · " : c.urgent ? "⚑ " : "") + c.date.toUpperCase();
+    const wpx = Math.max(96, dateStr.length * 10 + 16, c.label.length * 8.8 + 16);
     const cx = U.clamp(x(c.y), 40 + wpx / 2, W - 16 - wpx / 2);
     let li = 0;
     for (;;) {
       if (!layers[li] || cx - wpx / 2 > layers[li] + 10) { layers[li] = cx + wpx / 2; break; }
       li++;
     }
-    return { ...c, wpx, cx, li };
+    return { ...c, dateStr, wpx, cx, li };
   });
-  const layerY = li => 288 - li * 56;
+  const layerY = li => 322 - li * 38; // keeps every plaque below the NOW strip and inside the frame
   const stemG = svg.append("g"), plqG = svg.append("g");
 
   placed.forEach((p, i) => {
@@ -347,9 +348,9 @@
       .attr("rx", 2).attr("fill", "#fff").attr("stroke", col)
       .attr("stroke-width", p.cls === "hard" && !p.closed ? 1.8 : 1.1)
       .attr("stroke-dasharray", p.cls === "forming" ? "5 3" : p.closed ? "3 3" : null);
-    g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py - 1)
+    g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py - 2)
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("font-weight", 700).attr("fill", col)
-      .text(p.closed ? "CLOSED · " + p.date.toUpperCase() : (p.urgent ? "⚑ " : "") + p.date.toUpperCase());
+      .text(p.dateStr);
     g.append("text").attr("x", p.cx - p.wpx / 2 + 7).attr("y", py + 14)
       .attr("font-family", CH.SERIF).attr("font-weight", 700).attr("font-size", 10.5).attr("fill", p.closed ? inkLo : ink)
       .attr("text-decoration", p.closed ? "line-through" : null).text(p.label);
@@ -362,7 +363,10 @@
     else g.transition().delay(i * 100).duration(350).style("opacity", 1);
   });
 
-  svg.append("text").attr("x", 56).attr("y", axisY + 42)
+  svg.append("text").attr("x", 56).attr("y", axisY + 44)
     .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
-    .text("RULE 1: RECLAMATION GRANTS + NAVY RESEARCH CALL CLOSED SEP 2026 (ANNUAL CYCLES — TRACK FY2027) · FOLLOW THE Q4→Q3 STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
+    .text("RECLAMATION GRANTS + NAVY RESEARCH CALL CLOSED SEP 2026 — ANNUAL CYCLES, TRACK FY2027");
+  svg.append("text").attr("x", 56).attr("y", axisY + 60)
+    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkLo)
+    .text("FOLLOW THE Q4→Q3 STACKING CALENDAR · ONE ANCHOR UTILITY PER STATE PROGRAM");
 })();
