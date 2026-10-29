@@ -40,8 +40,10 @@
   let vendorP = null;
   function loadVendor() {
     if (!vendorP) {
-      vendorP = loadScript("vendor/three.min.js")
-        .then(() => loadScript("vendor/OrbitControls.js"));
+      // vendor may already be loaded eagerly (the c3 chart modules load
+      // three.min.js + OrbitControls with the page) — never inject twice
+      vendorP = (window.THREE ? Promise.resolve() : loadScript("vendor/three.min.js"))
+        .then(() => (window.THREE && THREE.OrbitControls) ? Promise.resolve() : loadScript("vendor/OrbitControls.js"));
     }
     return vendorP;
   }

@@ -1,0 +1,53 @@
+/* ═══ Shared styles for the four 3D (Three.js) charts — c3_* modules ═══
+   Loaded once by the integration page alongside the c3_*.js modules. */
+.c3-root{--c3-blue:#2251ff;--c3-ink:#051c2c;--c3-md:#42566a;--c3-lo:#5b6f82;--c3-line:#dfe6ec;
+  margin-top:6px;font-family:Georgia,'Times New Roman',serif;color:var(--c3-ink)}
+.c3-head h3.c3-title{margin:0 0 4px;font-size:17px;letter-spacing:-.01em}
+.c3-head p.c3-sub{margin:0 0 10px;font-size:13.5px;color:var(--c3-md);line-height:1.5;max-width:70em}
+.c3-stage{position:relative;border:1px solid var(--c3-line);border-radius:10px;overflow:hidden;
+  background:linear-gradient(180deg,#fbfdff 0%,#eef3f8 100%);height:520px}
+.c3-stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.c3-ui{position:absolute;top:10px;left:10px;z-index:6;display:flex;flex-wrap:wrap;gap:6px;max-width:calc(100% - 20px)}
+.c3-btn{font-family:Menlo,Consolas,monospace;font-size:11px;letter-spacing:.05em;color:var(--c3-ink);
+  background:rgba(255,255,255,.92);border:1px solid var(--c3-line);border-radius:6px;padding:6px 10px;cursor:pointer}
+.c3-btn:hover{border-color:var(--c3-blue);color:var(--c3-blue)}
+.c3-btn[aria-pressed="true"]{background:var(--c3-blue);color:#fff;border-color:var(--c3-blue)}
+.c3-legend{position:absolute;left:10px;bottom:10px;z-index:6;display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100% - 20px);
+  font-family:Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.04em;color:var(--c3-md);
+  background:rgba(255,255,255,.88);border:1px solid var(--c3-line);border-radius:6px;padding:6px 9px}
+.c3-legend .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+.c3-hint{position:absolute;right:10px;top:10px;z-index:6;font-family:Menlo,Consolas,monospace;font-size:10.5px;
+  color:var(--c3-lo);background:rgba(255,255,255,.85);border:1px solid var(--c3-line);border-radius:6px;padding:5px 8px}
+.c3-tip{position:absolute;z-index:8;pointer-events:none;display:none;max-width:300px;
+  background:rgba(5,28,44,.94);color:#fff;border-radius:8px;padding:9px 11px;font-size:12.5px;line-height:1.45}
+.c3-tip.show{display:block}
+.c3-tip b{color:#9ec1ff}
+.c3-tip .c3-tip-src{display:block;margin-top:5px;font-size:11px;color:#b9c8d8}
+.c3-detail{margin-top:12px;border:1px solid var(--c3-line);border-radius:10px;padding:14px 16px;background:#fff;display:none}
+.c3-detail.show{display:block}
+.c3-detail h4{margin:0 0 6px;font-size:15.5px}
+.c3-detail .c3-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;font-size:13.5px;line-height:1.55}
+.c3-detail .c3-detail-grid .full{grid-column:1/-1}
+.c3-detail h5{margin:0 0 3px;font-family:Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.08em;color:var(--c3-lo);text-transform:uppercase}
+.c3-detail p{margin:0}
+.c3-detail ul{margin:4px 0 0;padding-left:18px}
+.c3-detail li{margin-bottom:3px}
+.c3-srcs{margin-top:10px;font-size:12px;line-height:1.9;color:var(--c3-md)}
+.c3-srcs a{color:var(--c3-blue);text-decoration:none;border-bottom:1px dotted var(--c3-blue)}
+.c3-srcs a:hover{text-decoration:underline}
+.c3-srcs .c3-src-derived{color:var(--c3-lo)}
+.c3-close{float:right;font-family:Menlo,Consolas,monospace;font-size:11px;background:none;border:1px solid var(--c3-line);
+  border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--c3-md)}
+.c3-close:hover{color:var(--c3-blue);border-color:var(--c3-blue)}
+.c3-tablewrap{margin-top:12px;display:none;overflow-x:auto;border:1px solid var(--c3-line);border-radius:10px;background:#fff}
+.c3-tablewrap.show{display:block}
+.c3-tablewrap table{border-collapse:collapse;width:100%;font-size:13px}
+.c3-tablewrap caption{text-align:left;padding:10px 12px 4px;font-size:12.5px;color:var(--c3-md)}
+.c3-tablewrap th{font-family:Menlo,Consolas,monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--c3-lo);text-align:left;padding:8px 12px;border-bottom:2px solid var(--c3-line);white-space:nowrap}
+.c3-tablewrap td{padding:8px 12px;border-bottom:1px solid #edf1f5;vertical-align:top;line-height:1.45}
+.c3-tablewrap tr:hover td{background:#f6f9fd}
+.c3-foot{margin:10px 2px 0;font-size:12px;color:var(--c3-lo);line-height:1.6}
+.c3-foot a{color:var(--c3-blue);text-decoration:none;border-bottom:1px dotted var(--c3-blue)}
+.c3-nogl{border:1px solid var(--c3-line);border-radius:10px;padding:18px;background:#fff;font-size:13.5px;color:var(--c3-md)}
+@media(max-width:1100px){.c3-stage{height:460px}.c3-detail .c3-detail-grid{grid-template-columns:1fr}}

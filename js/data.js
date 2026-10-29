@@ -2022,7 +2022,7 @@ Object.assign(window.RPT, {
     "deadline": "374Water award announced Dec 30 2025; project starts Apr 2026; watch next Minnesota's environment trust fund (ENRTF) cycles",
     "match": 3,
     "notes": "Proof that state trust/legacy funds directly sponsor SCWO sewage sludge (biosolids) destruction (374Water + Barr Engineering + U. St. Thomas + MnTAP + City of St. Cloud); analogous trust/legacy vehicles exist in other states.",
-    "url": "https://www.globenewswire.com/news-release/2025/12/30/3211393/0/en/",
+    "url": "https://www.globenewswire.com/news-release/2025/12/30/3211393/0/en/374water-awarded-waste-destruction-services-funding-from-the-state-of-minnesota-for-pfas-destruction-in-biosolids.html",
     "src": [
       "K143"
     ]

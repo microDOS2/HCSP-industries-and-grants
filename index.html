@@ -8,6 +8,14 @@
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/flow3d.css">
+<link rel="stylesheet" href="css/c3.css">
+<style>
+/* c3 3D chart hosts: reserve space so the lazy init (js/c3_boot.js) never
+   reflows or hangs the page while a scene is waiting to start */
+.c3-host{min-height:640px}
+.c3-host-xl{min-height:1560px}
+@media(max-width:1100px){.c3-host{min-height:560px}.c3-host-xl{min-height:1340px}}
+</style>
 </head>
 <body>
 
@@ -139,7 +147,7 @@
       with every savings figure: margin × volume = pool.</p>
   </div>
 
-  <div class="wide xl"><div id="league-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-c3-ranking" class="c3-host" data-3d></div></div>
 
   <div class="prose">
     <blockquote class="quote-card">
@@ -329,7 +337,7 @@
       HCSP — cost model pending). Every bar below is the documented existing-supplier price
       range for that stream; click any bar for the value, its basis, and the dated source.</p>
   </div>
-  <div class="wide xl"><div id="savings-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-c3-savings" class="c3-host" data-3d></div></div>
   <div class="wide xl"><div id="savings-calculator"></div></div>
   <div class="prose">
     <div class="note-box">
@@ -373,7 +381,7 @@
       time to earn back the cost, in years, is withheld everywhere: it requires HCSP cost inputs, and the manufacturer cost model is
       pending.</p>
   </div>
-  <div class="wide xl"><div id="payback-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-c3-payback" class="c3-host" data-3d></div></div>
   <div class="prose">
     <p>Across viable industries, the reachable market adds up to approximately <b>$9–20B per year</b> — an
       order-of-magnitude synthesis of per-industry estimates, not a single measured figure. The core pools (hazardous
@@ -410,7 +418,7 @@
       306 t/d, and both of the largest plants ever built are defunct. Everything above that line is estimated design
       economics, and the report prices the ladder on the pessimistic parallel-train branch accordingly.</p>
   </div>
-  <div class="wide xl"><div id="scale-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-scale-3d" class="c3-host" data-3d></div></div>
   <div class="prose">
     <p>Scale moves the starting point; feed strength moves the slope. The LANL integrated model is the cleanest statement of
       the point where the system powers itself: with heat recovery and a standard steam power cycle, net electricity falls from <b>+18 kWhₑ/m³ imported to
@@ -420,7 +428,7 @@
       fab bulk water, and most produced water sit structurally below the line; dewatered biosolids, Brazilian vinasse,
       and molasses spent wash sit squarely above it.</p>
   </div>
-  <div class="wide xl"><div id="crossover-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-c3-crossover" class="c3-host" data-3d></div></div>
   <div class="prose">
     <p>Above the point where the system powers itself, the plant becomes a small utility, and the question shifts from cost to stacking up revenue.
       At 1,000 m³/day on 100 g/L feed, oxidation releases <b>16.1 MW of heat</b> from the reaction — but ~60% of it is
@@ -431,7 +439,7 @@
       power earns $15–20 per MWh of heat, cooling only ~$10 — unless chilled water sells at district tariffs of $30–48, in
       which case cooling leapfrogs power and data centers become the anchor buyer.</p>
   </div>
-  <div class="wide xl"><div id="heat-chart" class="chart-frame"></div></div>
+  <div class="wide xl"><div id="host-c3-heat" class="c3-host" data-3d></div></div>
   <div class="prose">
     <h3 class="sub-h">The backup-power verdict: lithium iron phosphate (LFP) by default</h3>
     <p>One engineering analysis settles a component question the hard way. Nickel-iron batteries carry a century of
@@ -472,7 +480,7 @@
       each setup as a little world — the host site, the HCSP plant, and the buyer next door, with the money flows drawn
       in — and the cards underneath it tell the same story in words as the text alternative.</p>
   </div>
-  <div class="wide xxl"><div id="scenarios3d" class="lazy3d-host lazy3d-tall"></div></div>
+  <div class="wide xxl"><div id="host-scenarios-3d" class="c3-host c3-host-xl" data-3d></div></div>
   <div class="prose">
     <p>Each card opens a diagram of
       where the heat goes, the three revenue streams, the indicative economics, and what has to be true before anyone
@@ -665,6 +673,10 @@
 <script src="js/shell.js"></script>
 <script src="js/data.js"></script>
 <script src="js/sources.js"></script>
+<!-- 3D engine for the c3 chart modules — loaded once, eagerly; the legacy
+     lazy3d.js scenes (flow3d / skid3d) reuse this same copy, never duplicate it -->
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
 <script src="js/utils.js"></script>
 <script>window.DASH_SECTIONS = ["exec", "concepts", "mech", "state", "scale", "energy", "verdict", "appendix"];</script>
 <script src="js/cover.js"></script>
@@ -678,6 +690,15 @@
 <script src="js/calculator.js"></script>
 <script src="js/energy.js"></script>
 <script src="js/materials.js"></script>
+<!-- 3D chart modules (init lazily, one active scene at a time, via c3_boot.js) -->
+<script src="js/c3_ranking.js"></script>
+<script src="js/c3_savings.js"></script>
+<script src="js/c3_crossover.js"></script>
+<script src="js/c3_heat.js"></script>
+<script src="js/scale_explorer.js"></script>
+<script src="js/c3_payback.js"></script>
+<script src="js/c3_scenarios.js"></script>
+<script src="js/c3_boot.js"></script>
 <!-- 3D scenes load lazily (js/lazy3d.js injects three.min.js + OrbitControls + each
      scene script only when its section nears the viewport; one scene renders at a time) -->
 <script src="js/lazy3d.js"></script>
