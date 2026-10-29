@@ -253,7 +253,7 @@ window.Comp3D = (() => {
   }
 
   /* ════════════════════════ VIEW 3 · 3D VENDOR PANELS ════════════════════════ */
-  const PANEL_FLOOR = { w374: 4.9, ga: 5, aq: 2, rv: 0.67 };
+  const PANEL_FLOOR = { w374: 4.9, ga: 5, aq: 2, rv: 0.67, hcsp: 0 };
   const TONE_C = { bad: 0xc22f4e, mid: 0xb07a10, ok: 0x008a6d, verdict: 0x2251ff };
   const TONE_TXT = { bad: "WEAK BALANCE SHEET", mid: "MIXED RECORD", ok: "STRONG BALANCE SHEET" };
 
@@ -261,7 +261,7 @@ window.Comp3D = (() => {
     const profs = RPT.comp_profiles || [];
     G.ground(26, 8);
     profs.forEach((p, i) => {
-      const x = (i - 1.5) * 5.1;
+      const x = (i - (profs.length - 1) / 2) * 5.1;
       const floor = PANEL_FLOOR[p.id] || 2;
       const podH = Math.max(0.3, 0.5 + Math.log10(floor) * 0.9);
       const fin = p.rows[0] || {};
@@ -298,7 +298,7 @@ window.Comp3D = (() => {
       // name chip rides above the tone chip with px clearance (their world
       // anchors are only ~0.45 apart ≈ half a chip height); short forms match
       // the timeline chips so neighbouring panels cannot collide
-      const PANEL_SHORT = { ga: "GA PERSES", rv: "REVIVE" };
+      const PANEL_SHORT = { ga: "GA PERSES", rv: "REVIVE", hcsp: "HCSP" };
       G.label(PANEL_SHORT[p.id] || p.name.toUpperCase(), "", x, podH + 3.85, 0, 0, -16);
       G.label(TONE_TXT[fin.tone] || "PROFILE", fin.tone === "bad" ? "neg" : fin.tone === "ok" ? "cool" : "heat",
         x, podH + 3.4, 0, (i % 2) * 30, 14);

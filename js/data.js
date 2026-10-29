@@ -264,6 +264,20 @@ window.RPT = {
   // ── §4B competitive deep-dive: per-company profiles (research/comp_*.md, verified Sept 2026) ──
   // Each row of each profile is drillable; row.src carries the dated K-anchors.
   comp_profiles: [
+  { id: "hcsp", name: "HCSP (owner technology)", form: "Distillation + high-heat incineration · atmospheric pressure · prototype stage · pricing TBD",
+    rows: [
+      { lab: "Financial health", txt: "Owner-reported: working prototype built; cost model and pricing TBD", tone: "verdict", src: ["K1", "K207"],
+        drill: { title: "HCSP · FINANCIAL HEALTH", value: "Prototype built; pricing TBD", sub: "Manufacturer-reported working prototype. CapEx, operating cost, and service pricing are all TBD — no invented figures.", source: "K1" } },
+      { lab: "Real vs pipeline", txt: "No commercial customers yet — pilot stage", tone: "mid", src: ["K1"],
+        drill: { title: "HCSP · CUSTOMERS", value: "Pilot stage", sub: "No disclosed commercial deployments. First customers to be won from the streams the four operators leave unserved.", source: "K1" } },
+      { lab: "Smallest offering", txt: "10 m³/day module (briefing); scale variants planned", tone: "verdict", src: ["K1", "K207"],
+        drill: { title: "HCSP · SMALLEST OFFERING", value: "10 m³/day module", sub: "Base module per the briefing; larger scale variants are planned. No pressure vessels at any size.", source: "K207" } },
+      { lab: "Target customers", txt: "PFAS concentrates, hazardous liquids, distillery, islands, small facilities", tone: "verdict", src: ["K1"],
+        drill: { title: "HCSP · TARGET CUSTOMERS", value: "Small and mid-size generators", sub: "The sub-$1M, on-site segment the four SCWO operators do not serve.", source: "K1" } },
+      { lab: "Scale-gap verdict", txt: "Built for the sub-$1M segment the other four do not serve", tone: "verdict", src: ["K1"],
+        drill: { title: "HCSP · THE OPENING", value: "Sub-$1M on-site niche", sub: "Positioned where 374Water ($4.9M floor), GA (3 gpm), Aquarden (5 t/d), and Revive (centralized freight) do not compete.", source: "K1" } }
+    ] },
+
     {
       id: "w374", name: "374Water", form: "NASDAQ: SCWO · Durham/Morrisville NC · ~48 employees · AirSCWO",
       rows: [

@@ -175,7 +175,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
   function grants() { return (window.RPT && RPT.grants_register) || []; }
   function calendar() { return (window.RPT && RPT.funding_calendar) || []; }
   function catalystsInWindow() {
-    return ((window.RPT && RPT.catalysts) || []).filter(function (c) { return c.y >= 2026.6 && c.y <= 2027.8; });
+    return (window.RPT && RPT.catalysts) || [];
   }
 
   /* What to do next — one plain-English action per dated wall event, taken from
