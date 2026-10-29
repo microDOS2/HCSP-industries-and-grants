@@ -228,6 +228,7 @@ section[id], footer[id] { scroll-margin-top: calc(var(--navh) + 14px); }
   padding: 0 28px;
 }
 .wide.xl { max-width: 960px; }
+.wide.xxl { max-width: 1120px; }
 .sec-no {
   font-family: var(--mono); font-size: 12px; letter-spacing: .24em;
   color: var(--red); margin-bottom: 16px; text-transform: uppercase;
@@ -764,6 +765,117 @@ hr.sep { border: 0; height: 1px; background: var(--line); margin: 0 auto; max-wi
   color: var(--ink-lo); padding: 4px 2px 6px;
 }
 table.grant-dt { min-width: 860px; }
+
+/* ── Featured exhibit: "Why HCSP is different" (§2) + matching spec-table card ── */
+.exhibit {
+  background: var(--paper-hi);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--red);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 24px 26px 20px;
+}
+.prose .exhibit-spec { margin: 18px 0 26px; }
+.wide .exhibit-spec { margin: 0; }
+.ex-head { margin-bottom: 18px; }
+.ex-title { margin-bottom: 6px; }
+.ex-dek {
+  font-size: 14.5px; color: var(--ink-md); line-height: 1.6;
+  max-width: 620px; margin: 0;
+}
+.ex-body {
+  display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr);
+  gap: 30px; align-items: start;
+}
+.ex-foot { margin-top: 18px; }
+.exhibit table.dt th { background: var(--paper-hi); font-size: 12px; white-space: normal; }
+.exhibit .table-scroll {
+  margin: 0;
+  background:
+    linear-gradient(to right, var(--paper-hi) 30%, rgba(247,249,252,0)) left / 36px 100% no-repeat local,
+    linear-gradient(to left, var(--paper-hi) 30%, rgba(247,249,252,0)) right / 36px 100% no-repeat local;
+}
+/* HCSP column featured in the accent color; conventional routes muted gray */
+#process-cmp-table th.col-hcsp, .ex-incin th.col-hcsp { color: var(--red); border-bottom-color: var(--red); }
+#process-cmp-table th.col-scwo, .ex-incin th.col-scwo { color: var(--ink-lo); }
+#process-cmp-table td.col-hcsp, .ex-incin td.col-hcsp { background: rgba(34,81,255,.065); }
+#process-cmp-table td.col-scwo, .ex-incin td.col-scwo { color: var(--ink-lo); background: rgba(5,28,44,.025); }
+#process-cmp-table td.col-hcsp, #process-cmp-table td.col-scwo,
+.ex-incin td.col-hcsp, .ex-incin td.col-scwo { padding-left: 12px; padding-right: 12px; }
+.ex-incin { margin-top: 2px; table-layout: fixed; }
+.ex-incin th:first-child { width: 15%; }
+.ex-incin th.col-hcsp, .ex-incin th.col-scwo { width: 42.5%; }
+.ex-badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 12px; }
+.ex-badge {
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .04em;
+  color: var(--red-hi); background: rgba(34,81,255,.10);
+  border: 1px solid rgba(34,81,255,.38); border-radius: 999px; padding: 6px 14px;
+}
+.ex-badge::before { content: "✓ "; }
+.exhibit .chart-src { font-size: 12px; }
+.ex-takeaway {
+  font-size: 15px; line-height: 1.65; color: var(--ink);
+  border-left: 3px solid var(--red); padding: 6px 0 6px 14px; margin: 4px 0 12px;
+}
+/* spec table: featured rows called out, every value unchanged */
+.exhibit-spec .dt tr.feat td { background: rgba(34,81,255,.065); }
+.exhibit-spec .dt tr.feat td:first-child { border-left: 3px solid var(--red); }
+.exhibit-spec .dt tr.feat td:first-child b::after {
+  content: " ★"; color: var(--red); font-size: 11px;
+}
+@media (max-width: 1080px) {
+  .ex-body { grid-template-columns: 1fr; }
+  .ex-diagram-col { max-width: 440px; width: 100%; margin: 4px auto 0; }
+}
+
+/* ── Small animated distillation diagram (plain SVG + CSS keyframes) ── */
+.distill-mini { position: relative; }
+.distill-mini svg { display: block; width: 100%; height: auto; }
+.distill-mini svg text { font-family: var(--mono); font-size: 12px; fill: var(--ink-md); }
+.distill-mini svg text.dst-stage { font-weight: 700; fill: var(--ink); }
+.distill-mini .dst-ui { display: flex; justify-content: flex-end; margin-top: 6px; }
+.distill-mini .dst-ui button {
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: .12em;
+  color: var(--ink-md); background: var(--paper); border: 1px solid var(--line);
+  border-radius: 4px; padding: 6px 12px; cursor: pointer;
+}
+.distill-mini .dst-ui button:hover { color: var(--red); border-color: var(--red); }
+.distill-mini.paused .dst-anim { animation-play-state: paused; }
+/* reading mode: static frame — particles rest at their mid-path base positions */
+html.reader .distill-mini .dst-anim { animation: none; }
+html.reader .distill-mini .dst-ui { display: none; }
+@keyframes dst-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: .85; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+@keyframes dst-pipe {
+  0% { transform: translateX(0); opacity: 0; }
+  12% { opacity: .95; }
+  85% { opacity: .95; }
+  100% { transform: translateX(112px); opacity: 0; }
+}
+@keyframes dst-drip {
+  0% { transform: translateY(0); opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { transform: translateY(52px); opacity: 0; }
+}
+@keyframes dst-residue {
+  0% { transform: translateX(0); opacity: 0; }
+  14% { opacity: 1; }
+  86% { opacity: 1; }
+  100% { transform: translateX(70px); opacity: 0; }
+}
+@keyframes dst-flicker {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.16); }
+}
+.dst-steam { animation: dst-rise 2.6s linear infinite; }
+.dst-vapor { animation: dst-pipe 3.2s linear infinite; }
+.dst-drip { animation: dst-drip 2.2s ease-in infinite; }
+.dst-residue { animation: dst-residue 3.8s linear infinite; }
+.dst-flame { animation: dst-flicker 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
 table.grant-dt td { font-size: 13.5px; }
 table.grant-dt .g-ag { font-size: 10.5px; color: var(--ink-lo); font-family: var(--mono); }
 table.grant-dt .g-award { white-space: normal; min-width: 150px; font-size: 11px; }

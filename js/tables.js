@@ -9,12 +9,26 @@
     b.onclick = e => { e.stopPropagation(); U.showDrill({ title: "SOURCE OF THE SPECIFICATION", value: "HCSP technical briefing + owner process description", sub: "Briefing submitted to the California State Water Resources Control Board; initially positioned for indoor-agriculture wastewater. Process description (distillation + high-heat incineration at atmospheric pressure, no pressurization) per the owner-provided Process Step.docx.", source: CH.srcLink(["K1", "K207"]), x: e.clientX, y: e.clientY }); };
     sp.appendChild(b); }
   t.innerHTML = `<thead><tr><th>Parameter</th><th>Value (per briefing)</th><th>Analyst note</th></tr></thead>` +
-    "<tbody>" + RPT.spec.map(r => `<tr data-k="${r.src}"><td><b>${r.k}</b></td><td class="num">${r.v}</td><td>${r.note}</td></tr>`).join("") + "</tbody>";
+    "<tbody>" + RPT.spec.map(r => `<tr data-k="${r.src}"${r.feat ? ' class="feat"' : ""}><td><b>${r.k}</b></td><td class="num">${r.v}</td><td>${r.note}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-k]").forEach(tr => {
     const r = RPT.spec.find(s => s.k === tr.cells[0].textContent);
     tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
     tr.onclick = e => U.showDrill({ title: r.k.toUpperCase(), value: r.v, sub: r.note + ".", source: CH.srcLink([r.src]), x: e.clientX, y: e.clientY });
   });
+})();
+
+/* §2 exhibit — "Why HCSP is different": drill-down source links (K1 briefing + K207 process step doc) */
+(function () {
+  const ex = document.getElementById("ex-src");
+  if (!ex) return;
+  const b = document.createElement("button");
+  b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", "");
+  b.onclick = e => { e.stopPropagation(); U.showDrill({
+    title: "WHY HCSP IS DIFFERENT — SOURCES",
+    value: "HCSP technical briefing + owner process description",
+    sub: "Separation strategy, destruction method and pressure management per the owner-provided Process Step.docx (K207). The no-air-permit contrast with conventional incineration per the HCSP technical briefing submitted to the California State Water Resources Control Board (K1): a sealed water-vapor system whose only gaseous stream is vented excess oxygen.",
+    source: CH.srcLink(["K1", "K207"]), x: e.clientX, y: e.clientY }); };
+  ex.appendChild(b);
 })();
 
 /* cost stack table (§3) */

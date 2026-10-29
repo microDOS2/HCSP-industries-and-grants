@@ -203,11 +203,11 @@ window.RPT = {
   spec: [
     { k: "Throughput", v: "10 m³/day (~2,640 gal/day)", note: "~0.9 M gal/yr at 90% utilization", src: "K1" },
     { k: "Core technology", v: "Evaporative distillation + high-heat thermal oxidation", note: "Distillation first, then gas-phase combustion — continuous, fully automated; not a pressurized SCWO system", src: "K207" },
-    { k: "Operating conditions", v: "High heat · atmospheric pressure", note: "Boil-off distillation + high-heat incineration — no pressurization, no pressure vessels (owner process description)", src: "K207" },
+    { k: "Operating conditions", v: "High heat · atmospheric pressure", note: "Boil-off distillation + high-heat incineration — no pressurization, no pressure vessels (owner process description)", src: "K207", feat: true },
     { k: "Water recovery", v: "85–95% to distillate; <10 µS/cm", note: "Distilled-quality output", src: "K1" },
     { k: "Solid residual", v: "Contained, inert sludge", note: "Completely broken-down salts/oxides", src: "K1" },
     { k: "Electrical load (startup/auxiliary)", v: "~75–95 kW", note: "180–228 kWh/m³-equivalent spec; operating energy self-fueled once started", src: "K1" },
-    { k: "H₂ fuel loop (as briefed)", v: "~30–40 kg/day by on-demand electrolysis", note: "Self-fueling once started — fuel generated on demand from process water; see §1", src: "K1" },
+    { k: "H₂ fuel loop (as briefed)", v: "~30–40 kg/day by on-demand electrolysis", note: "Self-fueling once started — fuel generated on demand from process water; see §1", src: "K1", feat: true },
     { k: "Footprint", v: "~8–10 m² · ≤3 m height · <75 dBA at 1 m", note: "Indoor-sited, container class", src: "K1" },
     { k: "Air permitting", v: "None claimed — sealed system vents water vapor", note: "The hidden permitting advantage", src: "K1" },
   ],
