@@ -202,10 +202,13 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   7 · The reachable market in dollars — one sizing dataset, three
-   switchable views: light 3D bars (Three.js, built lazily on first
-   use), a bubble chart (D3, the default — cheapest to render), and
-   the sortable DOM table. Choice remembered per session.
+   7 · The reachable market in dollars — one sizing dataset, five
+   switchable presentations: dollar bars (the default — a clean ranked
+   bar chart with the ranges restated in plain English), a bubble chart,
+   light 3D bars (top 5 by default with a "show all 15" option; manual
+   orbit only, DPR-capped, pausable, static in reading mode), plain-
+   English story cards, and the sortable table with source links.
+   Choice remembered per session. Every figure is identical across views.
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("sizing-chart");
@@ -215,21 +218,32 @@
     sub: "EACH INDUSTRY'S DOCUMENTED LOW–HIGH RANGE · BASES DIFFER PER INDUSTRY (ONE-TIME POOL VS PER-YEAR — SEE BASIS) · MANUFACTURER COST INPUTS PENDING — ADDRESSABLE-SAVINGS BASIS · EVERY VIEW CLICKABLE FOR DETAIL + DATED SOURCES",
     src: "Research compilation — report Ch. 8.1 total market / reachable market consolidation (2026-09); per-industry assumptions in drill-downs",
   });
-  body.appendChild(CH.plainLine("What this shows: each core industry's reachable market in dollars, drawn as its documented low–high range. The bases differ — some pools are one-time equipment, others per-year; the basis note says which. Toggle between 3D bars and bubbles, or open the table — the figures are identical in every view. A model estimate, not a forecast — manufacturer cost inputs are still pending."));
+  body.appendChild(CH.plainLine("What this shows: each core industry's reachable market in dollars, drawn as its documented low–high range. The bases differ — some pools are one-time equipment, others per-year; the basis note says which. Five presentations — dollar bars, bubbles, 3D bars, story cards, and the table — show identical figures. A model estimate, not a forecast — manufacturer cost inputs are still pending."));
 
   const ink = "#051c2c", inkMd = "#42566a", blue = "#2251ff", blueLo = "#b9c9ff";
   const modTxt = d => d.mod_lo === d.mod_hi
     ? `≈${d.mod_lo.toLocaleString("en-US")} MODULE-EQUIV.`
     : `${d.mod_lo.toLocaleString("en-US")}–${d.mod_hi.toLocaleString("en-US")} MODULE-EQUIV.`;
+  // machine count, plain English — core rows carry module-equivalents; the ten
+  // extended rows carry the documented facility/fleet count (or "not counted")
+  const machineTxt = d => d.mod_lo != null
+    ? modTxt(d).toLowerCase().replace("module-equiv.", "machine-equivalents")
+    : (d.mod_lab || "not counted");
   const datesOf = d => d.src.map(id => { const s = window.K && K(id); return s ? s.date : ""; }).filter(Boolean).join(", ");
   function drillFor(d, extra) {
     return {
       title: d.name.toUpperCase(),
       value: d.sam,
-      sub: "Reachable market: " + d.sam + ". Total market: " + d.tam + ". Basis: " + d.basis + ". Machine-equivalents: " + modTxt(d).toLowerCase() + ". " + d.note + "." + (extra ? " " + extra : ""),
+      sub: "Reachable market: " + d.sam + "." + (d.tam ? " Total market: " + d.tam + "." : "")
+        + " Basis: " + d.basis + ". Machine-equivalents: " + machineTxt(d) + ". " + d.note + "." + (extra ? " " + extra : ""),
       source: CH.srcLink(d.src) + (datesOf(d) ? " · dated " + datesOf(d) : ""),
     };
   }
+
+  /* The consolidated fifteen: the five core rows plus the ten documented
+     additional industries (RPT.sizing_plus), ranked by the top of the range.
+     Powers the 3D view's "show all 15" option. */
+  const SIZING15 = RPT.sizing.concat(RPT.sizing_plus || []).slice().sort((a, b) => b.sam_hi - a.sam_hi);
 
   /* ── what existing suppliers charge to dispose of it ($/gal), per industry.
      Pulled from the canonical savings-ladder figures where the industry
@@ -251,28 +265,109 @@
       note: "Derived from the $500–1,000/t refinery-residual service benchmark at ~250 gal/t — not a quoted per-gallon price." };
   }
 
-  /* ══ view toggle: 3D BARS | BUBBLES | TABLE (default bubbles — cheapest
-        to render; the 3D scene is built only on first use) ══ */
-  let view = "bubbles";
-  try { view = sessionStorage.getItem("hcsp-sizing-view") || "bubbles"; } catch (e) {}
-  if (!["3d", "bubbles", "table"].includes(view)) view = "bubbles";
+  /* ══ view selector: DOLLAR BARS (default) | BUBBLES | 3D BARS | STORY CARDS
+        | TABLE — the choice is remembered per session. The 3D scene is built
+        only on first use. ══ */
+  const VIEW_DEFS = [["bars", "DOLLAR BARS"], ["bubbles", "BUBBLES"], ["3d", "3D BARS"], ["cards", "STORY CARDS"], ["table", "TABLE"]];
+  let view = "bars";
+  try { view = sessionStorage.getItem("hcsp-sizing-view") || "bars"; } catch (e) {}
+  if (!VIEW_DEFS.some(v => v[0] === view)) view = "bars";
   const tg = document.createElement("div");
   tg.className = "unit-toggle";
   tg.setAttribute("aria-label", "Sizing view");
-  tg.innerHTML = `<span class="ut-lab">VIEW</span>
-    <button type="button" data-view="3d">3D BARS</button>
-    <button type="button" data-view="bubbles">BUBBLES</button>
-    <button type="button" data-view="table">TABLE</button>`;
+  tg.innerHTML = `<span class="ut-lab">VIEW</span>` +
+    VIEW_DEFS.map(([k, lab]) => `<button type="button" data-view="${k}">${lab}</button>`).join("");
   body.appendChild(tg);
 
+  const vBars = document.createElement("div");
+  const vBub = document.createElement("div");
   const v3d = document.createElement("div");
   v3d.className = "sizing3d-wrap";
-  v3d.setAttribute("data-drill-keep", ""); // canvas/orbit-button/label clicks are interactions, never the frame's explore-modal trigger
-  const vBub = document.createElement("div");
+  v3d.setAttribute("data-drill-keep", ""); // canvas/button/label clicks are interactions, never the frame's explore-modal trigger
+  const vCards = document.createElement("div");
   const vTab = document.createElement("div");
-  body.append(v3d, vBub, vTab);
+  body.append(vBars, vBub, v3d, vCards, vTab);
 
-  /* ══ VIEW D — bubble chart (D3): x = what existing suppliers charge to
+  /* ══ VIEW A — dollar bars (default): the five core industries ranked by the
+     top of their documented range. Solid bar = documented low case, light cap
+     = the range up to the high case; the big label restates the range and the
+     line under each name says it in plain English. Hover for the exact
+     figures; click for machine-equivalents + dated sources. ══ */
+  (function buildBars() {
+    const rows = RPT.sizing.slice().sort((a, b) => b.sam_hi - a.sam_hi);
+    const W = 880, ROW = 96, padT = 16, padB = 48;
+    const H = padT + rows.length * ROW + padB;
+    const mL = 296, mR = 130;
+    const svg = CH.svg(vBars, W, H);
+    const x = d3.scaleLinear().domain([0, 4.2]).range([mL, W - mR]);
+    const money = v => v >= 1 ? "$" + (Math.round(v * 10) / 10) + " billion" : "$" + Math.round(v * 1000) + " million";
+    function plainRange(d) {
+      const core = d.sam_lo === d.sam_hi ? "About " + money(d.sam_lo) : "Between " + money(d.sam_lo) + " and " + money(d.sam_hi);
+      if (/per-year/i.test(d.basis)) return core + " per year";
+      if (/one-time/i.test(d.basis)) return core + ", one-time";
+      if (/10 yr/i.test(d.basis)) return core + " over 10 years";
+      return core;
+    }
+
+    // gridlines + axis labels ($B, linear)
+    [0, 1, 2, 3, 4].forEach(v => {
+      svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 4).attr("y2", H - padB)
+        .attr("stroke", "#eef1f6");
+      const t = svg.append("text").attr("x", x(v)).attr("y", H - padB + 20).attr("text-anchor", "middle")
+        .attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", inkMd).text(v === 0 ? "$0" : "$" + v + "B");
+      CH.halo(t);
+    });
+    const xc = svg.append("text").attr("x", W - mR + 124).attr("y", H - padB + 38).attr("text-anchor", "end")
+      .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", inkMd)
+      .text("REACHABLE MARKET ($B)");
+    CH.halo(xc);
+
+    const solids = [], caps = [], vals = [];
+    rows.forEach((d, i) => {
+      const y0 = padT + i * ROW, barY = y0 + 56, barH = 26;
+      const g = svg.append("g");
+      // rank + name + plain-English range (left column)
+      const tn = svg.append("text").attr("x", 8).attr("y", y0 + 20)
+        .attr("font-family", CH.MONO).attr("font-size", 12.5).attr("font-weight", 700).attr("fill", ink)
+        .text((i + 1) + " · " + d.name);
+      CH.halo(tn);
+      const tp = svg.append("text").attr("x", 8).attr("y", y0 + 40)
+        .attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", inkMd);
+      CH.wrap2(tp, plainRange(d), 46);
+      CH.halo(tp);
+      // solid = low case; translucent cap = upside to the high case
+      const hiW = Math.max(3, x(d.sam_hi) - x(d.sam_lo));
+      const cap = g.append("rect").attr("x", x(d.sam_lo)).attr("y", barY).attr("width", hiW).attr("height", barH)
+        .attr("fill", blueLo).attr("stroke", blue).attr("stroke-width", 1).attr("stroke-dasharray", "4 3");
+      const sol = g.append("rect").attr("x", x(0)).attr("y", barY).attr("width", Math.max(3, x(d.sam_lo) - x(0))).attr("height", barH)
+        .attr("fill", blue);
+      caps.push({ el: cap, x0: x(d.sam_lo), w: hiW });
+      solids.push({ el: sol, w: Math.max(3, x(d.sam_lo) - x(0)) });
+      // big value label at the end of the bar
+      const tv = g.append("text").attr("x", x(d.sam_hi) + 12).attr("y", barY + barH / 2 + 6).attr("text-anchor", "start")
+        .attr("font-family", CH.MONO).attr("font-size", 17).attr("font-weight", 700).attr("fill", blue)
+        .text(d.sam_lab);
+      CH.halo(tv);
+      vals.push(tv);
+      // hover → exact figures; click → full profile with machine-equivalents + dated sources
+      g.style("cursor", "pointer").attr("data-drill-keep", "");
+      g.on("mousemove", e => U.showTip(
+        `<b>${d.name}</b><br>Market: ${d.sam}<br>Machine-equivalents: ${machineTxt(d)}<br>Basis: ${d.basis}`,
+        e.clientX, e.clientY));
+      g.on("mouseleave", () => U.hideTip());
+      g.on("click", e => { e.stopPropagation(); U.hideTip(); U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY }); });
+    });
+
+    CH.enter(host, () => {
+      if (CH.REDUCE) return; // reduced motion: final frame already drawn
+      solids.forEach(s => { const w = s.w; s.el.attr("width", 0).transition().duration(600).attr("width", w); });
+      caps.forEach(c => { const { x0, w } = c; c.el.attr("x", x(0) + 0).attr("width", 0).transition().delay(250).duration(600)
+        .attr("x", x0).attr("width", w); });
+      vals.forEach(v => { v.style("opacity", 0).transition().delay(700).duration(350).style("opacity", 1); });
+    });
+  })();
+
+  /* ══ VIEW B — bubble chart (D3): x = what existing suppliers charge to
      dispose of the waste ($/gal, log), y + bubble size = reachable market
      ($B, log). Hover for the exact figures; click for the full profile
      with dated sources. ══ */
@@ -339,7 +434,7 @@
       // hover → exact figures; click → full profile + dated sources
       g.style("cursor", "pointer").attr("data-drill-keep", "");
       g.on("mousemove", e => U.showTip(
-        `<b>${d.name}</b><br>Market: ${d.sam}<br>Existing disposal cost: ${c.lab}<br>Machine-equivalents: ${modTxt(d).toLowerCase()}`,
+        `<b>${d.name}</b><br>Market: ${d.sam}<br>Existing disposal cost: ${c.lab}<br>Machine-equivalents: ${machineTxt(d)}`,
         e.clientX, e.clientY));
       g.on("mouseleave", () => U.hideTip());
       g.on("click", e => {
@@ -356,28 +451,32 @@
   /* ══ VIEW C — light 3D bars (Three.js, vendored; built lazily on first
      use). Bar height = market size in dollars: solid segment up to the
      documented low end, translucent cap for the range to the high end.
-     11 meshes total (5 bars × 2 segments + ground) ≤ 15 · DPR capped at
-     1.5 · auto-orbit OFF by default with a pause/resume button · static
-     single frame in reading mode · no rendering while offscreen. ══ */
+     Top 5 industries by default with a SHOW ALL 15 option · manual orbit
+     only (no auto-orbit) with a pause button · DPR capped at 1.5 · static
+     single frame in reading mode · no rendering while offscreen.
+     Drill-downs carry the machine count + dated source links. ══ */
   let init3d = false;
   function build3D() {
     if (init3d) return;
     init3d = true;
     v3d.innerHTML = `<canvas class="sizing3d-stage" aria-label="3D bars: market size in dollars by industry"></canvas>
-      <div class="sizing3d-ui"><button type="button" id="sizing3d-orbit" aria-pressed="false">AUTO-ORBIT ▶</button></div>
+      <div class="sizing3d-ui">
+        <button type="button" id="sizing3d-pause" aria-pressed="false">❚❚ PAUSE</button>
+        <button type="button" id="sizing3d-all" aria-pressed="false">SHOW ALL 15</button>
+      </div>
       <p class="sizing3d-hint">DRAG TO ORBIT · CLICK A BAR FOR DETAIL + SOURCES</p>`;
     const canvas = v3d.querySelector("canvas");
     canvas.setAttribute("data-drill-keep", ""); // bar clicks resolve on pointerup — don't let the trailing click event hide the drill
     const READER = () => document.documentElement.classList.contains("reader");
     if (!window.THREE) {
-      v3d.insertAdjacentHTML("beforeend", "<p style='padding:40px;font-family:var(--mono);font-size:13px'>The 3D library did not load — use the bubbles or table view; the figures are identical.</p>");
+      v3d.insertAdjacentHTML("beforeend", "<p style='padding:40px;font-family:var(--mono);font-size:13px'>The 3D library did not load — use the bars, bubbles, or table view; the figures are identical.</p>");
       return;
     }
     let renderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     } catch (e) {
-      v3d.insertAdjacentHTML("beforeend", "<p style='padding:40px;font-family:var(--mono);font-size:13px'>WebGL is unavailable in this browser — use the bubbles or table view; the figures are identical.</p>");
+      v3d.insertAdjacentHTML("beforeend", "<p style='padding:40px;font-family:var(--mono);font-size:13px'>WebGL is unavailable in this browser — use the bars, bubbles, or table view; the figures are identical.</p>");
       return;
     }
     renderer.setPixelRatio(Math.min(devicePixelRatio || 1, window.HCSP_DPR_CAP || 1.5, 1.5));
@@ -393,31 +492,6 @@
     const MAT_LO = new THREE.MeshStandardMaterial({ color: 0x2251ff, roughness: 0.45, metalness: 0.15 });
     const MAT_HI = new THREE.MeshStandardMaterial({ color: 0x7d9bff, roughness: 0.5, metalness: 0.1, transparent: true, opacity: 0.5 });
     const H_PER_B = 1.15; // world units per $B — honest linear scale
-    const clickable = [];
-    const labels = [];
-    RPT.sizing.forEach((d, i) => {
-      const bx = (i - (RPT.sizing.length - 1) / 2) * 2.3;
-      const hLo = Math.max(0.12, d.sam_lo * H_PER_B);
-      const hHi = Math.max(hLo + 0.05, d.sam_hi * H_PER_B);
-      const lo = new THREE.Mesh(new THREE.BoxGeometry(1.35, hLo, 1.35), MAT_LO);
-      lo.position.set(bx, hLo / 2, 0);
-      const hi = new THREE.Mesh(new THREE.BoxGeometry(1.35, hHi - hLo, 1.35), MAT_HI);
-      hi.position.set(bx, hLo + (hHi - hLo) / 2, 0);
-      lo.userData.idx = i; hi.userData.idx = i;
-      scene.add(lo); scene.add(hi);
-      clickable.push(lo, hi);
-      const el = document.createElement("div");
-      el.className = "sizing3d-label";
-      el.innerHTML = `<b>${d.name}</b><span>${d.sam_lab}</span>`;
-      el.setAttribute("data-drill-keep", "");
-      el.addEventListener("click", e => {
-        e.stopPropagation();
-        U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY });
-      });
-      v3d.appendChild(el);
-      labels.push({ el, v: new THREE.Vector3(bx, hHi + 0.42, 0) });
-    });
-    // ground shadow-catcher (visual only) — 11 meshes total
     const ground = new THREE.Mesh(new THREE.CircleGeometry(8.5, 48),
       new THREE.MeshBasicMaterial({ color: 0xeef1f6, transparent: true, opacity: 0.8 }));
     ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02;
@@ -425,44 +499,98 @@
 
     const controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = !READER(); controls.dampingFactor = 0.08;
-    controls.autoRotate = false;                    // off by default (battery)
-    controls.autoRotateSpeed = 0.8;
+    controls.autoRotate = false;                    // manual orbit only — no auto-orbit
     controls.target.set(0, 1.7, 0);
-    controls.minDistance = 5; controls.maxDistance = 26;
+    controls.minDistance = 5; controls.maxDistance = 30;
     controls.maxPolarAngle = Math.PI * 0.52;
 
-    // auto-orbit pause/resume button (off by default)
-    const orbitBtn = v3d.querySelector("#sizing3d-orbit");
-    let orbit = false;
-    orbitBtn.addEventListener("click", () => {
-      orbit = !orbit;
-      controls.autoRotate = orbit && !READER();
-      orbitBtn.setAttribute("aria-pressed", orbit ? "true" : "false");
-      orbitBtn.classList.toggle("on", orbit);
-      orbitBtn.textContent = orbit ? "❚❚ PAUSE ORBIT" : "AUTO-ORBIT ▶";
+    let showAll = false, paused = false;
+    let bars = [], labels = [], curData = RPT.sizing;
+    // short chip names for the dense all-15 labeling mode
+    const SHORT = { pharma: "Pharma", tex: "Textiles", pfas: "PFAS", haz: "Hazardous liquids", ref: "Refinery",
+      distill: "Distillery", cafo: "Factory farms", islands: "Islands", mining: "Mining", fnb: "Food & bev",
+      semi: "Chip fabs", bio: "Sewage sludge", og: "Produced water", cea: "Indoor ag", dc: "Data centers" };
+
+    /* (re)build the bar set: top 5 core industries, or all fifteen documented
+       industries when the owner toggle is on. Bigger bars + labels in the
+       default 5-bar view. */
+    function populate() {
+      bars.forEach(m => { scene.remove(m); m.geometry.dispose(); });
+      labels.forEach(L => L.el.remove());
+      bars = []; labels = [];
+      curData = showAll ? SIZING15 : RPT.sizing;
+      const bw = showAll ? 1.02 : 1.6, gap = showAll ? 1.5 : 2.42;
+      curData.forEach((d, i) => {
+        const bx = (i - (curData.length - 1) / 2) * gap;
+        const hLo = Math.max(0.12, d.sam_lo * H_PER_B);
+        const hHi = Math.max(hLo + 0.05, d.sam_hi * H_PER_B);
+        const lo = new THREE.Mesh(new THREE.BoxGeometry(bw, hLo, bw), MAT_LO);
+        lo.position.set(bx, hLo / 2, 0);
+        const hi = new THREE.Mesh(new THREE.BoxGeometry(bw, hHi - hLo, bw), MAT_HI);
+        hi.position.set(bx, hLo + (hHi - hLo) / 2, 0);
+        lo.userData.idx = i; hi.userData.idx = i;
+        scene.add(lo); scene.add(hi);
+        bars.push(lo, hi);
+        const el = document.createElement("div");
+        el.className = "sizing3d-label" + (showAll ? " mini" : "");
+        el.innerHTML = showAll ? `<b>${SHORT[d.key] || d.name}</b> ${d.sam_lab}` : `<b>${d.name}</b><span>${d.sam_lab}</span>`;
+        el.setAttribute("data-drill-keep", "");
+        el.addEventListener("click", e => {
+          e.stopPropagation();
+          U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY });
+        });
+        v3d.appendChild(el);
+        labels.push({ el, v: new THREE.Vector3(bx, hHi + 0.42, 0), base: new THREE.Vector3(bx, 0, 0) });
+      });
+      ground.scale.setScalar(showAll ? 1.65 : 1);
+      camera.position.set(showAll ? 11.8 : 7.2, showAll ? 7.8 : 5.8, showAll ? 15.8 : 10.2);
+      controls.target.set(0, showAll ? 2 : 1.7, 0);
+      controls.update();
+      // QA hooks: mesh budget + world→screen projection for automated tests
+      canvas._meshCount = bars.length + 1; // bars × 2 segments + ground
       dirty = true; poke();
+    }
+
+    // pause/resume — freezes interaction and the render loop (manual orbit only)
+    const pauseBtn = v3d.querySelector("#sizing3d-pause");
+    pauseBtn.addEventListener("click", () => {
+      paused = !paused;
+      controls.enabled = !paused;
+      pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
+      pauseBtn.classList.toggle("on", paused);
+      pauseBtn.textContent = paused ? "▶ RESUME" : "❚❚ PAUSE";
+      if (!paused) { dirty = true; poke(); }
     });
 
-    // click (not drag) → drill with the full profile incl. machine-equivalents
+    // top 5 ⇄ all 15 toggle
+    const allBtn = v3d.querySelector("#sizing3d-all");
+    allBtn.addEventListener("click", () => {
+      showAll = !showAll;
+      allBtn.setAttribute("aria-pressed", showAll ? "true" : "false");
+      allBtn.classList.toggle("on", showAll);
+      allBtn.textContent = showAll ? "SHOW TOP 5" : "SHOW ALL 15";
+      populate();
+    });
+
+    // click (not drag) → drill with the full profile incl. machine count + sources
     const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
     let downAt = null;
     canvas.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
     canvas.addEventListener("pointerup", e => {
+      if (paused) { downAt = null; return; }
       if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) { downAt = null; return; }
       downAt = null;
       const rct = canvas.getBoundingClientRect();
       ptr.x = ((e.clientX - rct.left) / rct.width) * 2 - 1;
       ptr.y = -((e.clientY - rct.top) / rct.height) * 2 + 1;
       ray.setFromCamera(ptr, camera);
-      const hit = ray.intersectObjects(clickable, false)[0];
+      const hit = ray.intersectObjects(bars, false)[0];
       if (hit) {
-        const d = RPT.sizing[hit.object.userData.idx];
+        const d = curData[hit.object.userData.idx];
         U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY });
       }
     });
 
-    // QA hooks: mesh budget + world→screen projection for automated tests
-    canvas._meshCount = clickable.length + 1; // 5 bars × 2 segments + ground = 11 ≤ 15
     canvas._project = function (X, Y, Z) {
       const rct = canvas.getBoundingClientRect();
       const v = new THREE.Vector3(X, Y, Z).project(camera);
@@ -471,6 +599,23 @@
 
     function placeLabels() {
       const w = v3d.clientWidth, h = canvas.clientHeight || 460;
+      if (showAll) {
+        /* 15 bars: labels can't stack over short bars — single-line chips in
+           five staggered lanes, three chips per lane distributed in evenly
+           spaced slots (rank order left→right reads as a labeled axis). */
+        const LANES = 5, slotW = (w - 8) / 3;
+        const slots = {}; // lane → next slot index
+        labels.forEach((L, i) => {
+          const p = L.base.clone().project(camera);
+          if (p.z > 1) { L.el.style.display = "none"; return; }
+          L.el.style.display = "";
+          const lane = i % LANES, k = slots[lane] || 0;
+          slots[lane] = k + 1;
+          L.el.style.left = U.clamp(4 + slotW * (k + 0.5), 4, w - 4) + "px";
+          L.el.style.top = (h - 48 - lane * 30) + "px";
+        });
+        return;
+      }
       const items = [];
       labels.forEach(L => {
         const p = L.v.clone().project(camera);
@@ -500,10 +645,10 @@
     }
 
     // render-on-demand loop: a frame renders only when something changed;
-    // the loop itself runs only while auto-orbiting or while a drag settles —
+    // the loop itself runs only while a drag settles — never while paused,
     // never in reading mode (static frame), never while offscreen
     let dirty = true, inView = false, raf = 0, settleUntil = 0;
-    function poke() { if (inView && !raf) raf = requestAnimationFrame(frame); }
+    function poke() { if (inView && !raf && !paused) raf = requestAnimationFrame(frame); }
     controls.addEventListener("change", () => { dirty = true; poke(); });
     controls.addEventListener("start", () => { settleUntil = Infinity; poke(); });
     controls.addEventListener("end", () => { settleUntil = performance.now() + 350; poke(); });
@@ -516,9 +661,8 @@
     addEventListener("resize", resize, { passive: true });
     function frame() {
       raf = 0;
-      if (!inView) return;
+      if (!inView || paused) return;
       if (controls.enableDamping) controls.update();
-      if (controls.autoRotate) dirty = true;
       if (dirty) {
         renderer.render(scene, camera);
         placeLabels();
@@ -526,25 +670,59 @@
         dirty = false;
       }
       if (READER()) return; // static frame
-      if (!raf && (controls.autoRotate || performance.now() < settleUntil)) raf = requestAnimationFrame(frame);
+      if (!raf && performance.now() < settleUntil) raf = requestAnimationFrame(frame);
     }
     const io = new IntersectionObserver(es => es.forEach(e => {
       inView = e.isIntersecting;
       if (inView) { dirty = true; poke(); }
     }), { threshold: 0.05 });
     io.observe(v3d);
+    populate();
     resize();
   }
 
-  /* ══ VIEW T — the sortable DOM table (enhanced by the shared table layer) ══ */
+  /* ══ VIEW D — story cards: one clean card per industry — the big dollar
+     figure, one plain-English reason, and the machine count in small print.
+     No chart. Click → the full profile with dated sources. ══ */
+  (function buildCards() {
+    const LEAGUE_KEY = { pharma: "pharma", tex: "textile", pfas: "pfas", haz: "chem" };
+    const FALLBACK_WHY = {
+      ref: "Refineries pay $500–1,000 per ton to dispose of oily sludge and tank bottoms, and the documented treatment and direct-disposal streams add up to about 41 machines' worth.",
+    };
+    const grid = document.createElement("div");
+    grid.className = "sizing-cards";
+    RPT.sizing.forEach(d => {
+      const lg = LEAGUE_KEY[d.key] && (RPT.league || []).find(l => l.key === LEAGUE_KEY[d.key]);
+      const why = (lg && lg.plain) || FALLBACK_WHY[d.key] || d.note;
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "sz-card";
+      card.setAttribute("data-drill-keep", "");
+      card.innerHTML = `<span class="sz-name">${d.name}</span>
+        <span class="sz-amt">${d.sam_lab}</span>
+        <span class="sz-why">${why}</span>
+        <span class="sz-mod">${machineTxt(d)} · ${d.basis}</span>`;
+      card.addEventListener("click", e => {
+        e.stopPropagation();
+        U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY });
+      });
+      grid.appendChild(card);
+    });
+    vCards.appendChild(grid);
+  })();
+
+  /* ══ VIEW E — the sortable DOM table (enhanced by the shared table layer),
+     with a source-link column ══ */
   vTab.className = "table-scroll";
   vTab.style.marginTop = "14px";
   vTab.innerHTML = `<table class="dt" id="sizing-table">
-    <thead><tr><th>Industry</th><th>Market size $B</th><th>Machine-equivalents</th><th>Basis</th></tr></thead>
+    <thead><tr><th>Industry</th><th>Market size $B</th><th>Machine-equivalents</th><th>Basis</th><th>Sources</th></tr></thead>
     <tbody>${RPT.sizing.map((d, i) => `<tr data-r="${i}">
       <td><b>${d.name}</b></td><td class="num">${d.sam}</td>
       <td class="num">${d.mod_lo === d.mod_hi ? "≈" + d.mod_lo.toLocaleString("en-US") : d.mod_lo.toLocaleString("en-US") + "–" + d.mod_hi.toLocaleString("en-US")}</td>
-      <td>${d.basis} · ${d.note}</td></tr>`).join("")}</tbody></table>`;
+      <td>${d.basis} · ${d.note}</td>
+      <td class="src">${d.src.map(id => (window.KA && KA(id)) || id).join(" ")}</td></tr>`).join("")}</tbody></table>`;
+  vTab.querySelectorAll("td.src a").forEach(a => a.addEventListener("click", e => e.stopPropagation()));
   vTab.querySelectorAll("tr[data-r]").forEach(tr => {
     const d = RPT.sizing[+tr.dataset.r];
     tr.style.cursor = "pointer";
@@ -553,7 +731,7 @@
       e.stopPropagation();
       U.showDrill({
         title: d.name.toUpperCase(), value: d.sam,
-        sub: "Total market: " + d.tam + ". Basis: " + d.basis + ". Machine-equivalents: " + modTxt(d).toLowerCase() + ". " + d.note + ".",
+        sub: "Total market: " + d.tam + ". Basis: " + d.basis + ". Machine-equivalents: " + machineTxt(d) + ". " + d.note + ".",
         source: CH.srcLink(d.src) + (datesOf(d) ? " · dated " + datesOf(d) : ""), x: e.clientX, y: e.clientY,
       });
     };
@@ -577,8 +755,10 @@
   /* ── view switching ── */
   function show() {
     tg.querySelectorAll("button[data-view]").forEach(b => b.classList.toggle("on", b.dataset.view === view));
-    v3d.hidden = view !== "3d";
+    vBars.hidden = view !== "bars";
     vBub.hidden = view !== "bubbles";
+    v3d.hidden = view !== "3d";
+    vCards.hidden = view !== "cards";
     vTab.hidden = view !== "table";
     if (view === "3d") build3D();
     try { sessionStorage.setItem("hcsp-sizing-view", view); } catch (e) {}
@@ -590,9 +770,9 @@
 
   window.CXT = window.CXT || { table: {}, walk: {} };
   CXT.table["sizing-chart"] = {
-    cols: ["Industry", "Market size $B", "Machine-equivalents", "Basis"],
+    cols: ["Industry", "Market size $B", "Machine-equivalents", "Basis", "Sources"],
     rows: RPT.sizing.map(d => [d.name, d.sam,
       d.mod_lo === d.mod_hi ? "≈" + d.mod_lo.toLocaleString("en-US") : d.mod_lo.toLocaleString("en-US") + "–" + d.mod_hi.toLocaleString("en-US"),
-      d.basis + " · " + d.note]),
+      d.basis + " · " + d.note, d.src.join(" ")]),
   };
 })();
