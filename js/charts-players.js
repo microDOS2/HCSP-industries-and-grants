@@ -222,14 +222,31 @@
       .attr("fill", inkLo).each(function () { CH.wrap2(d3.select(this), ("SCALE " + v.scale).toUpperCase(), 22); });
     // readiness (how proven the technology is) range
     g.append("text").attr("x", 0).attr("y", 76).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
-      .text("TECHNOLOGY READINESS");
+      .each(function () {
+        // shorten the caption when the floored font would push it into the
+        // next panel (narrow renders) — two-line wraps would hit the value label
+        const eff = effFs(8.5, false, false);
+        const fits = txt => txt.length * eff * 0.62 <= cw - 16;
+        d3.select(this).text(fits("TECHNOLOGY READINESS") ? "TECHNOLOGY READINESS" : fits("TECH READINESS") ? "TECH READINESS" : "READINESS");
+      });
     g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 108).attr("y2", 108).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
     [1, 3, 5, 7, 9].forEach(tick => g.append("text").attr("x", trlX(tick)).attr("y", 128).attr("text-anchor", "middle")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(tick));
     const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 103).attr("height", 10).attr("rx", 3)
       .attr("fill", main ? blue : inkMd).attr("width", 0).attr("data-w", trlX(v.trl[1]) - trlX(v.trl[0]));
-    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 98).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
-      .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`READINESS ${v.trl[0]}–${v.trl[1]}/9`);
+    // readiness value label — right-aligned to the bar start when it fits inside
+    // the panel; otherwise left-pinned at x=0 (never spilling into the previous
+    // panel or off the left edge), shortened to the bare range on narrow renders
+    const labFull = `READINESS ${v.trl[0]}–${v.trl[1]}/9`;
+    const labEff = effFs(9.5, true, true); // bold numeric → readability floor applies
+    const labW = s => s.length * labEff * 0.62;
+    let labTxt = labFull, labX = trlX(v.trl[0]) - 6, labAnchor = "end";
+    if (labX - labW(labFull) < 0) {
+      labX = 0; labAnchor = "start";
+      if (labW(labFull) > cw - 16) labTxt = `${v.trl[0]}–${v.trl[1]}/9`;
+    }
+    g.append("text").attr("x", labX).attr("y", 98).attr("text-anchor", labAnchor).attr("font-family", CH.MONO).attr("font-size", 9.5)
+      .attr("font-weight", 700).attr("fill", main ? blue : ink).text(labTxt);
     // energy + cost
     g.append("text").attr("x", 0).attr("y", 148).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("ENERGY");

@@ -1,17 +1,20 @@
-// ═══ §4 · Competitive intelligence in 3D — window.Comp3D.render(hostEl) ═══
-// One module, four views (tabs): 3D timeline of who survived/failed, the
-// deal-size landscape with the sub-$1M zone, interactive vendor panels, and
-// the 3D customer map with a verified-vs-marketing coverage matrix.
+// ═══ §4 · Competitive intelligence — window.Comp3D.render(hostEl) ═══
+// One module, four views (tabs). WHO SURVIVED and THE SCALE GAP default to the
+// clean DOM components from js/chart_other.js (window.ChartOther — clickable
+// fates with lessons + dated sources; log-scale deal-size chart with the blue
+// sub-$1M zone); each keeps its 3D scene behind a "◈ 3D VIEW" toggle. VENDOR
+// PANELS and CUSTOMER MAP remain 3D.
 // Data: js/data.js (RPT.players / scalegap / comp_profiles / comp_matrix /
-// cust_tables / geo_matrix), sources: js/sources.js (window.K / KLINK).
-// Continuous animation on load (auto-orbit + traveling markers + ambient
-// particles) · PAUSE button · Reading Mode = static frame · rendering pauses
-// offscreen (IntersectionObserver) · TABLE VIEW button swaps the canvas for a
-// DOM data-table alternative of the same view. Click anything for the detail
-// with dated source links.
+// cust_tables / geo_matrix), sources: js/sources.js (window.K / KLINK / SRCS).
+// Continuous animation on load for 3D views (auto-orbit + traveling markers +
+// ambient particles) · PAUSE button · Reading Mode = static frame · rendering
+// pauses offscreen (IntersectionObserver) and in DOM views · TABLE VIEW button
+// swaps the 3D canvas for a DOM data-table alternative of the same view.
+// Click anything for the detail with dated source links.
 // Integration: host <div id="comp3d"></div> after vendor/three.min.js,
-// vendor/OrbitControls.js, js/data.js, js/sources.js, js/utils.js,
-// js/charts-core.js; styles css/flow3d.css (.sc3d-* shared + .c3d-* block).
+// vendor/OrbitControls.js, vendor/echarts.min.js (scale-gap chart only),
+// js/data.js, js/sources.js, js/utils.js, js/charts-core.js, js/chart_other.js;
+// styles css/flow3d.css (.sc3d-* shared + .c3d-* block) + css/other.css (.ot-*).
 window.Comp3D = (() => {
   "use strict";
 
@@ -467,14 +470,18 @@ window.Comp3D = (() => {
       ${foot ? `<p class="chart-src c3d-tfoot">${foot}</p>` : ""}`;
   }
 
-  /* ════════════════════════ view registry ════════════════════════ */
+  /* ════════════════════════ view registry ════════════════════════
+     Views with `dom` default to the clean js/chart_other.js component; the
+     3D scene stays available behind the "◈ 3D VIEW" toggle. */
   const VIEWS = {
-    timeline: { tab: "WHO SURVIVED · 3D TIMELINE", hint: "DRAG TO ORBIT · SCROLL TO ZOOM · CLICK A PILLAR FOR ITS FATE + LESSON",
+    timeline: { tab: "WHO SURVIVED · TIMELINE", hint: "DRAG TO ORBIT · SCROLL TO ZOOM · CLICK A PILLAR FOR ITS FATE + LESSON",
       build: buildTimeline, drill: tlDrill, table: timelineTable,
+      dom: "destiny",
       cam: [0, 8.5, 21], tgt: [0, 0.9, 0],
       foot: "RPT.players · field census " + "— sources " },
     scale: { tab: "THE SCALE GAP · DEAL SIZES", hint: "DRAG TO ORBIT · SCROLL TO ZOOM · CLICK A LANE OR THE BLUE ZONE",
       build: buildScale, drill: sgDrill, table: scaleTable,
+      dom: "scalegap",
       cam: [0, 9, 18.5], tgt: [0, 0.5, 0], foot: "" },
     panels: { tab: "VENDOR PANELS", hint: "DRAG TO ORBIT · CLICK A PANEL FOR THE FULL PROFILE · CLICK A SLAT FOR ONE RECORD",
       build: buildPanels, drill: vpDrill, table: panelsTable,
@@ -487,16 +494,19 @@ window.Comp3D = (() => {
   /* ════════════════════════ render(hostEl) ════════════════════════ */
   function render(hostEl) {
     if (!hostEl) return null;
-    if (!window.RPT || !window.THREE) { console.warn("Comp3D: needs js/data.js + vendor/three.min.js first"); return null; }
+    // 3D is optional for the two DOM-default views: with ChartOther present the
+    // module still works (clean timeline / scale-gap + tables) without THREE.
+    if (!window.RPT || (!window.THREE && !window.ChartOther)) { console.warn("Comp3D: needs js/data.js + vendor/three.min.js or js/chart_other.js first"); return null; }
     hostEl.classList.add("sc3d-wrap", "c3d-wrap");
 
-    // ── DOM: tab bar + stage + table container ──
+    // ── DOM: tab bar + stage + clean-component container + table container ──
     const tabs = document.createElement("div");
     tabs.className = "c3d-tabs"; tabs.setAttribute("role", "tablist");
-    tabs.setAttribute("aria-label", "Competitive intelligence 3D views");
+    tabs.setAttribute("aria-label", "Competitive intelligence views");
     tabs.innerHTML = Object.keys(VIEWS).map(k =>
       `<button type="button" role="tab" data-v="${k}" aria-selected="false">${VIEWS[k].tab}</button>`).join("") +
       `<span class="c3d-spacer"></span>
+       <button type="button" class="c3d-ctl" data-ctl="view3d" aria-pressed="false" hidden>◈ 3D VIEW</button>
        <button type="button" class="c3d-ctl" data-ctl="pause" aria-pressed="false">❚❚ PAUSE</button>
        <button type="button" class="c3d-ctl" data-ctl="table" aria-pressed="false">▦ TABLE VIEW</button>`;
     hostEl.appendChild(tabs);
@@ -510,27 +520,37 @@ window.Comp3D = (() => {
     stageCol.appendChild(canvas);
     const hint = document.createElement("p");
     hint.className = "sc3d-hint"; stageCol.appendChild(hint);
+    const domBox = document.createElement("div");
+    domBox.className = "c3d-dom"; domBox.hidden = true; hostEl.appendChild(domBox);
     const tableBox = document.createElement("div");
     tableBox.className = "c3d-table"; tableBox.hidden = true; hostEl.appendChild(tableBox);
 
     // ── renderer ──
     let renderer = null, webglDead = false;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    } catch (e) { webglDead = true; }
-    if (!renderer || !renderer.getContext()) webglDead = true;
+    if (!window.THREE) webglDead = true;
+    else {
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      } catch (e) { webglDead = true; }
+      if (!renderer || !renderer.getContext()) webglDead = true;
+    }
     if (webglDead) {
-      // No WebGL: the table alternative becomes the primary presentation.
-      stageCol.innerHTML = "<p class='c3d-nowebgl'>WebGL is unavailable in this browser — showing the data tables instead.</p>";
+      // No WebGL: clean DOM components where available, tables otherwise.
+      stageCol.innerHTML = "<p class='c3d-nowebgl'>WebGL is unavailable in this browser — showing the clean views and data tables instead.</p>";
       tableBox.hidden = false;
-      tableBox.innerHTML = VIEWS.timeline.table();
+      function fallbackShow(k) {
+        const V = VIEWS[k] || VIEWS.timeline;
+        tableBox.innerHTML = "";
+        if (V.dom && window.ChartOther) window.ChartOther.render(tableBox, { panels: [V.dom] });
+        else tableBox.innerHTML = V.table();
+      }
+      fallbackShow("timeline");
       tabs.querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => {
         tabs.querySelectorAll("[data-v]").forEach(x => x.setAttribute("aria-selected", "false"));
         b.setAttribute("aria-selected", "true");
-        tableBox.innerHTML = VIEWS[b.dataset.v].table();
+        fallbackShow(b.dataset.v);
       }));
-      const pb = tabs.querySelector('[data-ctl="pause"]'); if (pb) pb.remove();
-      const tb = tabs.querySelector('[data-ctl="table"]'); if (tb) tb.remove();
+      tabs.querySelectorAll('[data-ctl]').forEach(b => b.remove());
       tabs.querySelector("[data-v]").setAttribute("aria-selected", "true");
       tabs.querySelector("[data-v]").classList.add("on");
       return { view: () => "table-fallback" };
@@ -590,11 +610,54 @@ window.Comp3D = (() => {
       G.animated = animated;
     }
 
-    let curView = null, paused = false, tableMode = false;
+    let curView = null, paused = false, tableMode = false, domMode = false;
+    const domBoxes = {};   // view name → its own container (ChartOther.render clears its host)
+    const domPref = {};    // view name → false once the owner picks the 3D scene
+    const pauseBtn = tabs.querySelector('[data-ctl="pause"]');
+    const tableBtn = tabs.querySelector('[data-ctl="table"]');
+    const view3dBtn = tabs.querySelector('[data-ctl="view3d"]');
     function showView(name) {
       if (!VIEWS[name]) name = "timeline";
       curView = name;
       const V = VIEWS[name];
+      domMode = !!(V.dom && window.ChartOther && domPref[name] !== false);
+      // reset the table swap when entering a clean DOM view (the component
+      // carries its own Chart/Table toggle)
+      if (domMode && tableMode) {
+        tableMode = false;
+        tableBtn.innerHTML = "▦ TABLE VIEW";
+        tableBtn.setAttribute("aria-pressed", "false");
+        tableBox.hidden = true;
+      }
+      tabs.querySelectorAll("[data-v]").forEach(b => {
+        const on = b.dataset.v === name;
+        b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on));
+      });
+      view3dBtn.hidden = !(V.dom && window.ChartOther);
+      if (domMode) {
+        clearView();
+        stageCol.style.display = "none";
+        pauseBtn.style.display = "none"; tableBtn.style.display = "none";
+        view3dBtn.innerHTML = "◈ 3D VIEW";
+        view3dBtn.setAttribute("aria-pressed", "false");
+        domBox.hidden = false;
+        Object.keys(domBoxes).forEach(k => { domBoxes[k].hidden = k !== name; });
+        if (!domBoxes[name]) {
+          const box = document.createElement("div");
+          domBox.appendChild(box);
+          window.ChartOther.render(box, { panels: [V.dom] });
+          domBoxes[name] = box;
+        }
+        dirty = false;
+        return; // no 3D scene to animate in this view
+      }
+      domBox.hidden = true;
+      stageCol.style.display = "";
+      pauseBtn.style.display = ""; tableBtn.style.display = "";
+      if (V.dom && window.ChartOther) {
+        view3dBtn.innerHTML = "▲ CLEAN VIEW";
+        view3dBtn.setAttribute("aria-pressed", "true");
+      }
       clearView();
       viewG = new THREE.Group(); scene.add(viewG);
       G.view = viewG;
@@ -603,10 +666,6 @@ window.Comp3D = (() => {
       controls.target.set.apply(controls.target, V.tgt);
       controls.update();
       hint.textContent = V.hint;
-      tabs.querySelectorAll("[data-v]").forEach(b => {
-        const on = b.dataset.v === name;
-        b.classList.toggle("on", on); b.setAttribute("aria-selected", String(on));
-      });
       if (tableMode) tableBox.innerHTML = V.table();
       dirty = true; poke();
     }
@@ -634,19 +693,21 @@ window.Comp3D = (() => {
         U.showDrill({ title: d.title, value: d.value, sub: d.sub, source: d.source, x: e.clientX, y: e.clientY });
     });
 
-    // ── controls: tabs, pause, table toggle ──
+    // ── controls: tabs, 3D toggle, pause, table toggle ──
     tabs.querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => {
       if (window.U && U.hideDrill) U.hideDrill();
       showView(b.dataset.v);
     }));
-    const pauseBtn = tabs.querySelector('[data-ctl="pause"]');
+    view3dBtn.addEventListener("click", () => {
+      domPref[curView] = !domMode; // DOM → 3D scene, 3D scene → clean DOM
+      showView(curView);
+    });
     pauseBtn.addEventListener("click", () => {
       paused = !paused;
       pauseBtn.innerHTML = paused ? "▶ RESUME" : "❚❚ PAUSE";
       pauseBtn.setAttribute("aria-pressed", String(paused));
       dirty = true; poke();
     });
-    const tableBtn = tabs.querySelector('[data-ctl="table"]');
     tableBtn.addEventListener("click", () => {
       tableMode = !tableMode;
       tableBtn.innerHTML = tableMode ? "▲ 3D VIEW" : "▦ TABLE VIEW";
@@ -660,12 +721,12 @@ window.Comp3D = (() => {
     // ── render loop: continuous unless paused / reading mode / offscreen / table ──
     let dirty = true, inView = false, raf = 0, lastT = 0, t0 = 0;
     const UP = new THREE.Vector3(0, 1, 0);
-    function running() { return !READER() && !paused && !tableMode; }
+    function running() { return !READER() && !paused && !tableMode && !domMode; }
     function poke() { if (inView && !raf) raf = requestAnimationFrame(frame); }
     // watchdog: if the rAF chain ever dies (transient error, throttled
     // callback while the tab was hidden, …) restart it — otherwise labels
     // freeze mid-view-swap in an unpositioned pile
-    setInterval(() => { if (inView && !raf && !document.hidden) { dirty = true; raf = requestAnimationFrame(frame); } }, 800);
+    setInterval(() => { if (inView && !raf && !document.hidden && !domMode) { dirty = true; raf = requestAnimationFrame(frame); } }, 800);
     controls.addEventListener("change", () => { dirty = true; poke(); });
     function resize() {
       const w = stageCol.clientWidth || 800, h = canvas.clientHeight || 600;
@@ -676,7 +737,7 @@ window.Comp3D = (() => {
     addEventListener("resize", resize, { passive: true });
     function frame(t) {
       raf = 0;
-      if (!inView) return;
+      if (!inView || domMode) return;
       if (window.HCSP3D_ACTIVE && window.HCSP3D_ACTIVE !== "comp3d") return;
       if (t0 === 0) t0 = t || 0;
       const tt = ((t || 0) - t0) / 1000;

@@ -1,11 +1,11 @@
 // ═══ Left-hand section navigator — slim collapsible index + scrollspy ═══
 // Builds a "≡ SECTIONS" tab on the left edge (mid-height) that expands into the
 // page's section list. Active section tracked with an IntersectionObserver on
-// each band (same reading zone as the main scroll engine). Hidden in reading
-// mode (html.reader) and reduced to a hamburger tab on narrow screens (≤900px).
+// each band (same reading zone as the main scroll engine). Visible from page
+// load (navigation, not decoration) and kept available in reading mode —
+// only the panel's expand/collapse animation is stilled there by the global
+// html.reader transition rule. Hamburger-only tab on narrow screens (≤900px).
 (function () {
-  if (document.documentElement.classList.contains("reader")) return; // reading mode: no nav
-
   const FALLBACK = {
     "sec-exec": "§0 · Executive summary",
     "sec-concepts": "§1 · Three facts that decide everything",
@@ -105,18 +105,8 @@
     if (e.key === "Escape" && nav.classList.contains("open")) { pinned = false; setOpen(false); }
   });
 
-  // ── visibility gate: appear once the cover / page hero scrolls out ──
-  // (same rule the dashboard rail uses, so the nav never floats over the cover)
-  const gate = document.getElementById("cover") || document.querySelector(".page-hero");
-  function onScroll() {
-    const past = !gate || scrollY > gate.offsetHeight * 0.55;
-    nav.classList.toggle("on", past);
-  }
-  let tick = false;
-  addEventListener("scroll", () => {
-    if (!tick) { tick = true; requestAnimationFrame(() => { onScroll(); tick = false; }); }
-  }, { passive: true });
-  onScroll();
+  // ── visible from page load on every page (navigation, not decoration) ──
+  nav.classList.add("on");
 
   // ── scrollspy: highlight the section in the reading zone ──
   let current = null;

@@ -1528,7 +1528,7 @@ table.dt.cust-dt td { overflow-wrap: break-word; }
    · vertical "≡ SECTIONS" tab fixed on the left edge, mid-height
    · expands on click (pinned) or hover, collapses when not in use
    · IntersectionObserver scrollspy highlights the current section
-   · hidden in reading mode; hamburger-only tab ≤900px
+   · visible from page load and kept in reading mode; hamburger-only tab ≤900px
    ═══════════════════════════════════════════════════════════ */
 #leftnav {
   position: fixed; left: 0; top: 50%; transform: translateY(-50%);
@@ -1538,7 +1538,8 @@ table.dt.cust-dt td { overflow-wrap: break-word; }
   transition: opacity .35s ease, visibility 0s linear .35s;
 }
 #leftnav.on { opacity: 1; visibility: visible; transition: opacity .35s ease; }
-html.reader #leftnav { display: none; }
+/* reading mode keeps the nav (it is navigation, not animation); the global
+   html.reader transition rule stills the panel's expand/collapse motion */
 
 /* ── the slim tab ── */
 #ln-handle {
