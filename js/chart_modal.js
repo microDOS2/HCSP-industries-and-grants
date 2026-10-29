@@ -38,19 +38,19 @@
       take: "Ranked by what existing suppliers charge per gallon to clean up each stream, halogenated solvents and defense firefighting foam lead; PFAS concentrates are top-3 under both this lens and the composite score.",
       axes: "Bars are what existing suppliers charge to clean it up per gallon on a log axis (toggle $/m³ or a linear axis on the chart). Dashed outline = low-confidence data; the blue note is the HCSP reference — no $/gal attached.",
     },
-    "evidence-chart": {
-      take: "The 10 m³/day skid, with the report's hardest numbers hung on the components that carry them — throughput, atmospheric-pressure distillation + high-heat oxidation, 75–95 kW startup power spec, ~$3.5/m³ water credit, and TBD where the manufacturer owes data.",
-      axes: "Side elevation of the module. Every plaque is clickable on the live chart for value + basis + dated source.",
-    },
+    // "evidence-chart" intentionally removed: the flat skid diagram is gone —
+    // §0 now carries the interactive 3D skid explorer with a DOM spec table.
     "mechanism-chart": {
       take: "The whole machine runs at ordinary atmospheric pressure: boil the water off the waste, burn the concentrated residues and gases at high heat, condense the steam back to pure water — with the self-fueling hydrogen loop supplying the process heat.",
       axes: "Four stages left→right (try the walkthrough); the dashed blue box is the self-fueling H₂ loop; nothing on the chart is pressurized.",
     },
     "sizing-chart": {
-      take: "The reachable market counted in machines: roughly 1,800–3,200 skid-equivalents across five core industries — consolidated reachable demand ≈ $9–20B/yr.",
-      axes: "One skid glyph = 50 module-equivalents (10 m³/day each). Solid glyphs are the modeled low case; hollow dashed glyphs are the upside; clipped glyphs are fractional.",
-      table: () => ({ cols: ["Industry", "Module-equivalents", "reachable market", "total market", "Note"],
-        rows: RPT.sizing.map(d => [d.name, d.mod_lo === d.mod_hi ? "≈" + d.mod_lo.toLocaleString("en-US") : d.mod_lo.toLocaleString("en-US") + "–" + d.mod_hi.toLocaleString("en-US"), d.sam, d.tam, d.note]) }),
+      take: "The reachable market in dollars: each core industry's pool drawn as its documented low–high $B range — consolidated reachable demand ≈ $9–20B/yr across fifteen industries.",
+      axes: "X axis is market size in $B. Each bar spans the documented low–high range (solid = low case, light = upside to the high case); the big label restates the range in its source units. Bases differ per industry — one-time equipment pools vs per-year markets; the basis note sits under each industry name.",
+      table: () => ({ cols: ["Industry", "Market size $B", "Machine-equivalents", "Basis"],
+        rows: RPT.sizing.map(d => [d.name, d.sam,
+          d.mod_lo === d.mod_hi ? "≈" + d.mod_lo.toLocaleString("en-US") : d.mod_lo.toLocaleString("en-US") + "–" + d.mod_hi.toLocaleString("en-US"),
+          d.basis + " · " + d.note]) }),
     },
     "scale-chart": {
       take: "Scale fixes energy first — net demand collapses from 130–250 to 35–88 kWh/m³ across four rungs — while cost stays withheld (manufacturer cost model pending), and nothing above 306 t/d has ever operated.",

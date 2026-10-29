@@ -29,20 +29,13 @@
     <a href="funding.html">Funding &amp; Grants</a>
   </div>
   <div class="tn-right">
-    <button class="art-toggle" id="art-toggle" type="button" aria-pressed="false">SHOW ANIMATION</button>
     <button id="reader-toggle" type="button" aria-pressed="false">READING&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
-    <button id="lite-toggle" type="button" aria-pressed="false">LITE&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
     <button id="tn-burger" type="button" aria-expanded="false" aria-label="Toggle navigation">☰</button>
   </div>
 </nav>
 
-<!-- ═══ Cover · text on a solid paper panel; skid art confined to a faded backdrop stage ═══ -->
+<!-- ═══ Cover · clean text on a solid paper panel (no background artwork) ═══ -->
 <header id="cover">
-  <div class="cover-stage" aria-hidden="true">
-    <canvas id="cover-canvas"></canvas>
-    <canvas id="cover-canvas-x" style="display:none"></canvas>
-    <canvas id="cover-canvas-w" style="display:none"></canvas>
-  </div>
   <div class="cover-inner">
     <div class="cover-panel">
     <p class="cover-kicker">Cross-industry value &amp; financial impact · including funding that gives up no ownership · compiled September 2026</p>
@@ -90,12 +83,6 @@
       <button class="chip" data-goto="#sec-appendix">Appendix</button>
     </div>
     <p class="cover-anchor">Evidence graded: company primary &gt; industry &amp; official &gt; broker relay &gt; derived [flagged] · No ratings, no price targets</p>
-    <div class="cover-mode" id="cover-mode" aria-label="Cover artwork variant">
-      <button data-mode="a" class="on">A · The array</button>
-      <button data-mode="b">B · The exploded skid</button>
-      <button data-mode="c">C · The blueprint</button>
-      <button data-mode="d">D · The unboxing</button>
-    </div>
     </div>
     <div class="scroll-hint"><span></span>SCROLL</div>
   </div>
@@ -172,7 +159,21 @@
       for the staged, evidence-first entry this report prescribes.</p>
   </div>
 
-  <div class="wide xl"><div id="evidence-chart" class="chart-frame"></div></div>
+  <div class="wide xl">
+    <div class="skid-duo">
+      <div class="skid3d-wrap" id="skid3d">
+        <canvas class="skid3d-stage" id="skid3d-canvas" aria-label="Interactive 3D model of the HCSP skid"></canvas>
+        <div class="skid3d-ui"><button type="button" id="skid3d-explode">EXPLODE ⇕</button></div>
+        <p class="skid3d-hint">DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT FOR ITS SPECS</p>
+      </div>
+      <div class="skid-spec">
+        <p class="chart-title">One skid, seven numbers</p>
+        <p class="chart-sub">THE 10 M³/DAY HCSP MODULE · EVERY ROW IS CLICKABLE → VALUE + BASIS + DATED SOURCE · TBD = MANUFACTURER DATA PENDING</p>
+        <div class="table-scroll"><table class="dt" id="skid-spec-table"></table></div>
+        <p class="chart-src">Source · Company disclosure — HCSP technical briefing (2025-08) · Industry &amp; official — EIA/EPA WaterSense/OC San · Research compilation [derived]</p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- ═══ §1 Concepts ═══ -->
@@ -365,30 +366,6 @@
   <div class="wide xl"><div id="flow3d" class="lazy3d-host"></div></div>
 </section>
 
-<!-- ═══ §2B Inside the HCSP — interactive 3D skid ═══ -->
-<section id="sec-inside" class="band" data-win="mech">
-  <div class="prose">
-    <p class="sec-no">§2B · Inside the HCSP — the skid in three dimensions</p>
-    <h2>Open the skid and look inside.</h2>
-    <p class="dek">A stylized but faithful walk around the 10&nbsp;m³/day module — orbit it, pull it apart, and click any
-      component for its role and its numbers. Everything here is the same hardware the "how it works" chart describes;
-      nothing is a rendering of claims the report does not make.</p>
-  </div>
-  <div class="wide xl">
-    <div class="skid3d-wrap" id="skid3d">
-      <canvas class="skid3d-stage" id="skid3d-canvas" aria-label="Interactive 3D model of the HCSP skid"></canvas>
-      <div class="skid3d-ui"><button type="button" id="skid3d-explode">EXPLODE ⇕</button></div>
-      <p class="skid3d-hint">DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT</p>
-    </div>
-  </div>
-  <div class="prose">
-    <p>The train reads left to right: the feed pump meters the waste in at ordinary pressure, the electrolyzer makes the fuel, the combustor turns it
-      into process heat, the distiller boils the water off the waste while the oxidizer burns what remains at high heat — the technology class's documented destruction record runs to 99.9–99.9999% — and the condenser hands back distilled water and a contained
-      solid residue. On concentrated feeds, the surplus heat the process does not reclaim is what the economics section
-      turns into power and cooling.</p>
-  </div>
-</section>
-
 <!-- ═══ §3 Current state ═══ -->
 <section id="sec-state" class="band" data-win="state">
   <div class="prose">
@@ -460,8 +437,7 @@
       order-of-magnitude synthesis of per-industry estimates, not a single measured figure. The core pools (hazardous
       organic liquids $2–4B/yr, PFAS concentrates $300M–1.6B/yr by 2030, pharma, textile, sewage sludge) are joined by
       distillery zero-liquid-discharge work (no wastewater leaves the site) ($2–5B cumulative), factory farms ($1–3B), islands ($0.5–1.5B), mining ($0.3–0.8B), and an honestly sized
-      produced-water niche — while data centers enter as buyers of the plant's output rather than customers for destruction. Drawn in machines rather than
-      dollars, the core pools look like this:</p>
+      produced-water niche — while data centers enter as buyers of the plant's output rather than customers for destruction. The core pools, in dollars per industry, look like this:</p>
   </div>
   <div class="wide xl"><div id="sizing-chart" class="chart-frame"></div></div>
   <div class="prose">
@@ -752,9 +728,6 @@
 <script src="vendor/OrbitControls.js"></script>
 <script src="js/utils.js"></script>
 <script>window.DASH_SECTIONS = ["exec", "concepts", "mech", "state", "scale", "energy", "verdict", "appendix"];</script>
-<script src="js/cover.js"></script>
-<script src="js/cover-exploded.js"></script>
-<script src="js/cover-wire.js"></script>
 <script src="js/charts-core.js"></script>
 <script src="js/charts-exec.js"></script>
 <script src="js/charts-v2.js"></script>

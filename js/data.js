@@ -180,14 +180,19 @@ window.RPT = {
   // ── Ch.8.1 total market / reachable market by industry (reachable market expressed in 10 m³/day module-equivalents) ──
   sizing: [
     { key: "pharma", name: "Pharma & biotech",      mod_lo: 1050, mod_hi: 1050, unit: 50, sam: "$2.1–3.2B US one-time equipment", tam: "~$3.8B/yr global pharma wastewater (2030)",
+      sam_lo: 2.1, sam_hi: 3.2, sam_lab: "$2.1–3.2B", basis: "US one-time equipment pool", basis_tag: "ONE-TIME EQUIPMENT POOL",
       note: "~35% of 2,010 US establishments × 1.5 skids", src: ["K41", "K37"] },
     { key: "tex",    name: "Textile clusters (India/China)", mod_lo: 500, mod_hi: 1500, unit: 50, sam: "$0.6–3.3B cumulative equipment over 10 yr", tam: "$2–2.5B/yr sector treatment spend",
+      sam_lo: 0.6, sam_hi: 3.3, sam_lab: "$0.6–3.3B", basis: "Cumulative equipment over 10 yr", basis_tag: "CUMULATIVE · 10 YR",
       note: "Only 1–3% of outgoing wastewater volume is concentrate/sludge; low-medium confidence (top-down)", src: ["K42"] },
     { key: "pfas",   name: "PFAS concentrates",      mod_lo: 200,  mod_hi: 500,  unit: 50, sam: "$300M–1.6B/yr by 2030", tam: "$1.5–4B/yr US destruction-addressable by 2030",
+      sam_lo: 0.3, sam_hi: 1.6, sam_lab: "$300M–1.6B/yr", basis: "Per-year market by 2030", basis_tag: "PER-YEAR · BY 2030",
       note: "20–40% of the 2030 destruction market; $2–5/gal viable vs $5–10/gal incineration", src: ["K21", "K8"] },
     { key: "haz",    name: "Hazardous organic liquids", mod_lo: 40, mod_hi: 150, unit: 50, sam: "$2–4B/yr (NA+EU)", tam: "$17–22B/yr global, →$35–45B by 2035",
+      sam_lo: 2, sam_hi: 4, sam_lab: "$2–4B/yr", basis: "Per-year market, NA+EU", basis_tag: "PER-YEAR · NA+EU",
       note: "40–150 modules ≈ $110–550M/yr service revenue for an entrant", src: ["K33"] },
     { key: "ref",    name: "Refinery residuals",     mod_lo: 41,   mod_hi: 41,   unit: 50, sam: "$95–136M/yr", tam: "$447–638M/yr technical total market (1995 DOE/API basis — dated)",
+      sam_lo: 0.095, sam_hi: 0.136, sam_lab: "$95–136M/yr", basis: "Per-year market (1995 DOE/API basis — dated)", basis_tag: "PER-YEAR · 1995 BASIS, DATED",
       note: "~41 module-equivalents; treatment + direct-disposal streams only", src: ["K47"] },
   ],
   market_meta: {

@@ -22,7 +22,6 @@
     <a href="funding.html">Funding &amp; Grants</a>
   </div>
   <div class="tn-right">
-    <a class="art-toggle" href="index.html?art=on" title="Show the HCSP animation on the Market Analysis page">SHOW ANIMATION</a>
     <button id="reader-toggle" type="button" aria-pressed="false">READING&nbsp;MODE&nbsp;<span class="rt-state">OFF</span></button>
     <button id="tn-burger" type="button" aria-expanded="false" aria-label="Toggle navigation">☰</button>
   </div>
@@ -55,12 +54,14 @@
       constructed plants except two had closed — mainly on corrosion, plugging, and economics. The explorer below
       follows the field from the 1980s pioneers to today's five operators — the four commercial SCWO vendors plus HCSP — switch between the
       timeline, the deal-size scale gap, the vendor panels, and the customer map. The timeline and the scale gap open as
-      clean, readable charts; every bar and lane clicks through to its story and dated sources, and each panel carries a
-      TABLE view of the same data. (The old 3D scenes remain behind the "◈ 3D VIEW" toggle on those two tabs.)</p>
+      clean, readable charts; the customer map is a real geographic map with every verified site plotted where it
+      actually is. Every bar, lane, and pin clicks through to its story and dated sources, and each panel carries a
+      TABLE view of the same data. (The old 3D scenes remain behind the "◈ 3D VIEW" toggle on those two chart tabs.)</p>
   </div>
   <!-- Primary visual: the explorer (who-survived timeline · scale gap · vendor panels · customer map).
-       Timeline and scale gap default to the clean DOM components (js/chart_other.js); vendor panels and
-       customer map remain 3D. Each clean panel has its own Chart/Table toggle. -->
+       Timeline and scale gap default to the clean DOM components (js/chart_other.js); vendor panels remain 3D;
+       the customer map is a 2D geographic map (vendored world atlas) with a sortable table alternative.
+       Each clean panel has its own Chart/Table toggle. -->
   <div class="wide xl"><div id="comp3d"></div></div>
   <div class="prose">
     <p>Only four organizations operate verifiable commercial-scale SCWO today. <b>374Water</b> (NASDAQ: SCWO), a Duke
@@ -224,6 +225,8 @@
 <script src="vendor/three.min.js"></script>
 <script src="vendor/OrbitControls.js"></script>
 <script src="vendor/echarts.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/world-110m.js"></script>
 <script src="js/shell.js"></script>
 <script src="js/data.js"></script>
 <script src="js/sources.js"></script>

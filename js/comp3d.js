@@ -3,7 +3,11 @@
 // clean DOM components from js/chart_other.js (window.ChartOther — clickable
 // fates with lessons + dated sources; log-scale deal-size chart with the blue
 // sub-$1M zone); each keeps its 3D scene behind a "◈ 3D VIEW" toggle. VENDOR
-// PANELS and CUSTOMER MAP remain 3D.
+// PANELS remains 3D. CUSTOMER MAP is a real geographic map: a vendored
+// Natural Earth world atlas (topojson, vendor/world-110m.js +
+// vendor/topojson-client.min.js) with pins projected from true lon/lat,
+// largest/smallest flags, a verified-vs-marketing coverage matrix, and a
+// sortable DOM table alternative behind "▦ TABLE VIEW".
 // Data: js/data.js (RPT.players / scalegap / comp_profiles / comp_matrix /
 // cust_tables / geo_matrix), sources: js/sources.js (window.K / KLINK / SRCS).
 // Continuous animation on load for 3D views (auto-orbit + traveling markers +
@@ -13,15 +17,21 @@
 // Click anything for the detail with dated source links.
 // Integration: host <div id="comp3d"></div> after vendor/three.min.js,
 // vendor/OrbitControls.js, vendor/echarts.min.js (scale-gap chart only),
+// vendor/topojson-client.min.js, vendor/world-110m.js (customer map),
 // js/data.js, js/sources.js, js/utils.js, js/charts-core.js, js/chart_other.js;
-// styles css/flow3d.css (.sc3d-* shared + .c3d-* block) + css/other.css (.ot-*).
+// styles css/flow3d.css (.sc3d-* shared + .c3d-* block) + css/other.css (.ot-*)
+// + css/style.css (.geomap-*).
 window.Comp3D = (() => {
   "use strict";
 
   const esc = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
   const KLINK = ids => (window.KLINK ? window.KLINK(ids) : (ids || []).join(", "));
+  // dated variant: links plus the publication date of each source
+  const KLINKD = ids => {
+    const dates = (ids || []).map(id => { const s = window.K && K(id); return s ? s.date : ""; }).filter(Boolean).join(", ");
+    return KLINK(ids) + (dates ? ` <span class="src-date">(dated ${dates})</span>` : "");
+  };
   const READER = () => document.documentElement.classList.contains("reader");
-  const COMP_COLOR = { w374: 0x2251ff, ga: 0x42566a, aq: 0x008a6d, rv: 0xb07a10 };
   const COMP_CSS = { w374: "#2251ff", ga: "#42566a", aq: "#008a6d", rv: "#b07a10" };
   const GEO_MARKER = { op: ["#00674f", "OPERATING"], demo: ["#8a5f0a", "DEMO / TEST"], ann: ["#2251ff", "ANNOUNCED"], mkt: ["#5b6f82", "MARKETING CLAIM"], no: ["#9aa8b5", "NO PRESENCE"] };
 
@@ -39,19 +49,34 @@ window.Comp3D = (() => {
             4: [-79.0, 35.5], 5: [-105.5, 39.0], 6: [-85.7, 42.9], 7: [-83.1, 42.35], 8: [-85.1, 41.1] },
   };
   const X_STATUS = { ga: { 5: "FAILED", 6: "COLLAPSED" }, rv: { 5: "LOST" } };
-  const MAP_REGIONS = { "United States": [-100, 44], "Europe": [8, 52], "China": [106, 33], "Japan": [138, 38], "Central Asia": [68, 43], "Canada / other": [-106, 56] };
-  // region chips can float away from the tile cluster when the anchor is
-  // crowded with pins (the US anchor sits under the St. Cloud / Olathe pins);
-  // entry: [lon, lat, dy px]
-  const MAP_REGION_LAB = { "United States": [-125, 64, 0], "Europe": [8, 52, -38], "Canada / other": [-70, 64, 0] };
-  // The US pins all sit in one screen column — their chips get an explicit
-  // vertical ladder (extra px dy per pin, keys = cust_tables id:row).
-  const PIN_LADDER = { "w374:2": -60, "w374:3": -37, "ga:0": -16, "ga:5": 50, "ga:6": 82, "rv:0": -77, "rv:3": 3, "rv:5": 66 };
-  const PIN_LADDER_X = { "ga:6": 92 }; // extra dy for an ✕ status chip on a flagged pin
-  const PIN_LAB_DX = { "aq:0": 30 };   // Seveso chip clears the Skævinge chip + ladder
+  // Region coverage-tile anchors [lon, lat] — placed just off the pin
+  // clusters so tiles never sit on top of pins.
+  const MAP_REGIONS = { "United States": [-100, 31], "Europe": [10, 35], "China": [106, 33], "Japan": [142, 32], "Central Asia": [62, 38], "Canada / other": [-106, 56] };
+  // 2D label placement, absolute px in the 1000×540 viewBox (hand-laddered to
+  // keep the dense US cluster readable; leader lines run back to each pin).
+  const REG_LAB = { "United States": [255, 312], "Europe": [452, 66], "China": [778, 238],
+    "Japan": [864, 234], "Central Asia": [671, 146], "Canada / other": [330, 58] };
+  const PIN_LAB2D = {              // keyed "company:row" → [x, y] label anchor
+    "w374:2": [120, 134],  // ▲ LARGEST · OLATHE, KS        (pin 257,182)
+    "w374:3": [132, 180],  // ▽ SMALLEST · ST. CLOUD, MN    (pin 266,161)
+    "ga:0":   [430, 170],  // ▲ LARGEST · RICHMOND, KY      (pin ~283,186)
+    "ga:5":   [150, 218],  // ✕ FAILED · TOOELE, UT         (pin 214,177)
+    "ga:6":   [240, 250],  // ▽ SMALLEST · CAMP MINDEN, LA  (pin 255,202)
+    "ga:6x":  [240, 267],  // ✕ COLLAPSED · CAMP MINDEN, LA
+    "aq:0":   [503, 200],  // ▲ LARGEST · TOULOUSE, FRANCE  (pin 503,167)
+    "aq:5":   [642, 82],   // ▽ SMALLEST · SKÆVINGE, DK     (pin 528,129)
+    "rv:0":   [352, 84],   // ▲ LARGEST · NJ STATEWIDE      (pin 310,178)
+    "rv:3":   [438, 104],  // ▽ SMALLEST · NEW HAMPSHIRE    (pin 320,167)
+    "rv:5":   [150, 290],  // ✕ LOST · COLORADO             (pin 230,182)
+  };
+  const HUBS = [
+    { lon: -83.0, lat: 39.96, x: 420, y: 148, lab: "DESTRUCTION HUB — COLUMBUS OH" },
+    { lon: -85.7, lat: 42.75, x: 425, y: 128, lab: "HUB — GRAND RAPIDS MI" },
+    { lon: -81.4, lat: 28.4, x: 400, y: 240, lab: "WDS HUB — ORLANDO FL" },
+  ];
 
   function shortLoc(loc) {
-    let s = String(loc).split(";")[0].split("(destruction")[0].split("(processing")[0].trim();
+    let s = String(loc).split(";")[0].replace(/\s*\([^)]*\)/g, "").trim();
     const parts = s.split(",").map(p => p.trim()).filter(Boolean);
     if (parts.length > 2) s = parts.slice(-2).join(", ");
     return s.length > 26 ? s.slice(0, 24) + "…" : s;
@@ -330,94 +355,247 @@ window.Comp3D = (() => {
       "RPT.comp_profiles · " + KLINK(["K151", "K155", "K159", "K162"]));
   }
 
-  /* ════════════════════════ VIEW 4 · 3D CUSTOMER MAP ════════════════════════ */
-  // equirectangular plane: lon [-130, 150] → x [-11.5, 11.5], lat [14, 64] → z
-  // (the 23-wide span keeps the US pin cluster inside the horizontal frustum
-  // at narrow stage widths instead of piling chips onto the left edge clamp)
-  const mapX = lon => ((lon + 130) / 280) * 23 - 11.5;
-  const mapZ = lat => ((64 - lat) / 50) * 14 - 7;
+  /* ════════════════════════ VIEW 4 · CUSTOMER MAP — REAL GEOGRAPHY ════════════════════════ */
+  // 2D geographic map on the vendored Natural Earth world atlas (topojson).
+  // Pins are projected from true [lon, lat] coordinates — no floating pins,
+  // no 3D plane. Largest/smallest chips, ✕ failed/lost sites, region coverage
+  // tiles (verified vs marketing claims) + the coverage matrix below the map,
+  // and a sortable DOM table behind ▦ TABLE VIEW.
 
-  function buildMap(G) {
-    // base plane + graticule
-    const base = new THREE.Mesh(new THREE.BoxGeometry(26.4, 0.12, 14.4),
-      new THREE.MeshStandardMaterial({ color: 0xeef1f6, roughness: 0.9 }));
-    base.position.y = -0.06; G.view.add(base);
-    const grid = [];
-    for (let lon = -120; lon <= 140; lon += 20) grid.push(mapX(lon), 0.01, -7, mapX(lon), 0.01, 7);
-    for (let lat = 20; lat <= 60; lat += 10) grid.push(-13, 0.01, mapZ(lat), 13, 0.01, mapZ(lat));
-    const gg = new THREE.BufferGeometry();
-    gg.setAttribute("position", new THREE.Float32BufferAttribute(grid, 3));
-    G.view.add(new THREE.LineSegments(gg, new THREE.LineBasicMaterial({ color: 0xdbe2ea })));
-
-    // region labels + coverage tiles (geo_matrix: verified presence vs marketing claims)
+  function coverageMatrixHtml() {
     const GM = RPT.geo_matrix;
+    return `<h3 class='c3d-th'>Region coverage — verified presence vs marketing claims</h3>
+      <div class="table-scroll"><table class="dt c3d-dt c3d-geo"><thead><tr><th>Company</th>${GM.cols.map(c => `<th>${esc(c)}</th>`).join("")}</tr></thead>
+      <tbody>${GM.rows.map((row, ri) => `<tr><td><b>${esc(row.co)}</b></td>${row.cells.map((c, ci) => {
+        const m = GEO_MARKER[c.m] || ["#5b6f82", c.m];
+        return `<td data-r="${ri}" data-c="${ci}"><span class="c3d-mcell" style="border-left:4px solid ${m[0]}"><b>${m[1]}</b> — ${esc(c.txt)}</span></td>`;
+      }).join("")}</tr>`).join("")}</tbody></table></div>
+      <p class="chart-src c3d-tfoot">${esc(GM.note)} · ${KLINKD(GM.src)}</p>`;
+  }
+
+  function wireGeoMatrix(scope) {
+    scope.querySelectorAll(".c3d-geo td[data-r]").forEach(td => {
+      td.style.cursor = "pointer";
+      td.addEventListener("click", e => {
+        const d = gmDrill(null, "gm:" + td.dataset.r + ":" + td.dataset.c);
+        if (d && window.U && U.showDrill) U.showDrill({ ...d, x: e.clientX, y: e.clientY });
+      });
+    });
+  }
+
+  function renderGeoMap(box) {
+    box.innerHTML = "";
+    const wrap = document.createElement("div");
+    wrap.className = "geomap";
+    box.appendChild(wrap);
+    if (!window.d3 || !window.topojson || !window.WORLD110) {
+      wrap.innerHTML = "<p class='c3d-nowebgl'>The geographic library did not load — the same data is available behind the ▦ TABLE VIEW button.</p>";
+      return;
+    }
+    const W = 1000, H = 540;
+    const svg = d3.select(wrap).append("svg")
+      .attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("role", "img")
+      .attr("aria-label", "World map with the verified customer locations of the four SCWO operators plotted at their true coordinates");
+    const world = window.WORLD110;
+    const countries = topojson.feature(world, world.objects.countries);
+    // drop Antarctica (id 010) so the frame tightens on the inhabited world
+    countries.features = countries.features.filter(f => String(f.id) !== "010");
+    const proj = d3.geoNaturalEarth1().fitExtent([[8, 8], [W - 8, H - 8]], countries);
+    const path = d3.geoPath(proj);
+    svg.append("path").attr("class", "geomap-grat").attr("d", path(d3.geoGraticule10()));
+    svg.append("path").attr("class", "geomap-land").attr("d", path(countries));
+    svg.append("path").attr("class", "geomap-frame").attr("d", path({ type: "Sphere" }));
+    const P = ll => proj(ll);
+
+    // ── region labels + verified-vs-marketing coverage tiles ──
     const compIds = ["w374", "ga", "aq", "rv"];
+    const GM = RPT.geo_matrix;
     GM.cols.forEach((colName, ci) => {
       const ll = MAP_REGIONS[colName]; if (!ll) return;
-      const lab = MAP_REGION_LAB[colName] || [ll[0], ll[1], 0];
-      const x = mapX(ll[0]), z = mapZ(ll[1]);
-      G.label(colName.toUpperCase(), "accent", mapX(lab[0]), 0.9, mapZ(lab[1]) - 0.9, 0, lab[2]);
+      const lab = REG_LAB[colName] || P(ll);
+      svg.append("text").attr("class", "geomap-lab region")
+        .attr("x", lab[0]).attr("y", lab[1]).attr("text-anchor", "middle")
+        .text(colName.toUpperCase());
+      const [x, y] = P(ll);
       compIds.forEach((cid, ri) => {
         const cell = GM.rows[ri] && GM.rows[ri].cells[ci];
         if (!cell || cell.m === "no") return;
-        const col3 = GEO_MARKER[cell.m] ? GEO_MARKER[cell.m][0] : "#5b6f82";
-        const tile = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.1, 0.52),
-          new THREE.MeshStandardMaterial({ color: new THREE.Color(col3),
-            transparent: cell.m === "mkt" || cell.m === "ann", opacity: cell.m === "mkt" ? 0.35 : cell.m === "ann" ? 0.6 : 1 }));
-        tile.position.set(x - 0.9 + ri * 0.62, 0.05, z + 0.35);
-        G.view.add(tile); G.mark(tile, "gm:" + ri + ":" + ci);
+        const col = GEO_MARKER[cell.m] ? GEO_MARKER[cell.m][0] : "#5b6f82";
+        svg.append("rect")
+          .attr("class", "geomap-tile")
+          .attr("x", x - 22 + ri * 12).attr("y", y + 8)
+          .attr("width", 10).attr("height", 10).attr("rx", 2)
+          .attr("fill", col)
+          .attr("opacity", cell.m === "mkt" ? 0.35 : cell.m === "ann" ? 0.6 : 1)
+          .on("click", e => {
+            const d = gmDrill(null, "gm:" + ri + ":" + ci);
+            if (d && window.U && U.showDrill) U.showDrill({ ...d, x: e.clientX, y: e.clientY });
+          });
       });
     });
-    // legend — rows INSIDE the map's front edge (z 8.3/9.5 used to hang past
-    // the base and pile onto the hint + region chips); x spread sized so the
-    // chips keep clear of each other and of the left edge clamp
-    G.label("■ VERIFIED OPERATING", "cool", -8.5, 0.4, 6.55);
-    G.label("■ DEMO / TEST", "heat", -4.2, 0.4, 6.55);
-    G.label("■ ANNOUNCED", "accent", -0.55, 0.4, 6.55);
-    G.label("□ MARKETING CLAIM ONLY", "", 3.55, 0.4, 6.55);
-    // (tile-row order note lives in the view hint — as a chip it collided
-    // with the bottom of the pin ladder)
 
-    // customer pins
+    // ── customer pins at true coordinates ──
+    const pinLayer = svg.append("g");
+    const labLayer = svg.append("g");
+    const flagged = [];
     (RPT.cust_tables || []).forEach(tbl => {
       const pins = MAP_PINS[tbl.id] || {};
       tbl.rows.forEach((r, ri) => {
-        const ll = pins[ri]; if (!ll) return;
-        const x = mapX(ll[0]), z = mapZ(ll[1]);
+        const ll = pins[ri]; if (!ll) return; // no verifiable point → table-only
+        const [x, y] = P(ll);
         const xs = X_STATUS[tbl.id] && X_STATUS[tbl.id][ri];
-        const col = xs ? 0x9aa8b5 : COMP_COLOR[tbl.id];
-        const pinH = r.flag === "largest" ? 2.0 : r.flag === "smallest" ? 0.75 : 1.2;
-        const g = new THREE.Group(); g.position.set(x, 0, z); G.view.add(g);
-        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.11, pinH, 10),
-          new THREE.MeshStandardMaterial({ color: col, roughness: 0.5, metalness: 0.2 }));
-        stem.position.y = pinH / 2; g.add(stem);
-        const head = new THREE.Mesh(new THREE.SphereGeometry(r.flag ? 0.26 : 0.18, 14, 10),
-          new THREE.MeshStandardMaterial({ color: col, roughness: 0.4 }));
-        head.position.y = pinH + 0.14; g.add(head);
-        const ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.42, 24),
-          new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
-        ring.rotation.x = -Math.PI / 2; ring.position.y = 0.02; g.add(ring);
-        G.animated.push({ obj: ring, tick: t => {
-          const f = (t * 0.6 + ri * 0.23) % 1;
-          ring.scale.setScalar(1 + f * 1.1); ring.material.opacity = 0.5 * (1 - f);
-        } });
-        G.mark(g, "pin:" + tbl.id + ":" + ri);
-        // flag/status chips for neighbouring pins (Olathe vs St. Cloud,
-        // NJ vs NH …) share screen space — lift largest, drop smallest,
-        // then apply the per-pin ladder offset
-        const ld = PIN_LADDER[tbl.id + ":" + ri] || 0;
-        const lx = PIN_LAB_DX[tbl.id + ":" + ri] || 0;
-        if (r.flag === "largest") G.label("▲ LARGEST · " + shortLoc(r.loc).toUpperCase(), "accent", x, pinH + 0.75, z, lx, -12 + ld);
-        if (r.flag === "smallest") G.label("▽ SMALLEST · " + shortLoc(r.loc).toUpperCase(), "", x, pinH + 0.62, z, lx, 8 + ld);
-        // a pin can carry both a flag and an ✕ status (e.g. Camp Minden) —
-        // stack the status chip one chip-height above the flag chip
-        if (xs) G.label("✕ " + xs + " · " + shortLoc(r.loc).toUpperCase(), "neg", x, pinH + 0.62, z, 0, (r.flag ? -28 : 0) + (PIN_LADDER_X[tbl.id + ":" + ri] || ld));
+        const col = xs ? "#9aa8b5" : COMP_CSS[tbl.id];
+        const rad = r.flag === "largest" ? 6.5 : r.flag === "smallest" ? 5.5 : 4.5;
+        pinLayer.append("circle")
+          .attr("class", "geomap-pin" + (xs ? " dead" : ""))
+          .attr("cx", x).attr("cy", y).attr("r", rad)
+          .attr("fill", col)
+          .attr("stroke", r.flag ? "#051c2c" : "#fff")
+          .attr("stroke-width", r.flag ? 1.8 : 1.2)
+          .on("click", e => {
+            const d = pinDrill(null, "pin:" + tbl.id + ":" + ri);
+            if (d && window.U && U.showDrill) U.showDrill({ ...d, x: e.clientX, y: e.clientY });
+          });
+        if (xs) labLayer.append("text").attr("class", "geomap-x")
+          .attr("x", x + 6).attr("y", y - 6).text("✕");
+        if (r.flag || xs) flagged.push({ tbl, r, ri, x, y, xs });
       });
     });
-    // hub markers — same screen column as the pin chips, so they join the ladder
-    G.label("DESTRUCTION HUB — COLUMBUS OH", "", mapX(-83.0), 0.32, mapZ(39.96), 0, 71);
-    G.label("HUB — GRAND RAPIDS MI", "", mapX(-85.7), 0.32, mapZ(42.75) - 0.6, 0, 25);
-    G.label("WDS HUB — ORLANDO FL", "", mapX(-81.4), 0.32, mapZ(28.4) + 0.7, 0, 47);
+    function addLab(x, y, txt, cls) {
+      labLayer.append("text").attr("class", "geomap-lab " + cls)
+        .attr("x", x).attr("y", y).attr("text-anchor", "middle").text(txt);
+    }
+    function addLeader(px, py, lx, ly) {
+      labLayer.append("line")
+        .attr("x1", px).attr("y1", py).attr("x2", lx).attr("y2", ly + 4)
+        .attr("stroke", "#8ea2b5").attr("stroke-width", 0.8).attr("opacity", 0.85);
+    }
+    // largest / smallest flags + failed-or-lost status chips, hand-placed in
+    // the empty ocean margins (PIN_LAB2D) with leader lines back to the pins
+    flagged.forEach(p => {
+      const key = p.tbl.id + ":" + p.ri;
+      const fl = PIN_LAB2D[key];
+      if (p.r.flag && fl) {
+        addLeader(p.x, p.y, fl[0], fl[1]);
+        addLab(fl[0], fl[1],
+          (p.r.flag === "largest" ? "▲ LARGEST · " : "▽ SMALLEST · ") + shortLoc(p.r.loc).toUpperCase(),
+          p.r.flag === "largest" ? "flag-hi" : "flag-lo");
+      }
+      if (p.xs) {
+        const xl = PIN_LAB2D[key + "x"] || (!p.r.flag ? fl : null);
+        if (xl) {
+          addLeader(p.x, p.y, xl[0], xl[1]);
+          addLab(xl[0], xl[1], "✕ " + p.xs + " · " + shortLoc(p.r.loc).toUpperCase(), "dead");
+        }
+      }
+    });
+    // hub markers
+    HUBS.forEach(h => {
+      const [px, py] = P([h.lon, h.lat]);
+      addLeader(px, py, h.x, h.y);
+      addLab(h.x, h.y, h.lab, "flag-lo");
+    });
+
+    // ── legend + hint + coverage matrix ──
+    const legend = document.createElement("p");
+    legend.className = "geomap-legend";
+    legend.innerHTML = compIds.map(id => {
+      const t = (RPT.cust_tables || []).find(t => t.id === id);
+      return `<span><b style="color:${COMP_CSS[id]}">●</b> ${esc(t ? t.company : id)}</span>`;
+    }).join("")
+      + `<span><b class="geomap-lab flag-hi">▲</b>/<b>▽</b> largest / smallest disclosed</span>`
+      + `<span><b style="color:#c22f4e">✕</b> failed / lost site</span>`
+      + `<span><b>■</b> region tiles = coverage: solid verified operating · demo · announced · faint = marketing claim (rows: 374Water · GA · Aquarden · Revive)</span>`;
+    wrap.appendChild(legend);
+    const hint = document.createElement("p");
+    hint.className = "geomap-hint chart-sub";
+    hint.textContent = "REAL GEOGRAPHY — VENDORED NATURAL EARTH WORLD ATLAS · CLICK A PIN FOR THE ENGAGEMENT · CLICK A TILE FOR THE REGION VERDICT · ROWS WITH NO VERIFIABLE POINT LOCATION STAY TABLE-ONLY (▦ TABLE VIEW)";
+    wrap.appendChild(hint);
+    const mx = document.createElement("div");
+    mx.innerHTML = coverageMatrixHtml();
+    wrap.appendChild(mx);
+    wireGeoMatrix(mx);
+  }
+
+  // ── sortable DOM table alternative: one combined register across operators ──
+  function mapTable() {
+    const rows = [];
+    (RPT.cust_tables || []).forEach(tbl => tbl.rows.forEach(r => rows.push({ tbl, r })));
+    let out = "<h3 class='c3d-th'>Named customers, hosts, and programs — click a header to sort</h3>"
+      + `<div class="table-scroll"><table class="dt c3d-dt c3d-sort" id="c3d-cust-table"><thead><tr>${["Company", "Customer / program", "Location", "Type", "Value", "Status", "Sources"].map(c => `<th>${c}</th>`).join("")}</tr></thead><tbody>`
+      + rows.map(({ tbl, r }, i) => `<tr data-i="${i}">
+          <td><b>${esc(tbl.company)}</b></td>
+          <td>${esc(r.cust)}${r.flag ? ` <span class="flag-chip ${r.flag}">${r.flag === "largest" ? "LARGEST" : "SMALLEST"}</span>` : ""}</td>
+          <td>${esc(r.loc)}</td><td>${esc(r.type)}</td><td>${esc(r.value)}</td><td>${esc(r.status)}</td>
+          <td>${KLINKD(r.src)}</td></tr>`).join("")
+      + `</tbody></table></div>
+      <p class="chart-src c3d-tfoot">Rows with no verifiable point location appear here only, by design · click a row for the full engagement with dated sources</p>`;
+    out += coverageMatrixHtml();
+    return out;
+  }
+
+  function wireMapTable(scope) {
+    wireGeoMatrix(scope);
+    const table = scope.querySelector("#c3d-cust-table");
+    if (!table) return;
+    const rows = [];
+    (RPT.cust_tables || []).forEach(tbl => tbl.rows.forEach(r => rows.push({ tbl, r })));
+    // row drills (with dated source links)
+    table.querySelectorAll("tbody tr[data-i]").forEach(tr => {
+      const { tbl, r } = rows[+tr.dataset.i];
+      tr.style.cursor = "pointer";
+      tr.addEventListener("click", e => {
+        if (!window.U || !U.showDrill) return;
+        U.showDrill({
+          title: (tbl.company + " — " + shortLoc(r.loc)).toUpperCase(),
+          value: r.value + (r.flag === "largest" ? " · largest disclosed" : r.flag === "smallest" ? " · smallest disclosed" : ""),
+          sub: r.cust + " · " + r.loc + ". Status: " + r.status + ". " + r.caveat,
+          source: KLINK(r.src), x: e.clientX, y: e.clientY,
+        });
+      });
+    });
+    // click-to-sort (numeric-aware: $4,880,000 · $812K · $16.6M)
+    const keyOf = td => {
+      const t = (td.textContent || "").replace(/\s+/g, " ").trim();
+      if (!t || t === "—" || t === "–") return { o: 2, v: "" };
+      const m = t.replace(/,/g, "").match(/\d+(?:\.\d+)?\s*([KMB])\b/i) || t.replace(/,/g, "").match(/\d+(?:\.\d+)?/);
+      if (m) {
+        let v = parseFloat(m[0]);
+        const u = (m[1] || "").toUpperCase();
+        v *= u === "K" ? 1e3 : u === "M" ? 1e6 : u === "B" ? 1e9 : 1;
+        return { o: 0, v };
+      }
+      return { o: 1, v: t.toLowerCase() };
+    };
+    let sortCol = -1, sortDir = 1;
+    table.querySelectorAll("thead th").forEach((th, ci) => {
+      th.tabIndex = 0;
+      th.setAttribute("aria-sort", "none");
+      const arrow = document.createElement("span");
+      arrow.className = "c3d-arrow"; arrow.setAttribute("aria-hidden", "true");
+      th.appendChild(arrow);
+      const act = () => {
+        if (sortCol === ci) sortDir *= -1; else { sortCol = ci; sortDir = 1; }
+        const body = table.tBodies[0];
+        const rs = [...body.rows].map((tr, i) => ({ tr, i, k: keyOf(tr.cells[ci]) }));
+        rs.sort((a, b) => {
+          const A = a.k, B = b.k;
+          const c = A.o !== B.o ? A.o - B.o : A.o === 0 ? A.v - B.v : String(A.v).localeCompare(String(B.v), undefined, { numeric: true });
+          return c * sortDir || a.i - b.i;
+        });
+        const frag = document.createDocumentFragment();
+        rs.forEach(r => frag.appendChild(r.tr));
+        body.appendChild(frag);
+        table.querySelectorAll("thead th").forEach((h, i) => {
+          h.setAttribute("aria-sort", i === ci ? (sortDir > 0 ? "ascending" : "descending") : "none");
+          const a = h.querySelector(".c3d-arrow");
+          if (a) a.textContent = i === ci ? (sortDir > 0 ? "▲" : "▼") : "";
+        });
+      };
+      th.addEventListener("click", act);
+      th.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+    });
   }
 
   function pinDrill(G, key) {
@@ -440,27 +618,6 @@ window.Comp3D = (() => {
     return { title: (row.co + " · " + GM.cols[+ci]).toUpperCase(),
       value: m[1] + (cell.txt && cell.txt !== "—" ? " · " + cell.txt : ""),
       sub: cell.note, source: KLINK(cell.src) };
-  }
-
-  function mapTable() {
-    let out = "<h3 class='c3d-th'>Named customers, hosts, and programs</h3>";
-    (RPT.cust_tables || []).forEach(tbl => {
-      out += "<h4 class='c3d-th2'>" + esc(tbl.company) + "</h4>" + tableHtml(
-        ["Customer / program", "Location", "Value", "Status", "Sources"],
-        tbl.rows.map(r => [esc(r.cust) + (r.flag === "largest" ? " <b>· largest</b>" : r.flag === "smallest" ? " <b>· smallest</b>" : ""),
-          esc(r.loc), esc(r.value), esc(r.status), KLINK(r.src)]),
-        KLINK(tbl.src));
-    });
-    const GM = RPT.geo_matrix;
-    out += "<h3 class='c3d-th'>Region coverage — verified presence vs marketing claims</h3>" + tableHtml(
-      ["Company", ...GM.cols],
-      GM.rows.map(row => [`<b>${esc(row.co)}</b>`,
-        ...row.cells.map(c => {
-          const m = GEO_MARKER[c.m] || ["#5b6f82", c.m];
-          return `<span class="c3d-mcell" style="border-left:4px solid ${m[0]}"><b>${m[1]}</b> — ${esc(c.txt)}</span>`;
-        })]),
-      esc(GM.note) + " · " + KLINK(GM.src));
-    return out;
   }
 
   /* ════════════════════════ shared DOM table helper ════════════════════════ */
@@ -486,9 +643,8 @@ window.Comp3D = (() => {
     panels: { tab: "VENDOR PANELS", hint: "DRAG TO ORBIT · CLICK A PANEL FOR THE FULL PROFILE · CLICK A SLAT FOR ONE RECORD",
       build: buildPanels, drill: vpDrill, table: panelsTable,
       cam: [0, 6.5, 14.5], tgt: [0, 2.0, 0], foot: "" },
-    map: { tab: "CUSTOMER MAP", hint: "DRAG TO ORBIT · CLICK A PIN FOR THE ENGAGEMENT · CLICK A TILE FOR THE REGION VERDICT · TILE ROWS: 374WATER · GA · AQUARDEN · REVIVE",
-      build: buildMap, drill: (G, k) => k.indexOf("pin:") === 0 ? pinDrill(G, k) : gmDrill(G, k),
-      table: mapTable, cam: [0, 25, 18.5], tgt: [0, 0, 0.5], foot: "" },
+    map: { tab: "CUSTOMER MAP", hint: "",
+      domFn: renderGeoMap, table: mapTable, wireTable: wireMapTable, foot: "" },
   };
 
   /* ════════════════════════ render(hostEl) ════════════════════════ */
@@ -541,8 +697,9 @@ window.Comp3D = (() => {
       function fallbackShow(k) {
         const V = VIEWS[k] || VIEWS.timeline;
         tableBox.innerHTML = "";
-        if (V.dom && window.ChartOther) window.ChartOther.render(tableBox, { panels: [V.dom] });
-        else tableBox.innerHTML = V.table();
+        if (V.domFn) { const d = document.createElement("div"); tableBox.appendChild(d); V.domFn(d); }
+        else if (V.dom && window.ChartOther) window.ChartOther.render(tableBox, { panels: [V.dom] });
+        else { tableBox.innerHTML = V.table(); if (V.wireTable) V.wireTable(tableBox); }
       }
       fallbackShow("timeline");
       tabs.querySelectorAll("[data-v]").forEach(b => b.addEventListener("click", () => {
@@ -620,7 +777,7 @@ window.Comp3D = (() => {
       if (!VIEWS[name]) name = "timeline";
       curView = name;
       const V = VIEWS[name];
-      domMode = !!(V.dom && window.ChartOther && domPref[name] !== false);
+      domMode = !!((V.domFn || (V.dom && window.ChartOther)) && domPref[name] !== false);
       // reset the table swap when entering a clean DOM view (the component
       // carries its own Chart/Table toggle)
       if (domMode && tableMode) {
@@ -637,15 +794,17 @@ window.Comp3D = (() => {
       if (domMode) {
         clearView();
         stageCol.style.display = "none";
-        pauseBtn.style.display = "none"; tableBtn.style.display = "none";
+        pauseBtn.style.display = "none";
+        tableBtn.style.display = V.table ? "" : "none";   // map keeps its sortable-table alternative
         view3dBtn.innerHTML = "◈ 3D VIEW";
         view3dBtn.setAttribute("aria-pressed", "false");
-        domBox.hidden = false;
+        domBox.hidden = tableMode;                        // table toggle swaps map ↔ table
         Object.keys(domBoxes).forEach(k => { domBoxes[k].hidden = k !== name; });
         if (!domBoxes[name]) {
           const box = document.createElement("div");
           domBox.appendChild(box);
-          window.ChartOther.render(box, { panels: [V.dom] });
+          if (V.domFn) V.domFn(box);
+          else window.ChartOther.render(box, { panels: [V.dom] });
           domBoxes[name] = box;
         }
         dirty = false;
@@ -666,7 +825,7 @@ window.Comp3D = (() => {
       controls.target.set.apply(controls.target, V.tgt);
       controls.update();
       hint.textContent = V.hint;
-      if (tableMode) tableBox.innerHTML = V.table();
+      if (tableMode) { tableBox.innerHTML = V.table(); if (V.wireTable) V.wireTable(tableBox); }
       dirty = true; poke();
     }
 
@@ -710,11 +869,15 @@ window.Comp3D = (() => {
     });
     tableBtn.addEventListener("click", () => {
       tableMode = !tableMode;
-      tableBtn.innerHTML = tableMode ? "▲ 3D VIEW" : "▦ TABLE VIEW";
+      tableBtn.innerHTML = tableMode ? (domMode ? "▲ MAP VIEW" : "▲ 3D VIEW") : "▦ TABLE VIEW";
       tableBtn.setAttribute("aria-pressed", String(tableMode));
       tableBox.hidden = !tableMode;
-      stageCol.style.display = tableMode ? "none" : "";
-      if (tableMode) tableBox.innerHTML = VIEWS[curView].table();
+      if (domMode) domBox.hidden = tableMode;
+      else stageCol.style.display = tableMode ? "none" : "";
+      if (tableMode) {
+        tableBox.innerHTML = VIEWS[curView].table();
+        if (VIEWS[curView].wireTable) VIEWS[curView].wireTable(tableBox);
+      }
       dirty = true; poke();
     });
 

@@ -265,6 +265,22 @@
         L.el.style.left = ((p.x * 0.5 + 0.5) * w) + "px";
         L.el.style.top = ((-p.y * 0.5 + 0.5) * h) + "px";
       });
+      // collision pass: if two visible chips overlap (narrow canvases pack
+      // them together), nudge the lower one downward until clear
+      const vis = LABELS.filter(L => L.el.style.display !== "none")
+        .map(L => ({ L, r: L.el.getBoundingClientRect() }))
+        .sort((a, b) => a.r.top - b.r.top);
+      for (let i = 1; i < vis.length; i++) {
+        for (let j = 0; j < i; j++) {
+          const a = vis[j].r, b = vis[i].r;
+          const overlapX = !(a.right < b.left + 4 || b.right < a.left + 4);
+          if (overlapX && a.bottom > b.top - 2) {
+            const push = a.bottom - b.top + 6;
+            vis[i].L.el.style.top = (parseFloat(vis[i].L.el.style.top) + push) + "px";
+            vis[i].r = vis[i].L.el.getBoundingClientRect();
+          }
+        }
+      }
       dirty = false;
     }
     if (!READER()) raf = requestAnimationFrame(frame);

@@ -76,66 +76,16 @@ a { color: var(--blue); }
 }
 .rail-track .seg.active .seg-label { color: var(--red); font-weight: 700; }
 
-/* ── Cover — readability-first: text on a solid paper panel; the skid animation
-     is confined to a heavily faded backdrop stage; nothing renders under text ── */
+/* ── Cover — readability-first: clean text on a solid paper panel; no artwork ── */
 #cover {
   position: relative; min-height: 100vh; overflow: hidden;
   display: flex; align-items: center;
   padding: calc(var(--navh) + 4vh) 0 7vh;
 }
-/* Cover art is OPT-IN: hidden by default so the first screen is always clean
-   text. When the reader presses SHOW ANIMATION (html.cover-art), the artwork is
-   confined to the right side of the page, faded at its inner edge, and sits
-   below the fully opaque text panel in stacking order. It is always hidden at
-   ≤1280px and in reading mode. */
-.cover-stage {
-  position: absolute; top: 0; right: 0; bottom: 0; left: 46%;
-  z-index: 0; opacity: 0.5; display: none;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22%);
-  mask-image: linear-gradient(to right, transparent 0, #000 22%);
-}
-html.cover-art .cover-stage { display: block; }
-#cover-canvas, #cover-canvas-x, #cover-canvas-w { position: absolute; inset: 0; width: 100%; height: 100%; }
-@media (max-width: 900px) {
-  html .cover-stage { display: none !important; }   /* small screens: clean text only */
-  html .cover-mode, html .art-toggle { display: none !important; }
-}
-html.reader .cover-stage { display: none; } /* reading mode: decorative art off */
-html.reader .cover-mode, html.reader .art-toggle { display: none; }
-
-/* opt-in control: reveals the artwork + the A/B/C/D variant switch */
-.art-toggle {
-  margin-top: 24px; display: inline-block;
-  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
-  color: var(--ink-md); background: var(--paper);
-  border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 16px;
-  cursor: pointer; transition: border-color .15s, color .15s;
-}
-.art-toggle:hover { border-color: var(--ink); color: var(--ink); }
-.art-toggle[aria-pressed="true"] { border-color: var(--red); color: var(--red); }
-
-/* cover artwork variant switch — only visible while the art is on */
-.cover-mode { margin-top: 14px; display: none; gap: 8px; align-items: center; flex-wrap: wrap; }
-html.cover-art .cover-mode { display: flex; }
-html.reader .cover-mode { display: none; }
-.cover-mode::before {
-  content: "COVER ART"; font-family: var(--mono); font-size: 9px;
-  letter-spacing: .22em; color: var(--ink-md); margin-right: 4px;
-}
-.cover-mode button {
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em;
-  color: var(--ink-md); background: var(--paper);
-  border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px;
-  cursor: pointer; transition: border-color .15s, color .15s;
-}
-.cover-mode button.on { border-color: var(--red); color: var(--red); }
-.cover-mode button:hover { border-color: var(--ink); color: var(--ink); }
 .cover-inner {
   position: relative; z-index: 2; max-width: 1120px; width: 100%;
   margin: 0 auto; padding: 0 24px;
-  pointer-events: none; /* canvas stays clickable around the panel */
 }
-.cover-inner button, .cover-inner a { pointer-events: auto; }
 .cover-panel {
   pointer-events: auto;
   position: relative; z-index: 3;      /* always above the artwork layer */
@@ -1073,20 +1023,20 @@ table.lg-table tbody tr { cursor: pointer; }
   border-radius: 6px 6px 0 0;
 }
 #topnav .tn-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-#reader-toggle, #lite-toggle {
+#reader-toggle {
   font-family: var(--mono); font-size: 11px; letter-spacing: .08em;
   color: var(--ink-md); background: var(--paper);
   border: 1.5px solid var(--line); border-radius: 999px;
   padding: 6px 14px; cursor: pointer; white-space: nowrap;
   display: flex; align-items: center; gap: 8px;
 }
-#reader-toggle::before, #lite-toggle::before {
+#reader-toggle::before {
   content: ""; width: 8px; height: 8px; border-radius: 50%;
   border: 1.5px solid var(--ink-lo); background: transparent;
 }
-#reader-toggle:hover, #lite-toggle:hover { border-color: var(--ink); color: var(--ink); }
-html.reader #reader-toggle, html.lite #lite-toggle { border-color: var(--red); color: var(--red); }
-html.reader #reader-toggle::before, html.lite #lite-toggle::before { background: var(--red); border-color: var(--red); }
+#reader-toggle:hover { border-color: var(--ink); color: var(--ink); }
+html.reader #reader-toggle { border-color: var(--red); color: var(--red); }
+html.reader #reader-toggle::before { background: var(--red); border-color: var(--red); }
 #tn-burger {
   display: none; background: none; border: 1.5px solid var(--line); border-radius: 6px;
   font-family: var(--mono); font-size: 12px; padding: 6px 11px; cursor: pointer; color: var(--ink);
@@ -1368,6 +1318,47 @@ html.reader .explore-btn, html.reader .walk-btn { transition: none; }
 }
 html.reader .skid3d-stage { touch-action: auto; }
 
+/* ── §0/§2 skid explorer + "seven numbers" spec table: 3D model full-width,
+     the spec table below it (the DOM alternative to clicking components) ── */
+.skid-duo { display: block; }
+.skid-duo .skid3d-wrap { width: 100%; }
+.skid-duo .skid-spec { margin-top: 20px; }
+.skid-spec .chart-title { margin-top: 0; }
+.skid-spec td { vertical-align: top; }
+.skid-spec td.sk-v { white-space: nowrap; font-weight: 700; }
+
+/* ── §4 customer map — real geographic map (vendored world atlas) ── */
+.geomap { width: 100%; }
+.geomap svg { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 10px; background: #dce9f4; }
+.geomap-land { fill: #b9cadd; stroke: #ffffff; stroke-width: 0.6; }
+.geomap-frame { fill: none; stroke: #a9bdcf; stroke-width: 1; }
+.geomap-grat { fill: none; stroke: #ccdbE9; stroke-width: 0.5; }
+.geomap-pin { cursor: pointer; stroke: #fff; stroke-width: 1.2; }
+.geomap-pin.dead { fill: #9aa8b5 !important; stroke-dasharray: 2 2; }
+.geomap-x { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: #c22f4e; pointer-events: none; }
+.geomap-lab {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .03em;
+  fill: var(--ink); paint-order: stroke; stroke: rgba(255,255,255,.92); stroke-width: 3px;
+  stroke-linejoin: round; pointer-events: none;
+}
+.geomap-lab.flag-hi { fill: var(--red); }
+.geomap-lab.flag-lo { fill: var(--ink-md); }
+.geomap-lab.dead { fill: #c22f4e; }
+.geomap-lab.region { fill: var(--ink-md); font-weight: 700; letter-spacing: .14em; font-size: 10px; }
+.geomap-tile { cursor: pointer; stroke: #fff; stroke-width: 0.8; }
+.geomap-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em; color: var(--ink-md);
+}
+.geomap-legend b { color: var(--ink); }
+.geomap-hint { margin: 8px 0 0; }
+.geomap h3.c3d-th { margin-top: 26px; }
+
+/* sortable table inside the map's TABLE VIEW */
+.c3d-sort th { cursor: pointer; user-select: none; }
+.c3d-sort th:hover { color: var(--red); }
+.c3d-sort th .c3d-arrow { font-size: 9px; margin-left: 4px; color: var(--red); }
+
 /* ── §4C customers & footprint — customer tables, largest/smallest flags, geo matrix ──
    Readability system: all labels ≥12px, AA-contrast colors, static frames (no motion) */
 .cust-block { margin-bottom: 46px; }
@@ -1524,57 +1515,72 @@ table.dt.cust-dt th { white-space: normal; }
 table.dt.cust-dt td { overflow-wrap: break-word; }
 
 /* ═══════════════════════════════════════════════════════════
-   LEFT-HAND SECTION NAVIGATOR — slim collapsible section index
-   · vertical "≡ SECTIONS" tab fixed on the left edge, mid-height
-   · expands on click (pinned) or hover, collapses when not in use
+   LEFT-HAND SECTION NAVIGATOR — hamburger menu
+   · ☰ hamburger button fixed at the top-left, just under the top nav
+   · opens a slide-in panel from the left (close ✕, auto-close on selection)
    · IntersectionObserver scrollspy highlights the current section
-   · visible from page load and kept in reading mode; hamburger-only tab ≤900px
+   · visible from page load and kept in reading mode; same hamburger ≤900px
    ═══════════════════════════════════════════════════════════ */
 #leftnav {
-  position: fixed; left: 0; top: 50%; transform: translateY(-50%);
-  z-index: 90;
-  display: flex; align-items: center;
+  position: fixed; left: 14px; top: calc(var(--navh) + 12px);
+  z-index: 95;
   opacity: 0; visibility: hidden;
   transition: opacity .35s ease, visibility 0s linear .35s;
 }
 #leftnav.on { opacity: 1; visibility: visible; transition: opacity .35s ease; }
 /* reading mode keeps the nav (it is navigation, not animation); the global
-   html.reader transition rule stills the panel's expand/collapse motion */
+   html.reader transition rule stills the panel's slide motion */
 
-/* ── the slim tab ── */
+/* ── the hamburger button ── */
 #ln-handle {
-  writing-mode: vertical-rl;
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+  display: flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px;
+  font-family: var(--mono); font-size: 18px; line-height: 1;
   color: var(--ink-md); background: var(--paper);
-  border: 1.5px solid var(--line); border-left: 0; border-radius: 0 9px 9px 0;
-  padding: 14px 6px; cursor: pointer; box-shadow: var(--shadow);
+  border: 1.5px solid var(--line); border-radius: 9px;
+  cursor: pointer; box-shadow: var(--shadow);
 }
-#ln-handle .ln-glyph { font-size: 13px; line-height: 1; }
+#ln-handle .ln-glyph { font-size: 18px; line-height: 1; }
 #ln-handle:hover { color: var(--red); border-color: var(--red); }
 #leftnav.open #ln-handle { color: var(--red); border-color: var(--red); }
 
-/* ── the expanding panel ── */
+/* ── the slide-in panel (from the left) ── */
 #ln-panel {
-  position: absolute; left: 100%; top: 50%;
-  transform: translateY(-50%) translateX(-10px);
-  width: 216px; max-height: 72vh; overflow-y: auto;
+  position: fixed; left: 0; top: var(--navh); bottom: 0;
+  width: 248px; overflow-y: auto;
   background: var(--paper);
-  border: 1.5px solid var(--line); border-radius: 10px;
+  border-right: 1.5px solid var(--line);
   box-shadow: var(--shadow);
-  opacity: 0; visibility: hidden;
-  transition: opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+  transform: translateX(-105%);
+  visibility: hidden;
+  transition: transform .24s ease, visibility 0s linear .24s;
+  display: flex; flex-direction: column;
 }
 #leftnav.open #ln-panel {
-  opacity: 1; visibility: visible; transform: translateY(-50%) translateX(8px);
-  transition: opacity .22s ease, transform .22s ease;
+  transform: translateX(0); visibility: visible;
+  transition: transform .24s ease;
 }
-.ln-list { list-style: none; margin: 0; padding: 8px 0; }
+.ln-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 10px 10px 16px;
+  border-bottom: 1px solid var(--line-lo);
+}
+.ln-head .ln-title {
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .18em;
+  color: var(--ink-lo);
+}
+.ln-close {
+  background: none; border: 1.5px solid transparent; border-radius: 6px;
+  font-family: var(--mono); font-size: 14px; color: var(--ink-md);
+  width: 30px; height: 30px; cursor: pointer; line-height: 1;
+}
+.ln-close:hover { color: var(--red); border-color: var(--red); }
+.ln-list { list-style: none; margin: 0; padding: 8px 0; flex: 1; }
 .ln-list a {
   display: block; text-decoration: none;
   font-family: var(--sans); font-size: 12.5px; font-weight: 600; line-height: 1.35;
   color: var(--ink-md);
-  padding: 7px 14px 7px 12px;
+  padding: 8px 14px 8px 14px;
   border-left: 2.5px solid transparent;
 }
 .ln-list a:hover { color: var(--ink); background: var(--paper-hi); }
@@ -1586,16 +1592,13 @@ table.dt.cust-dt td { overflow-wrap: break-word; }
   display: block; width: 100%;
   font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .1em;
   color: var(--ink-md); background: var(--paper-hi);
-  border: 0; border-top: 1px solid var(--line-lo); border-radius: 0 0 8px 8px;
-  padding: 10px 12px; cursor: pointer; text-align: left;
+  border: 0; border-top: 1px solid var(--line-lo);
+  padding: 12px 14px; cursor: pointer; text-align: left;
 }
 .ln-top:hover { color: var(--red); }
 
-/* ── mobile: hamburger tab only; panel opens as an overlay ── */
+/* ── mobile: same hamburger; the panel opens as a full-height overlay ── */
 @media (max-width: 900px) {
-  #ln-handle { writing-mode: horizontal-tb; padding: 10px 11px; }
-  #ln-handle .ln-handle-label { display: none; }
-  #ln-handle .ln-glyph { font-size: 16px; }
-  #ln-panel { width: min(76vw, 280px); max-height: 78vh; }
+  #ln-panel { width: min(78vw, 300px); }
   .ln-list a { font-size: 14px; padding: 10px 16px 10px 13px; }
 }

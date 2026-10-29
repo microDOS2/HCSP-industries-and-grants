@@ -89,19 +89,9 @@
     });
   }
 
-  // lite-mode toggle: same persist-then-reload pattern; lite ⇒ reader class on next load
-  const lt = document.getElementById("lite-toggle");
-  if (lt) {
-    lt.setAttribute("aria-pressed", liteOn ? "true" : "false");
-    lt.querySelector(".rt-state").textContent = liteOn ? "ON" : "OFF";
-    lt.addEventListener("click", () => {
-      try {
-        localStorage.setItem(LITE_KEY, liteOn ? "0" : "1");
-        sessionStorage.setItem(SCROLL_KEY, String(scrollY));
-      } catch (e) {}
-      location.reload();
-    });
-  }
+  // lite mode has no visible toggle anymore; the stored preference (if any)
+  // still applies the reader/DPR-cap behavior above — the performance machinery
+  // (lazy 3D init, single active scene) is always on regardless.
 
   // ── 2b · In-page jump chips (cover chips, hero chips) ──
   document.querySelectorAll("[data-goto]").forEach(b => {

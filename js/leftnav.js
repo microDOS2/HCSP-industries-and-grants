@@ -1,17 +1,18 @@
-// ═══ Left-hand section navigator — slim collapsible index + scrollspy ═══
-// Builds a "≡ SECTIONS" tab on the left edge (mid-height) that expands into the
-// page's section list. Active section tracked with an IntersectionObserver on
-// each band (same reading zone as the main scroll engine). Visible from page
-// load (navigation, not decoration) and kept available in reading mode —
-// only the panel's expand/collapse animation is stilled there by the global
-// html.reader transition rule. Hamburger-only tab on narrow screens (≤900px).
+// ═══ Left-hand section navigator — ☰ hamburger menu + scrollspy ═══
+// A hamburger button fixed at the top-left (just under the top nav) opens a
+// slide-in panel from the left with the page's section list, a close ✕, and a
+// back-to-top button. The panel auto-closes on selection. Active section is
+// tracked with an IntersectionObserver on each band (same reading zone as the
+// main scroll engine). Visible from page load (navigation, not decoration) and
+// kept available in reading mode — only the panel's slide animation is stilled
+// there by the global html.reader transition rule. The same hamburger serves
+// narrow screens (≤900px).
 (function () {
   const FALLBACK = {
     "sec-exec": "§0 · Executive summary",
     "sec-concepts": "§1 · Three facts that decide everything",
     "sec-mech": "§2 · The machine",
     "sec-flow3d": "§2C · Inside the plant",
-    "sec-inside": "§2B · The skid in 3D",
     "sec-state": "§3 · The economics",
     "sec-scale": "§3B · Scale & energy",
     "sec-energy": "§3C · The energy advantage",
@@ -52,12 +53,25 @@
   handle.type = "button";
   handle.setAttribute("aria-expanded", "false");
   handle.setAttribute("aria-controls", "ln-panel");
-  handle.title = "Section index";
-  handle.innerHTML = '<span class="ln-glyph" aria-hidden="true">≡</span><span class="ln-handle-label">SECTIONS</span>';
+  handle.setAttribute("aria-label", "Open section menu");
+  handle.title = "Sections";
+  handle.innerHTML = '<span class="ln-glyph" aria-hidden="true">☰</span>';
   nav.appendChild(handle);
 
   const panel = document.createElement("div");
   panel.id = "ln-panel";
+
+  const head = document.createElement("div");
+  head.className = "ln-head";
+  head.innerHTML = '<span class="ln-title">SECTIONS</span>';
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "ln-close";
+  closeBtn.type = "button";
+  closeBtn.setAttribute("aria-label", "Close section menu");
+  closeBtn.textContent = "✕";
+  head.appendChild(closeBtn);
+  panel.appendChild(head);
+
   const list = document.createElement("ol");
   list.className = "ln-list";
   const links = new Map();
@@ -70,8 +84,7 @@
       ev.preventDefault();
       sec.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
       setActive(sec.id);
-      pinned = false;
-      setOpen(false); // collapses when not in use
+      setOpen(false); // auto-close on selection
     });
     li.appendChild(a);
     list.appendChild(li);
@@ -85,24 +98,25 @@
   top.textContent = "↑ Back to top";
   top.addEventListener("click", () => {
     scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-    pinned = false;
     setOpen(false);
   });
   panel.appendChild(top);
   nav.appendChild(panel);
   document.body.appendChild(nav);
 
-  // ── expand / collapse (explicit toggle; hover expands on pointer devices) ──
-  let pinned = false;
+  // ── open / close (hamburger toggle, ✕, Escape, or click outside) ──
   function setOpen(open) {
     nav.classList.toggle("open", open);
     handle.setAttribute("aria-expanded", open ? "true" : "false");
+    handle.setAttribute("aria-label", open ? "Close section menu" : "Open section menu");
   }
-  handle.addEventListener("click", () => { pinned = !pinned; setOpen(pinned); });
-  nav.addEventListener("mouseenter", () => setOpen(true));
-  nav.addEventListener("mouseleave", () => { if (!pinned) setOpen(false); });
+  handle.addEventListener("click", e => { e.stopPropagation(); setOpen(!nav.classList.contains("open")); });
+  closeBtn.addEventListener("click", () => setOpen(false));
+  document.addEventListener("click", e => {
+    if (nav.classList.contains("open") && !nav.contains(e.target)) setOpen(false);
+  });
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && nav.classList.contains("open")) { pinned = false; setOpen(false); }
+    if (e.key === "Escape" && nav.classList.contains("open")) setOpen(false);
   });
 
   // ── visible from page load on every page (navigation, not decoration) ──
