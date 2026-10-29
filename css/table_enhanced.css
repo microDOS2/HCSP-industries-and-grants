@@ -1,0 +1,186 @@
+/* ═══ Shared enhanced-table layer (js/tables_enhanced.js) ═══
+   One visual + interaction standard for every data table on the site:
+   readable cells, zebra rows, light-gray sticky headers, sort/search/CSV/
+   column tools, mobile card layout, print-friendly output. */
+
+/* ── Readability: comfortable padding, wrapped text, no mid-word clipping ── */
+table.dt { font-size: 15px; }
+table.dt th, table.dt td { padding: 13px 18px 13px 4px; }
+table.dt td { overflow-wrap: break-word; }
+/* every body cell ≥14px — including the compact register/meta cells and the
+   few inline 12px cells emitted by the page builders */
+table.dt td.num { font-size: 14px; }
+table.dt td[style*="font-size:12px"] { font-size: 14px !important; }
+table.grant-dt .g-ag, table.grant-dt .g-ag.src-link { font-size: 12.5px; }
+table.grant-dt .g-award { font-size: 14px; }
+table.grant-dt .g-dl, table.grant-dt .g-why { font-size: 14px; }
+.gm-txt { font-size: 14px; }
+
+/* light-gray header row (kept solid so the sticky pin never shows through) */
+table.dt thead th, table.dt th { background: var(--paper-hi); }
+.exhibit table.dt th { background: #eef1f6; }
+
+/* subtle zebra striping — never overrides the semantic row tints */
+table.dt tbody tr:nth-child(even):not(.hl):not(.bad):not(.feat) td { background: rgba(5,28,44,.022); }
+table.dt tbody tr:hover td { background: var(--paper-hi); }
+table.dt tbody tr.hl td { background: rgba(34,81,255,.05); }
+table.dt tbody tr.bad td { background: rgba(194,47,78,.045); }
+
+/* ── Sortable headers: arrow indicator, pointer, focus-visible, aria-sort ── */
+table.dt th.te-sortable, table.dt th.sortable {
+  cursor: pointer; user-select: none; -webkit-user-select: none;
+}
+table.dt th.te-sortable:hover, table.dt th.sortable:hover { color: var(--ink); background: #e9edf3; }
+table.dt th.te-sortable:focus-visible, table.dt th.sortable:focus-visible,
+.te-tools button:focus-visible, .te-tools input:focus-visible,
+.te-tools summary:focus-visible, .te-cols label:focus-within {
+  outline: 2px solid var(--red); outline-offset: 2px; border-radius: 2px;
+}
+.te-arrow { display: inline-block; margin-left: 5px; font-size: 9px; color: var(--red); min-width: 9px; }
+table.dt th[aria-sort="none"] .te-arrow { color: var(--ink-lo); opacity: 0; }
+table.dt th[aria-sort="none"]:hover .te-arrow,
+table.dt th[aria-sort="none"]:focus-visible .te-arrow { opacity: .55; }
+
+/* ── Per-table toolbar (search / columns / CSV) — matches .grant-tools ── */
+.te-tools {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin: 4px 0 10px;
+}
+.te-tools .te-search {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 3px; padding: 6px 9px;
+  outline: none; min-width: 200px;
+}
+.te-tools .te-search:focus { border-color: var(--red); }
+.te-tools .te-spacer { margin-left: auto; }
+.te-tools button, .te-tools .te-cols summary {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .09em;
+  color: var(--ink-md); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 3px; padding: 6px 11px;
+  cursor: pointer; list-style: none;
+}
+.te-tools button:hover, .te-tools .te-cols summary:hover { color: var(--ink); border-color: var(--ink-lo); }
+.te-cols { position: relative; }
+.te-cols summary::after { content: " ▾"; }
+.te-cols[open] summary::after { content: " ▴"; }
+.te-cols .te-cols-menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 30;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+  box-shadow: var(--shadow); padding: 8px 10px; min-width: 190px;
+  display: grid; gap: 2px;
+}
+.te-cols .te-cols-menu label {
+  display: flex; gap: 8px; align-items: center; white-space: nowrap;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .05em;
+  color: var(--ink); padding: 4px 4px; border-radius: 3px; cursor: pointer;
+}
+.te-cols .te-cols-menu label:hover { background: var(--paper-hi); }
+.te-count {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .08em; color: var(--ink-md);
+}
+
+/* grant register toolbar gets the same buttons appended */
+.grant-tools button {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .09em;
+  color: var(--ink-md); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 3px; padding: 6px 11px;
+  cursor: pointer;
+}
+.grant-tools button:hover { color: var(--ink); border-color: var(--ink-lo); }
+.grant-tools .te-cols summary {
+  font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .09em;
+  color: var(--ink-md); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 3px; padding: 6px 11px;
+  cursor: pointer; list-style: none;
+}
+
+/* ── Shared flag chips: LARGEST / SMALLEST / CLOSED / TBD (AA pairs) ── */
+.flag-chip.tbd { background: #fff3d6; color: #7a5200; border: 1px solid #e3c97e; }
+.flag-chip.closed { background: #fbe3e8; color: #8f1f3a; border: 1px solid #e5aebb; }
+.flag-chip.active { background: #ddf3ec; color: #005c48; border: 1px solid #a4d8c8; }
+
+/* ── Sticky headers that actually pin ──
+   .table-scroll boxes whose table fits the width get overflow unlocked by JS
+   (class .te-fits) so thead sticks to the viewport under the fixed nav;
+   overflowing boxes keep horizontal scroll and the SCROLL ⟷ hint. */
+.table-scroll.te-fits { overflow: visible; }
+.table-scroll.te-fits::after { content: none; }
+.table-scroll.te-fits table.dt th { top: var(--navh); }
+/* bounded vertical registers pin their header at the top of the box */
+.table-scroll.tall { overflow: auto; }
+.table-scroll.tall table.dt thead th { position: sticky; top: 0; z-index: 6; }
+
+/* ── Mobile cards ≤768px: labeled blocks instead of sideways scrolling ──
+   JS adds .te-cardify only to tables with < 8 columns; wider tables keep the
+   horizontal-scroll box + SCROLL ⟷ hint as the fallback. */
+@media (max-width: 768px) {
+  .table-scroll:has(> table.te-cardify) {
+    overflow: visible; border: 0; padding: 0; background: none;
+  }
+  .table-scroll:has(> table.te-cardify)::after { content: none; }
+  .table-scroll.tall:has(> table.te-cardify) { max-height: none; }
+  table.te-cardify { min-width: 0 !important; }
+  table.te-cardify thead { display: none; }
+  table.te-cardify, table.te-cardify tbody,
+  table.te-cardify tr, table.te-cardify td { display: block; width: 100%; }
+  table.te-cardify tbody tr {
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--paper); margin: 0 0 12px; padding: 10px 14px 6px;
+  }
+  table.te-cardify tbody tr.hl { border-left: 3px solid var(--red); }
+  table.te-cardify tbody tr.bad { border-left: 3px solid var(--neg); }
+  table.te-cardify td {
+    display: block;
+    border-bottom: 0; padding: 6px 0;
+    font-size: 14px; white-space: normal;
+    width: 100% !important; min-width: 0 !important;   /* beat fixed column-width rules */
+  }
+  table.te-cardify td + td { border-top: 1px dashed var(--line-lo); }
+  table.te-cardify td.num { white-space: normal; font-size: 14px; }
+  table.te-cardify td::before {
+    content: attr(data-label);
+    display: block; margin-bottom: 2px;
+    font-family: var(--mono); font-size: 9.5px; font-weight: 700;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--ink-md);
+  }
+  table.te-cardify td > * { min-width: 0; }
+  /* zebra + hover paints are meaningless on cards */
+  table.te-cardify tbody tr:nth-child(even) td,
+  table.te-cardify tbody tr:hover td { background: transparent; }
+  table.te-cardify tbody tr.hl td { background: transparent; }
+  table.te-cardify tbody tr.bad td { background: transparent; }
+  /* geo/comp matrices stay tabular-ish on cards: let marks wrap */
+  table.te-cardify td .gm { white-space: normal; }
+  /* toolbar stacks */
+  .te-tools .te-search { flex: 1 1 100%; min-width: 0; }
+  .te-tools .te-spacer { display: none; }
+}
+
+/* ── Print: black on white, no background art, nothing clipped ── */
+@media print {
+  #topnav, .te-tools, .grant-tools, .table-scroll::after,
+  #drill-card, .tip, .scroll-hint { display: none !important; }
+  body { background: #ffffff !important; }
+  .cover-stage, canvas { display: none !important; }
+  .table-scroll, .table-scroll.tall, .table-scroll.te-fits {
+    overflow: visible !important; max-height: none !important;
+    border: 0 !important; padding: 0 !important; background: none !important;
+  }
+  table.dt { font-size: 11px; line-height: 1.45; min-width: 0 !important; width: 100% !important; }
+  table.dt th, table.dt td {
+    position: static !important; padding: 5px 8px 5px 0;
+    color: #000000 !important; background: #ffffff !important;
+    border-bottom: 1px solid #999999 !important; box-shadow: none !important;
+    white-space: normal !important; overflow-wrap: break-word;
+  }
+  table.dt thead th {
+    background: #f0f0f0 !important; border-bottom: 2px solid #000000 !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  table.dt tbody tr { break-inside: avoid; }
+  table.dt a { color: #000000 !important; text-decoration: underline; }
+  .flag-chip, .gm, .g-ac, .src-cat, .match-dots {
+    background: none !important; color: #000000 !important; border-color: #666666 !important;
+  }
+}

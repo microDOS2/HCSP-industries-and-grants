@@ -1522,3 +1522,79 @@ table.mr-table td { font-size: 14.5px; }
 /* customer tables: headers wrap, long tokens break instead of clipping */
 table.dt.cust-dt th { white-space: normal; }
 table.dt.cust-dt td { overflow-wrap: break-word; }
+
+/* ═══════════════════════════════════════════════════════════
+   LEFT-HAND SECTION NAVIGATOR — slim collapsible section index
+   · vertical "≡ SECTIONS" tab fixed on the left edge, mid-height
+   · expands on click (pinned) or hover, collapses when not in use
+   · IntersectionObserver scrollspy highlights the current section
+   · hidden in reading mode; hamburger-only tab ≤900px
+   ═══════════════════════════════════════════════════════════ */
+#leftnav {
+  position: fixed; left: 0; top: 50%; transform: translateY(-50%);
+  z-index: 90;
+  display: flex; align-items: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s ease, visibility 0s linear .35s;
+}
+#leftnav.on { opacity: 1; visibility: visible; transition: opacity .35s ease; }
+html.reader #leftnav { display: none; }
+
+/* ── the slim tab ── */
+#ln-handle {
+  writing-mode: vertical-rl;
+  display: flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .14em;
+  color: var(--ink-md); background: var(--paper);
+  border: 1.5px solid var(--line); border-left: 0; border-radius: 0 9px 9px 0;
+  padding: 14px 6px; cursor: pointer; box-shadow: var(--shadow);
+}
+#ln-handle .ln-glyph { font-size: 13px; line-height: 1; }
+#ln-handle:hover { color: var(--red); border-color: var(--red); }
+#leftnav.open #ln-handle { color: var(--red); border-color: var(--red); }
+
+/* ── the expanding panel ── */
+#ln-panel {
+  position: absolute; left: 100%; top: 50%;
+  transform: translateY(-50%) translateX(-10px);
+  width: 216px; max-height: 72vh; overflow-y: auto;
+  background: var(--paper);
+  border: 1.5px solid var(--line); border-radius: 10px;
+  box-shadow: var(--shadow);
+  opacity: 0; visibility: hidden;
+  transition: opacity .22s ease, transform .22s ease, visibility 0s linear .22s;
+}
+#leftnav.open #ln-panel {
+  opacity: 1; visibility: visible; transform: translateY(-50%) translateX(8px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.ln-list { list-style: none; margin: 0; padding: 8px 0; }
+.ln-list a {
+  display: block; text-decoration: none;
+  font-family: var(--sans); font-size: 12.5px; font-weight: 600; line-height: 1.35;
+  color: var(--ink-md);
+  padding: 7px 14px 7px 12px;
+  border-left: 2.5px solid transparent;
+}
+.ln-list a:hover { color: var(--ink); background: var(--paper-hi); }
+.ln-list a.active {
+  color: var(--red); border-left-color: var(--red);
+  background: rgba(34, 81, 255, .06);
+}
+.ln-top {
+  display: block; width: 100%;
+  font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  color: var(--ink-md); background: var(--paper-hi);
+  border: 0; border-top: 1px solid var(--line-lo); border-radius: 0 0 8px 8px;
+  padding: 10px 12px; cursor: pointer; text-align: left;
+}
+.ln-top:hover { color: var(--red); }
+
+/* ── mobile: hamburger tab only; panel opens as an overlay ── */
+@media (max-width: 900px) {
+  #ln-handle { writing-mode: horizontal-tb; padding: 10px 11px; }
+  #ln-handle .ln-handle-label { display: none; }
+  #ln-handle .ln-glyph { font-size: 16px; }
+  #ln-panel { width: min(76vw, 280px); max-height: 78vh; }
+  .ln-list a { font-size: 14px; padding: 10px 16px 10px 13px; }
+}

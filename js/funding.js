@@ -204,7 +204,38 @@
   ];
   let sortK = "match", sortDir = -1;
   table.innerHTML = "<thead><tr>" + COLS.map(c =>
-    `<th class="sortable" data-k="${c.k}">${c.lab} <span class="sort-ind"></span></th>`).join("") + "</tr></thead><tbody></tbody>";
+    `<th class="sortable" data-k="${c.k}" tabindex="0" aria-sort="none">${c.lab} <span class="sort-ind"></span></th>`).join("") + "</tr></thead><tbody></tbody>";
+
+  // build every row exactly once — filtering/sorting then only re-orders and
+  // re-attaches cached nodes (no innerHTML re-creation per keystroke)
+  const trById = new Map(rows.map(r => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = r.id;
+    tr.className = r.status === "DEAD" || r.status === "CLOSED" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : "";
+    tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer";
+    tr.innerHTML = `
+        <td class="num">${r.id}</td>
+        <td><b>${r.program}</b><br>${r.url
+          ? `<a class="g-ag src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">${r.agency} ↗</a>`
+          : `<span class="g-ag">${r.agency}</span>`}</td>
+        <td>${r.level}</td>
+        <td>${r.type}</td>
+        <td class="num g-award">${r.award}</td>
+        <td><span class="g-ac g-ac-${r.access === "Yes" ? "y" : "n"}">${AC_SHORT[r.access] || r.access}</span></td>
+        <td class="num"><span class="st-dot st-${r.status}"></span>${ST_SHORT[r.status]}</td>
+        <td class="g-dl">${r.deadline}</td>
+        <td class="num"><span class="match-dots">${"●".repeat(r.match)}${"○".repeat(5 - r.match)}</span></td>`;
+    tr.querySelectorAll("a.src-link").forEach(a => a.onclick = ev => ev.stopPropagation());
+    tr.onclick = e => U.showDrill({
+      title: r.id + " · " + r.program.toUpperCase(),
+      value: r.award,
+      sub: r.notes + " · Access: " + r.access + ". Fit: " + r.fit + " — " + r.vertical + ". Next: " + r.deadline + ".",
+      source: CH.srcLink(r.src) + (r.url ? ` · <a class="src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Program page ↗</a>` : ""),
+      x: e.clientX, y: e.clientY,
+    });
+    return [r.id, tr];
+  }));
 
   function view() {
     const q = (document.getElementById("gq").value || "").toLowerCase();
@@ -224,41 +255,25 @@
 
   function render() {
     const out = view();
-    table.querySelector("tbody").innerHTML = out.map(r =>
-      `<tr data-id="${r.id}" class="${r.status === "DEAD" || r.status === "CLOSED" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : ""}" data-drill-keep="" style="cursor:pointer">
-        <td class="num">${r.id}</td>
-        <td><b>${r.program}</b><br>${r.url
-          ? `<a class="g-ag src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">${r.agency} ↗</a>`
-          : `<span class="g-ag">${r.agency}</span>`}</td>
-        <td>${r.level}</td>
-        <td>${r.type}</td>
-        <td class="num g-award">${r.award}</td>
-        <td><span class="g-ac g-ac-${r.access === "Yes" ? "y" : "n"}">${AC_SHORT[r.access] || r.access}</span></td>
-        <td class="num"><span class="st-dot st-${r.status}"></span>${ST_SHORT[r.status]}</td>
-        <td class="g-dl">${r.deadline}</td>
-        <td class="num"><span class="match-dots">${"●".repeat(r.match)}${"○".repeat(5 - r.match)}</span></td>
-      </tr>`).join("");
+    const frag = document.createDocumentFragment();
+    out.forEach(r => frag.appendChild(trById.get(r.id)));
+    table.querySelector("tbody").replaceChildren(frag);
     document.getElementById("grant-count").textContent = out.length + " OF " + rows.length + " PROGRAMS";
     table.querySelectorAll("th.sortable").forEach(th => {
-      th.querySelector(".sort-ind").textContent = th.dataset.k === sortK ? (sortDir > 0 ? "▲" : "▼") : "";
-    });
-    table.querySelectorAll("tbody tr").forEach(tr => {
-      const r = rows.find(x => x.id === tr.dataset.id);
-      tr.querySelectorAll("a.src-link").forEach(a => a.onclick = ev => ev.stopPropagation());
-      tr.onclick = e => U.showDrill({
-        title: r.id + " · " + r.program.toUpperCase(),
-        value: r.award,
-        sub: r.notes + " · Access: " + r.access + ". Fit: " + r.fit + " — " + r.vertical + ". Next: " + r.deadline + ".",
-        source: CH.srcLink(r.src) + (r.url ? ` · <a class="src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Program page ↗</a>` : ""),
-        x: e.clientX, y: e.clientY,
-      });
+      const on = th.dataset.k === sortK;
+      th.querySelector(".sort-ind").textContent = on ? (sortDir > 0 ? "▲" : "▼") : "";
+      th.setAttribute("aria-sort", on ? (sortDir > 0 ? "ascending" : "descending") : "none");
     });
   }
 
   tools.querySelectorAll("input,select").forEach(el => el.addEventListener("input", render));
-  table.querySelectorAll("th.sortable").forEach(th => th.onclick = () => {
-    if (sortK === th.dataset.k) sortDir *= -1; else { sortK = th.dataset.k; sortDir = th.dataset.k === "match" ? -1 : 1; }
-    render();
+  table.querySelectorAll("th.sortable").forEach(th => {
+    const flip = () => {
+      if (sortK === th.dataset.k) sortDir *= -1; else { sortK = th.dataset.k; sortDir = th.dataset.k === "match" ? -1 : 1; }
+      render();
+    };
+    th.onclick = flip;
+    th.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); flip(); } };
   });
   render();
 })();

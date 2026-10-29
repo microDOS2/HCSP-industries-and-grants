@@ -181,18 +181,24 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   9 · Vendor benchmark — five operators, shared TRL (how proven the technology is) axis
+   9 · Vendor benchmark — five operators, shared readiness scale (how proven the technology is)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("vendor-chart");
   if (!host) return;
   const body = U.frame(host, {
     title: "Five operators — and the benchmark the HCSP must beat",
-    sub: "SHARED TRL (HOW PROVEN THE TECHNOLOGY IS) AXIS (1–9) · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
+    sub: "SHARED READINESS SCALE (HOW PROVEN THE TECHNOLOGY IS) · 1–9 · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
     src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25), Revive Environmental · Industry & official — EPA interim guidance, third release (2026-04) · Manufacturer briefing (HCSP, as briefed)",
   });
   const W = 880, H = 392, padT = 22, padB = 8;
   const svg = CH.svg(body, W, H);
+  // plain-English scale note under the chart
+  const scaleNote = document.createElement("p");
+  scaleNote.className = "chart-sub readiness-note";
+  scaleNote.textContent = "Readiness scale: 1 = lab idea, 9 = proven in the field.";
+  const srcLine = host.querySelector(".chart-src");
+  host.insertBefore(scaleNote, srcLine || null);
   const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff";
   const cols = 5, cw = (W - 40) / cols;
   const trlX = d3.scaleLinear().domain([1, 9]).range([0, cw - 44]);
@@ -214,7 +220,7 @@
       .each(function () { CH.wrap2(d3.select(this), v.name, 12); });
     g.append("text").attr("x", 0).attr("y", 44).attr("font-family", CH.MONO).attr("font-size", 8.5)
       .attr("fill", inkLo).each(function () { CH.wrap2(d3.select(this), ("SCALE " + v.scale).toUpperCase(), 22); });
-    // TRL (how proven the technology is) range
+    // readiness (how proven the technology is) range
     g.append("text").attr("x", 0).attr("y", 76).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("TECHNOLOGY READINESS");
     g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 108).attr("y2", 108).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
@@ -223,7 +229,7 @@
     const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 103).attr("height", 10).attr("rx", 3)
       .attr("fill", main ? blue : inkMd).attr("width", 0).attr("data-w", trlX(v.trl[1]) - trlX(v.trl[0]));
     g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 98).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
-      .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`TRL ${v.trl[0]}–${v.trl[1]}`);
+      .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`READINESS ${v.trl[0]}–${v.trl[1]}/9`);
     // energy + cost
     g.append("text").attr("x", 0).attr("y", 148).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("ENERGY");
@@ -235,7 +241,7 @@
       .text("KEY CONSTRAINT");
     wrap(g, v.constraint.toUpperCase(), 0, 334, cw - 30, 9.5, inkMd, CH.MONO, 400);
     CH.drill(g, () => ({
-      title: v.name.toUpperCase(), value: `TRL ${v.trl[0]}–${v.trl[1]} (how proven the technology is, 1–9)`,
+      title: v.name.toUpperCase(), value: `READINESS ${v.trl[0]}–${v.trl[1]}/9 (how proven the technology is: 1 = lab idea, 9 = proven in the field)`,
       sub: `Scale: ${v.scale}. Energy: ${v.energy}. Cost: ${v.cost}. Constraint: ${v.constraint}.`,
       source: CH.srcLink(v.src),
     }));
