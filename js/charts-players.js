@@ -181,20 +181,20 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   9 · Vendor benchmark — four verifiable operators, shared TRL (how proven the technology is) axis
+   9 · Vendor benchmark — five operators, shared TRL (how proven the technology is) axis
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("vendor-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "Four verifiable operators — and the benchmark the HCSP must beat",
+    title: "Five operators — and the benchmark the HCSP must beat",
     sub: "SHARED TRL (HOW PROVEN THE TECHNOLOGY IS) AXIS (1–9) · THROUGHPUT CLASSES ARE DIFFERENT BASES — SHOWN FOR CLASS, NEVER DIVIDED · CLICK PANELS",
-    src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25) · Industry & official — EPA interim guidance, third release (2026-04)",
+    src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25), Revive Environmental · Industry & official — EPA interim guidance, third release (2026-04) · Manufacturer briefing (HCSP, as briefed)",
   });
   const W = 880, H = 392, padT = 22, padB = 8;
   const svg = CH.svg(body, W, H);
   const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff";
-  const cols = 4, cw = (W - 40) / cols;
+  const cols = 5, cw = (W - 40) / cols;
   const trlX = d3.scaleLinear().domain([1, 9]).range([0, cw - 44]);
   // effective font sizes after the readability floor, so wrap math matches what renders
   const scale0 = (svg.node().getBoundingClientRect().width || W) / W;
@@ -205,33 +205,35 @@
   RPT.vendors.forEach((v, i) => {
     const x0 = 20 + i * cw;
     const g = svg.append("g").attr("transform", `translate(${x0},${padT})`).style("opacity", 0);
-    const main = i === 0;
+    const main = v.name.indexOf("HCSP") === 0;
     if (i > 0) g.append("line").attr("x1", -8).attr("x2", -8).attr("y1", 0).attr("y2", H - padT - padB).attr("stroke", "#eef1f6");
-    // name + scale
-    g.append("text").attr("x", 0).attr("y", 14).attr("font-family", CH.SERIF).attr("font-weight", 700)
-      .attr("font-size", 14.5).attr("fill", main ? blue : ink).text(v.name);
-    g.append("text").attr("x", 0).attr("y", 31).attr("font-family", CH.MONO).attr("font-size", 8.5)
+    // name (wrapped to ≤2 lines so five panels never collide under the
+    // readability-floor font boost) + scale
+    g.append("text").attr("x", 0).attr("y", 4).attr("font-family", CH.SERIF).attr("font-weight", 700)
+      .attr("font-size", 14.5).attr("fill", main ? blue : ink)
+      .each(function () { CH.wrap2(d3.select(this), v.name, 12); });
+    g.append("text").attr("x", 0).attr("y", 44).attr("font-family", CH.MONO).attr("font-size", 8.5)
       .attr("fill", inkLo).each(function () { CH.wrap2(d3.select(this), ("SCALE " + v.scale).toUpperCase(), 22); });
     // TRL (how proven the technology is) range
-    g.append("text").attr("x", 0).attr("y", 64).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    g.append("text").attr("x", 0).attr("y", 76).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("TECHNOLOGY READINESS");
-    g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 96).attr("y2", 96).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
-    [1, 3, 5, 7, 9].forEach(tick => g.append("text").attr("x", trlX(tick)).attr("y", 116).attr("text-anchor", "middle")
+    g.append("line").attr("x1", trlX(1)).attr("x2", trlX(9)).attr("y1", 108).attr("y2", 108).attr("stroke", "#dbe2ea").attr("stroke-width", 3).attr("stroke-linecap", "round");
+    [1, 3, 5, 7, 9].forEach(tick => g.append("text").attr("x", trlX(tick)).attr("y", 128).attr("text-anchor", "middle")
       .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text(tick));
-    const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 91).attr("height", 10).attr("rx", 3)
+    const rb = g.append("rect").attr("x", trlX(v.trl[0])).attr("y", 103).attr("height", 10).attr("rx", 3)
       .attr("fill", main ? blue : inkMd).attr("width", 0).attr("data-w", trlX(v.trl[1]) - trlX(v.trl[0]));
-    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 86).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
+    g.append("text").attr("x", trlX(v.trl[0]) - 6).attr("y", 98).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9.5)
       .attr("font-weight", 700).attr("fill", main ? blue : ink).text(`TRL ${v.trl[0]}–${v.trl[1]}`);
     // energy + cost
-    g.append("text").attr("x", 0).attr("y", 140).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    g.append("text").attr("x", 0).attr("y", 148).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("ENERGY");
-    wrap(g, v.energy.toUpperCase(), 0, 158, cw - 30, 9.5, ink, CH.MONO, 700);
-    g.append("text").attr("x", 0).attr("y", 224).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    wrap(g, v.energy.toUpperCase(), 0, 166, cw - 30, 9.5, ink, CH.MONO, 700);
+    g.append("text").attr("x", 0).attr("y", 232).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("COST BENCHMARK");
-    wrap(g, v.cost.toUpperCase(), 0, 242, cw - 30, 9.5, ink, CH.MONO, 700);
-    g.append("text").attr("x", 0).attr("y", 308).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
+    wrap(g, v.cost.toUpperCase(), 0, 250, cw - 30, 9.5, ink, CH.MONO, 700);
+    g.append("text").attr("x", 0).attr("y", 316).attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", inkMd)
       .text("KEY CONSTRAINT");
-    wrap(g, v.constraint.toUpperCase(), 0, 326, cw - 30, 9.5, inkMd, CH.MONO, 400);
+    wrap(g, v.constraint.toUpperCase(), 0, 334, cw - 30, 9.5, inkMd, CH.MONO, 400);
     CH.drill(g, () => ({
       title: v.name.toUpperCase(), value: `TRL ${v.trl[0]}–${v.trl[1]} (how proven the technology is, 1–9)`,
       sub: `Scale: ${v.scale}. Energy: ${v.energy}. Cost: ${v.cost}. Constraint: ${v.constraint}.`,

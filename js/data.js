@@ -253,12 +253,14 @@ window.RPT = {
   ],
   field_stats: { plants_2021: "~6", closed_2019: "all but 2", note: "As of 2021 only ~6 commercial SCWO plants operated worldwide; a 2019 review found all commercially constructed plants except two had closed.", src: ["K49"] },
 
-  // ── Vendor benchmark small multiples (Ch.1.4.2) ──
+  // ── Vendor benchmark small multiples (Ch.1.4.2) — five operators: the four
+  //    verifiable incumbents, then HCSP (as briefed) as the fifth panel ──
   vendors: [
-    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "None — unpressurized, distillation-first; prototype data pending", src: ["K22", "K54", "K207"] },
     { name: "374Water AirSCWO 6", scale: "6 wet t/d", trl: [7, 8], energy: "~294 kWh/m³ + IPA co-fuel", energy_kwh: [294, 294], cost: "$1.63–4.88/gal PFAS concentrate (field)", constraint: "Pre-scale finances", src: ["K54", "K52"] },
     { name: "GA PERSES (iSCWO)", scale: "t/h-class transportable", trl: [8, 9], energy: "compressed-air oxidant; 650 °C/3,400 psi", energy_kwh: null, cost: "service-based", constraint: "Tooele reliability record", src: ["K17"] },
     { name: "Aquarden SuperOx", scale: "5 t/d modular", trl: [7, 8], energy: "100% electric", energy_kwh: null, cost: "service / system sale", constraint: "EU energy prices", src: ["K19"] },
+    { name: "Revive Annihilator", scale: "~500 gal/d centralized service", trl: [8, 9], energy: "centralized SCWO; energy use not disclosed", energy_kwh: null, cost: "≈$67/gal all-in (NH program, documented)", constraint: "Freight + hard-to-get permits", src: ["K16", "K163", "K195"] },
+    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; atmospheric-pressure distillation first", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "Prototype data pending; no commercial installations yet", src: ["K1", "K22", "K54", "K207"] },
   ],
 
   // ── §4B competitive deep-dive: per-company profiles (research/comp_*.md, verified Sept 2026) ──

@@ -87,7 +87,7 @@
       axes: "Each line is an entity's lifespan (dashed span = graded date estimate); ✕ marks an exit; hairline ribbons flow to outcome plaques (deal sizes undisclosed).",
     },
     "vendor-chart": {
-      take: "Four verifiable operators on a shared TRL (how proven the technology is) axis — throughput classes are different bases, shown for class and never divided into each other.",
+      take: "Five operators on a shared TRL (how proven the technology is) axis — the four verifiable incumbents plus HCSP as briefed — throughput classes are different bases, shown for class and never divided into each other.",
       axes: "Each panel: scale class, readiness (TRL) range on the 1–9 axis, energy posture, cost benchmark, and the key constraint.",
       table: () => ({ cols: ["Vendor", "Scale", "TRL (readiness, 1–9)", "Energy", "Cost benchmark", "Key constraint"],
         rows: RPT.vendors.map(v => [v.name, v.scale, `${v.trl[0]}–${v.trl[1]}`, v.energy, v.cost, v.constraint]) }),
@@ -104,12 +104,9 @@
       table: () => ({ cols: ["Mode", "Effort", "Channel", "Gist"],
         rows: RPT.access_modes.map(m => [m.mode, m.effort + "%", m.name, m.gist]) }),
     },
-    "fundwall-chart": {
-      take: "Twelve months of dated pursuits: hard federal deadlines, expected cycles, and programs still forming — missing a hard deadline costs a full annual cycle.",
-      axes: "Timeline Sep 2026 – Q3 2027 (deadline cluster expanded). Solid blue = hard deadline, ink = expected cycle, dashed = forming; struck muted red = closed.",
-      table: () => ({ cols: ["Date", "Program", "Status", "Detail"],
-        rows: RPT.funding_calendar.map(c => [c.date, c.label, c.closed ? "CLOSED" : c.cls + (c.urgent ? " · urgent" : ""), c.ev]) }),
-    },
+    // "fundwall-chart" intentionally removed: the old SVG wall chart is gone —
+    // §10 deadlines are now a DOM timeline (#deadline-timeline), so the
+    // explorer never opens for it.
   };
 
   /* ────────────────────────────────────────────────────────────

@@ -418,6 +418,46 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
   .tl-tag { margin-top: 0; }
 }
 
+/* ── §10 deadline timeline (funding page) — view toggle + readability overrides ──
+   Same .tl structure as the index timeline, but: every tag/action label ≥13px,
+   long ISO dates wrap inside a wider date column (no overflow), and CLOSED rows
+   read as muted semantic red (struck through) instead of faded grey — the red
+   stays ≥4.5:1 on white for AA. */
+.dlt-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0 2px; }
+.dlt-bar::before {
+  content: "VIEW"; font-family: var(--mono); font-size: 13px;
+  letter-spacing: .2em; color: var(--ink-lo); margin-right: 2px;
+}
+.dlt-btn {
+  font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: .08em;
+  color: var(--ink-md); background: var(--paper); border: 1.5px solid var(--line);
+  border-radius: 999px; padding: 7px 16px; cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.dlt-btn:hover { border-color: var(--ink); color: var(--ink); }
+.dlt-btn.on { border-color: var(--red); color: #fff; background: var(--red); }
+.dlt-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.dlt-note {
+  font-size: 13.5px; line-height: 1.6; color: var(--ink-md);
+  margin: 10px 0 0; padding: 10px 14px;
+  border: 1px solid var(--line); border-left: 3px solid var(--red);
+  border-radius: 4px; background: var(--paper-hi);
+}
+#deadline-timeline .tl-when { flex-basis: 152px; }
+#deadline-timeline .tl-date { white-space: normal; overflow-wrap: anywhere; }
+#deadline-timeline .tl-tag { font-size: 13px; padding: 2px 9px; }
+#deadline-timeline .tl-act b { font-size: 13px; }
+#deadline-timeline .tl-closed { opacity: 1; }
+#deadline-timeline .tl-closed .tl-date { color: #9c2c44; text-decoration: line-through; }
+#deadline-timeline .tl-closed .tl-name { color: #9c2c44; text-decoration: line-through; }
+#deadline-timeline .tl-closed .tl-tag {
+  color: #9c2c44; border-color: #c27084; background: #faf0f2;
+}
+#deadline-timeline .tl-group-closed { color: #9c2c44; border-bottom-color: #c27084; font-size: 13px; }
+@media (max-width: 640px) {
+  #deadline-timeline .tl-when { flex-basis: auto; }
+}
+
 /* metric strip */
 .metric-strip {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
