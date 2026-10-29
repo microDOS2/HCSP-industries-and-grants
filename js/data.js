@@ -202,8 +202,8 @@ window.RPT = {
   // ── Ch.1.1.1 HCSP specification (per the technical briefing) ──
   spec: [
     { k: "Throughput", v: "10 m³/day (~2,640 gal/day)", note: "~0.9 M gal/yr at 90% utilization", src: "K1" },
-    { k: "Core technology", v: "Supercritical water oxidation", note: "Continuous, fully automated", src: "K1" },
-    { k: "Operating conditions", v: "380–420 °C · ~25 MPa (250 bar)", note: "Just above the critical point (374 °C, 22.1 MPa)", src: "K1" },
+    { k: "Core technology", v: "Evaporative distillation + high-heat thermal oxidation", note: "Distillation first, then gas-phase combustion — continuous, fully automated; not a pressurized SCWO system", src: "K207" },
+    { k: "Operating conditions", v: "High heat · atmospheric pressure", note: "Boil-off distillation + high-heat incineration — no pressurization, no pressure vessels (owner process description)", src: "K207" },
     { k: "Water recovery", v: "85–95% to distillate; <10 µS/cm", note: "Distilled-quality output", src: "K1" },
     { k: "Solid residual", v: "Contained, inert sludge", note: "Completely broken-down salts/oxides", src: "K1" },
     { k: "Electrical load (startup/auxiliary)", v: "~75–95 kW", note: "180–228 kWh/m³-equivalent spec; operating energy self-fueled once started", src: "K1" },
@@ -255,7 +255,7 @@ window.RPT = {
 
   // ── Vendor benchmark small multiples (Ch.1.4.2) ──
   vendors: [
-    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "None — >3,000 °F H₂ combustion design (manufacturer); prototype data publication pending", src: ["K22", "K54", "K1"] },
+    { name: "HCSP (as briefed)", scale: "10 m³/day skid", trl: [6, 7], energy: "Self-fueling loop; 75–95 kW startup/aux spec", energy_kwh: [180, 500], cost: "TBD — manufacturer cost model pending", constraint: "None — unpressurized, distillation-first; prototype data pending", src: ["K22", "K54", "K207"] },
     { name: "374Water AirSCWO 6", scale: "6 wet t/d", trl: [7, 8], energy: "~294 kWh/m³ + IPA co-fuel", energy_kwh: [294, 294], cost: "$1.63–4.88/gal PFAS concentrate (field)", constraint: "Pre-scale finances", src: ["K54", "K52"] },
     { name: "GA PERSES (iSCWO)", scale: "t/h-class transportable", trl: [8, 9], energy: "compressed-air oxidant; 650 °C/3,400 psi", energy_kwh: null, cost: "service-based", constraint: "Tooele reliability record", src: ["K17"] },
     { name: "Aquarden SuperOx", scale: "5 t/d modular", trl: [7, 8], energy: "100% electric", energy_kwh: null, cost: "service / system sale", constraint: "EU energy prices", src: ["K19"] },
@@ -746,7 +746,7 @@ window.RPT = {
   risks: [
     { r: "Regulatory rollback slows the PFAS demand clock", like: "Medium-High", impact: "High", mit: "Anchor on the US Superfund cleanup law (CERCLA) liability and state action (11+ states on firefighting foam (AFFF)), not federal deadlines", ev: "EBJ cut its 30-yr PFAS market estimate 43%, $230B → $132B (2025)", src: ["K12"] },
     { r: "EPA guidance lag blocks permits", like: "Medium", impact: "Medium-High", mit: "State-level permits and the defense environmental research programs (ESTCP) and the Defense Innovation Unit (DIU) validation; guidance cycle as a dated trigger that makes it safer to invest", ev: "April 2026 interim guidance: 'commercially unproven at scale' — while Revive operates a permitted system", src: ["K55", "K16"] },
-    { r: "Historical SCWO salt/corrosion failures (other designs)", like: "Low", impact: "Medium (residual: validation, not physics)", mit: "HCSP's >3,000 °F (≈1,650 °C) in-reactor hydrogen combustion is designed to prevent salt deposition (manufacturer-stated; independent long-run data pending) — consistent with in-reactor hydrothermal-flame salt-management research; residual item = third-party publication of prototype long-run data on salty feeds", ev: "Corrosion and salt plugging — not chemistry — killed prior conventional-preheater plants (HydroProcessing, Hanwha); 16–26 mm/yr in lesser alloys", src: ["K20", "K57", "K50", "K1"] },
+    { r: "Historical SCWO salt/corrosion failures (other designs)", like: "Low", impact: "Medium (residual: validation, not physics)", mit: "HCSP distills the water out first at atmospheric pressure — salts stay behind in the still as a managed residue instead of scaling inside a high-pressure reactor, and unpressurized equipment can use standard refractory linings or high-temperature stainless steel (owner process description, K207); residual item = third-party publication of prototype long-run data", ev: "Corrosion and salt plugging — not chemistry — killed prior conventional-preheater plants (HydroProcessing, Hanwha); 16–26 mm/yr in lesser alloys", src: ["K20", "K57", "K50", "K207"] },
     { r: "First-mover fragility / capital intensity", like: "High", impact: "High", mit: "Asset-light service entry; milestone-gated purchase cost; underwrite the 374Water trajectory, not its deck", ev: "$215,037 FY2025 revenue vs. $21.0M net loss; auditors warn it may run out of money", src: ["K52"] },
     { r: "Incineration re-opening erodes the PFAS niche", like: "Medium (occurred)", impact: "Medium", mit: "Compete on permitting speed, community-opposition risk, on-site liability elimination", ev: "the Defense Department (DoD) lifted the moratorium Feb 20–Mar 3, 2026 — because waste overflowed storage", src: ["K11"] },
     { r: "Customer capital constraints", like: "High", impact: "Medium", mit: "Destruction service (we run it for you) and lease structures; grant-funded demonstrations", ev: "~27% of cannabis operators profitable; 14 CEA bankruptcies in 2025; municipal buying process 3–7 years", src: ["K36", "K44"] },

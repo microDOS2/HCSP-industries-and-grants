@@ -8,8 +8,8 @@
   const LAYERS = [
     { id: "skid", x: 0, y: 0, w: 22, d: 10, h: 1.1, z: 0, sep: 0, col: "#42566a", head: "STEEL SKID" },
     { id: "ely", x: -7.2, y: 0, w: 6.4, d: 7.6, h: 3.1, z: 1.1, sep: 3.2, col: PAL.neg, head: "ELECTROLYZER" },
-    { id: "pre", x: -1.4, y: 0, w: 5.2, d: 8.0, h: 2.5, z: 1.1, sep: 7.0, col: PAL.inkMd, head: "PREHEATER" },
-    { id: "rx", x: 3.6, y: 0, w: 5.4, d: 5.4, h: 6.8, z: 1.1, sep: 11.4, col: PAL.red, cyl: true, head: "SCWO REACTOR" },
+    { id: "pre", x: -1.4, y: 0, w: 5.2, d: 8.0, h: 2.5, z: 1.1, sep: 7.0, col: PAL.inkMd, head: "PUMP + HEATER" },
+    { id: "rx", x: 3.6, y: 0, w: 5.4, d: 5.4, h: 6.8, z: 1.1, sep: 11.4, col: PAL.red, cyl: true, head: "DISTILLER + OXIDIZER" },
     { id: "sep", x: 8.6, y: 0, w: 6.2, d: 3.6, h: 3.6, z: 1.1, sep: 16.2, col: PAL.redHi, drum: true, head: "SEPARATOR" },
   ];
 

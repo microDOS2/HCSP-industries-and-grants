@@ -39,12 +39,12 @@
       axes: "Bars are what existing suppliers charge to clean it up per gallon on a log axis (toggle $/m³ or a linear axis on the chart). Dashed outline = low-confidence data; the blue note is the HCSP reference — no $/gal attached.",
     },
     "evidence-chart": {
-      take: "The 10 m³/day skid, with the report's hardest numbers hung on the components that carry them — throughput, 380–420 °C / 250 bar, 75–95 kW startup power spec, ~$3.5/m³ water credit, and TBD where the manufacturer owes data.",
+      take: "The 10 m³/day skid, with the report's hardest numbers hung on the components that carry them — throughput, atmospheric-pressure distillation + high-heat oxidation, 75–95 kW startup power spec, ~$3.5/m³ water credit, and TBD where the manufacturer owes data.",
       axes: "Side elevation of the module. Every plaque is clickable on the live chart for value + basis + dated source.",
     },
     "mechanism-chart": {
-      take: "The whole machine is one path through the pressure–temperature plane: pressurize to 250 bar, heat past 374 °C, oxidize in seconds, separate — with the self-fueling hydrogen loop supplying preheat.",
-      axes: "X = temperature (°C), Y = pressure (MPa). Numbered nodes are the four stages (try the walkthrough); the dashed blue branch is the self-fueling H₂ loop; the shaded region is supercritical water.",
+      take: "The whole machine runs at ordinary atmospheric pressure: boil the water off the waste, burn the concentrated residues and gases at high heat, condense the steam back to pure water — with the self-fueling hydrogen loop supplying the process heat.",
+      axes: "Four stages left→right (try the walkthrough); the dashed blue box is the self-fueling H₂ loop; nothing on the chart is pressurized.",
     },
     "sizing-chart": {
       take: "The reachable market counted in machines: roughly 1,800–3,200 skid-equivalents across five core industries — consolidated reachable demand ≈ $9–20B/yr.",

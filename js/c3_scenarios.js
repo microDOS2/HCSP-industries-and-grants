@@ -480,7 +480,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       var S = SC[cur], C = SCENES[S.id], d = FLOW_INFO[key];
       if (!d) {
         if (key === "host") d = { name: "The host — where the waste is", specs: S.diagram.feed, role: C.hostBlurb };
-        else if (key === "hcsp") d = { name: "The HCSP plant", specs: "380–420 °C · 250 bar · 85–95% water recovery · self-fueling hydrogen loop (per manufacturer)", role: "It destroys the host's waste completely and hands back distilled water, a little inert solid, and heat — the pipes leaving it are what this scenario sells." };
+        else if (key === "hcsp") d = { name: "The HCSP plant", specs: "Distillation + high-heat oxidation · atmospheric pressure · 85–95% water recovery · self-fueling hydrogen loop (per manufacturer)", role: "It destroys the host's waste completely and hands back distilled water, a little inert solid, and heat — the pipes leaving it are what this scenario sells." };
         else if (key === "water") d = { name: "Distilled water", specs: S.diagram.water, role: "85–95% of the water that carried the waste comes back distilled-quality — a real credit, never the main product." };
         else if (key === "solids") d = { name: "Inert solids", specs: "Contained, fully broken-down salts/oxides", role: "The small solid residue of complete destruction — contained and inert." };
         else if (/^buyer(\d)$/.test(key)) { var B = C.buyers[+key.slice(5)]; d = { name: B.name, specs: B.sub, role: B.blurb }; }

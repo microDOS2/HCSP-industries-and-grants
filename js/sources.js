@@ -418,6 +418,10 @@ window.SRCS = [
     fact: "ARPA-E committed ~$36M to recovering ammonia and critical metals from municipal, animal-feedlot, produced-water, and mining waste streams — federal validation that nutrient/metal recovery from waste is a fundable technology direction, not an HCSP shipping feature." },
   { k: "K206", ref: "INDUSTRY-56/PRODUCED-H2O-28", derived: true, cat: "kimi", date: "2026-09", cite: "Materials-recovery roadmap synthesis — report nutrient-mineralization finding and mixed-salt disposal finding [derived]",
     fact: "SCWO mineralizes nutrients (P recoverable as solids, N largely lost as N₂) and produces inert mixed mineral solids; mixed crystallized salts have limited or no commercial value and are typically landfilled at cost. Recovery revenue therefore requires a feed-specific separation step and a purity certificate — never generic 'sludge' sales." },
+
+  // ═══ Owner-approved process correction (K207): the uploaded process description ═══
+  { k: "K207", ref: "PROCESS-STEP", cat: "company", date: "2026-10", cite: "HCSP owner-provided process description, 'Process Step.docx' (uploaded document; HCSP vs conventional SCWO comparison)",
+    fact: "HCSP is NOT a pressurized SCWO system. Separation strategy: phase change — boil water into steam, leave heavy contaminants behind, condense the steam into distilled water. Destruction method: gas-phase combustion — separated toxic residues and volatile gases burned at high temperature in a dry environment. Pressure management: atmospheric / low — standard ambient pressure, no massive pressure vessels, lower mechanical wear and explosion risk. The design bypasses SCWO's two big blockers: salt precipitation (water is distilled out first, so salt management is simple) and supercritical corrosion (unpressurized systems can use standard refractory linings or high-temperature stainless steel)." },
 ];
 
 // Lookup helper: K("K2") → source object

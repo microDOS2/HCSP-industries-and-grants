@@ -73,8 +73,8 @@
   const sites = [
     { sx: 278, sy: 277, px: 96, py: 226, anchor: "start", head: "10 M³/DAY", sub: "≈0.925M GAL/YR THROUGHPUT",
       val: "10 m³/day", basis: "Rated throughput (~2,640 gal/day); ~0.9M gal/yr at 90% utilization — sized to a mid-size industrial site's generation rate.", src: ["K1"] },
-    { sx: 560, sy: 196, px: 602, py: 128, anchor: "start", head: "380–420 °C · 25 MPA", sub: "JUST ABOVE THE CRITICAL POINT",
-      val: "380–420 °C · 25 MPa", basis: "Water above 374 °C and 22.1 MPa enters a state that is neither liquid nor gas, in which organic waste and oxygen mix completely and oxidize in seconds to minutes.", src: ["K1"] },
+    { sx: 560, sy: 196, px: 602, py: 128, anchor: "start", head: "ATMOSPHERIC PRESSURE", sub: "DISTILL + HIGH-HEAT OXIDIZE",
+      val: "No pressurization", basis: "Per the owner's process description, the HCSP boils the water off the waste and condenses the steam into distilled water, then burns the separated toxic residues and gases at high temperature in a dry environment — all at ordinary atmospheric pressure, with no heavy pressure vessels.", src: ["K207"] },
     { sx: 602, sy: 320, px: 700, py: 210, anchor: "start", head: "75–95 KW", sub: "STARTUP POWER SPEC",
       val: "75–95 kW", basis: "Startup/auxiliary power draw spec (180–228 kilowatt-hours per cubic meter × 8.62 ¢/kWh US industrial ≈ $15–20/m³-equivalent). Operating energy itself is negligible per the manufacturer — the self-fueling hydrogen loop generates fuel on demand from process water; grid price values the startup draw and every exported kilowatt-hour.", src: ["K23", "K1"] },
     { sx: 690, sy: 306, px: 636, py: 366, anchor: "start", head: "≈$3.5/M³", sub: "RECOVERED-WATER VALUE",
@@ -121,167 +121,155 @@
 })();
 
 /* ────────────────────────────────────────────────────────────
-   6 · Mechanism — the process as a path through the P–T plane
+   6 · Mechanism — the process as a left-to-right flow, all at
+   atmospheric pressure (owner process description, K207)
 ──────────────────────────────────────────────────────────── */
 (function () {
   const host = document.getElementById("mechanism-chart");
   if (!host) return;
   const body = U.frame(host, {
-    title: "Pressurize, heat past 374 °C, oxidize, separate — the whole machine on one pressure–temperature map",
-    sub: "PRESSURE (MPA) × TEMPERATURE (°C) · NUMBERED NODES = THE FOUR STAGES · DASHED = THE SELF-FUELING H₂ LOOP (FUEL ON DEMAND FROM PROCESS WATER) · CLICK NODES",
-    src: "Company disclosure — HCSP technical briefing (2025-08) · Industry & official — ITRC Enviro Wiki (rev. 2026), Energies/MDPI (2024)",
+    title: "Distill, oxidize, condense — the whole machine at ordinary atmospheric pressure",
+    sub: "FOUR STAGES LEFT→RIGHT · DASHED = THE SELF-FUELING H₂ LOOP (FUEL ON DEMAND FROM PROCESS WATER) · NO PRESSURE VESSELS · CLICK NODES",
+    src: "Company disclosure — HCSP technical briefing (2025-08) + owner-provided process description, Process Step.docx (K207) · Industry & official — ITRC Enviro Wiki (rev. 2026), Energies/MDPI (2024)",
   });
-  body.insertBefore(CH.plainLine("What this shows: the four steps of the process — pump, heat, react, separate — drawn as one path through pressure and temperature."), body.firstChild);
+  body.insertBefore(CH.plainLine("What this shows: the four steps of the process — feed in, distill, oxidize, condense — drawn left to right. Nothing on this chart is pressurized."), body.firstChild);
   const W = 880, H = 500;
   const svg = CH.svg(body, W, H);
-  const x = d3.scaleLinear().domain([0, 600]).range([86, W - 60]);
-  const y = d3.scaleLinear().domain([0, 30]).range([H - 86, 60]);
   const ink = "#051c2c", inkLo = "#42566a", blue = "#2251ff", neg = "#c22f4e";
 
-  // axes
-  svg.append("line").attr("x1", 86).attr("x2", W - 60).attr("y1", H - 70).attr("y2", H - 70).attr("stroke", ink).attr("stroke-width", 1.4);
-  svg.append("line").attr("x1", 86).attr("x2", 86).attr("y1", 60).attr("y2", H - 70).attr("stroke", ink).attr("stroke-width", 1.4);
-  [0, 100, 200, 300, 374, 400, 500, 600].forEach(v => {
-    svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", H - 70).attr("y2", H - 64).attr("stroke", inkLo);
-    svg.append("text").attr("x", x(v)).attr("y", H - 52).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(v);
-  });
-  [0, 5, 10, 15, 20, 22.1, 25, 30].forEach(v => {
-    svg.append("line").attr("x1", 80).attr("x2", 86).attr("y1", y(v)).attr("y2", y(v)).attr("stroke", inkLo);
-    svg.append("text").attr("x", 74).attr("y", y(v) + 3).attr("text-anchor", "end").attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text(v);
-  });
-  const xl = svg.append("text").attr("x", (86 + W - 60) / 2).attr("y", H - 30).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", "#42566a").text("TEMPERATURE · °C");
-  const yl = svg.append("text").attr("x", 20).attr("y", (60 + H - 70) / 2).attr("text-anchor", "middle").attr("font-family", CH.MONO).attr("font-size", 10).attr("fill", "#42566a")
-    .attr("transform", `rotate(-90 20 ${(60 + H - 70) / 2})`).text("PRESSURE · MPA");
+  // atmospheric banner
+  const ban = svg.append("text").attr("x", W / 2).attr("y", 46).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", blue)
+    .text("ATMOSPHERIC PRESSURE THROUGHOUT — NO PRESSURE VESSELS, NO 250-BAR PLUMBING");
+  CH.halo(ban);
 
-  // supercritical region
-  const sc = svg.append("g");
-  sc.append("rect").attr("x", x(374)).attr("y", y(30)).attr("width", x(600) - x(374)).attr("height", y(22.1) - y(30))
-    .attr("fill", "rgba(34,81,255,.06)");
-  sc.append("line").attr("x1", x(374)).attr("x2", x(374)).attr("y1", y(22.1)).attr("y2", y(30)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
-  sc.append("line").attr("x1", x(374)).attr("x2", x(600)).attr("y1", y(22.1)).attr("y2", y(22.1)).attr("stroke", blue).attr("stroke-dasharray", "4 4").attr("stroke-width", 1);
-  const scl = sc.append("text").attr("x", x(487)).attr("y", y(28.4)).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("SUPERCRITICAL REGION");
-  CH.halo(scl);
-  const scl2 = sc.append("text").attr("x", x(487)).attr("y", y(28.4) + 13).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("fill", blue).text("WASTE + OXYGEN MIX COMPLETELY");
-  CH.halo(scl2);
-  // critical point
-  svg.append("circle").attr("cx", x(374)).attr("cy", y(22.1)).attr("r", 4).attr("fill", blue).attr("stroke", "#fff").attr("stroke-width", 1.6);
-  svg.append("line").attr("x1", x(374) + 4).attr("y1", y(22.1) + 4).attr("x2", x(386) + 8).attr("y2", y(20.6) - 4)
-    .attr("stroke", blue).attr("stroke-width", 0.9).attr("opacity", 0.6);
-  const cpl = svg.append("text").attr("x", x(386) + 12).attr("y", y(20.6)).attr("text-anchor", "start")
-    .attr("font-family", CH.MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", blue).text("CRITICAL POINT 374 °C · 22.1 MPA");
-  CH.halo(cpl);
-
-  // reactor operating band
-  svg.append("rect").attr("x", x(380)).attr("y", y(25.4)).attr("width", x(420) - x(380)).attr("height", y(24.6) - y(25.4))
-    .attr("fill", "rgba(34,81,255,.28)").attr("stroke", blue).attr("stroke-width", 1.2);
-
-  // ── the process path ──
-  const path = [
-    [25, 0.1], [25, 25],          // 1 · pump
-    [300, 25],                     // 2 · preheat
-    [400, 25],                     // 3 · reactor
-    [455, 25], [455, 24],          // exit reactor
+  // ── four stage boxes, left → right ──
+  const BW = 160, BH = 108, BY = 150, GAP = 30;
+  const xs = [50, 240, 430, 620]; // boxes end at 780; outputs stub 784→856
+  const stages = [
+    { n: 1, name: "FEED IN", lines: ["CONCENTRATED WASTE", "10 M³/DAY, NO PRESSURE"],
+      sub: "Concentrated feed (≥60–150 g/L COD — COD measures how much organic waste is in the water — or an upstream concentrate) is metered in at ordinary atmospheric pressure. There is no high-pressure pump: nothing in the process is pressurized.", src: ["K58", "K207"] },
+    { n: 2, name: "DISTILL", lines: ["BOIL THE WATER OFF", "CONTAMINANTS STAY"],
+      sub: "Phase change: the feed is boiled, the water rises as steam, and the heavy contaminants and salts stay behind in the still. Separating the water out first is what makes salt management simple — the scaling and plugging that killed conventional SCWO plants never gets a chance to start (owner process description).", src: ["K207", "K20"] },
+    { n: 3, name: "OXIDIZE", lines: ["HIGH-HEAT COMBUSTION", "GAS-PHASE, >3,000 °F"],
+      sub: "The separated toxic residues and volatile gases are burned at high temperature in a dry environment — gas-phase combustion, the thermal-oxidizer half of the machine. The technology class's destruction record runs to 99.9993% destroyed and removed, federally validated in a US Army Corps of Engineers lab test.", src: ["K207", "K2"] },
+    { n: 4, name: "CONDENSE", lines: ["STEAM → DISTILLED H₂O", "85–95% + SOLIDS OUT"],
+      sub: "The steam is condensed back into distilled-quality water (85–95% recovery, <10 µS/cm — purer than tap water), earning a ~$3.5/m³ byproduct credit; the contained inert solids are the fully broken-down residue.", src: ["K1", "K31"] },
   ];
-  const line = d3.line().x(d => x(d[0])).y(d => y(d[1]));
-  const main = svg.append("path").attr("d", line(path))
-    .attr("fill", "none").attr("stroke", ink).attr("stroke-width", 2.6).attr("stroke-linecap", "round");
-  // cool-down + letdown curve to separator
-  const cool = svg.append("path")
-    .attr("d", `M${x(455)},${y(24)} C ${x(300)},${y(24)} ${x(200)},${y(22)} ${x(120)},${y(20)} L ${x(90)},${y(0.6)}`)
-    .attr("fill", "none").attr("stroke", ink).attr("stroke-width", 2.6).attr("stroke-linecap", "round");
-  // arrowheads
-  [[25, 12, -90], [170, 25, 0], [345, 25, 0], [250, 23.2, 24], [105, 10, -66]].forEach(([tx, ty, rot]) => {
-    svg.append("path").attr("d", "M-5,-4 L5,0 L-5,4 Z").attr("fill", ink)
-      .attr("transform", `translate(${x(tx)},${y(ty)}) rotate(${rot})`);
+  const flowG = svg.append("g");
+  // connecting arrows (drawn first, behind boxes)
+  for (let i = 0; i < 3; i++) {
+    const ax1 = xs[i] + BW + 4, ax2 = xs[i + 1] - 6, ay = BY + BH / 2;
+    flowG.append("line").attr("x1", ax1).attr("y1", ay).attr("x2", ax2).attr("y2", ay)
+      .attr("stroke", ink).attr("stroke-width", 2.4);
+    flowG.append("path").attr("d", "M-5,-5 L6,0 L-5,5 Z").attr("fill", ink)
+      .attr("transform", `translate(${ax2},${ay})`);
+  }
+  // outputs stub after stage 4
+  flowG.append("line").attr("x1", xs[3] + BW + 4).attr("y1", BY + BH / 2).attr("x2", W - 24).attr("y2", BY + BH / 2)
+    .attr("stroke", ink).attr("stroke-width", 2.4);
+  flowG.append("path").attr("d", "M-5,-5 L6,0 L-5,5 Z").attr("fill", ink)
+    .attr("transform", `translate(${W - 24},${BY + BH / 2})`);
+  const outl = svg.append("text").attr("x", xs[3] + BW / 2).attr("y", BY + BH + 38).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text("OUT: DISTILLED WATER · INERT SOLIDS · HEAT");
+  CH.halo(outl);
+
+  const stageEls = [];
+  stages.forEach((s, i) => {
+    const g = svg.append("g").style("opacity", 0);
+    stageEls.push(g);
+    const bx = xs[i];
+    g.append("rect").attr("x", bx).attr("y", BY).attr("width", BW).attr("height", BH)
+      .attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 1.8);
+    // numbered badge
+    g.append("circle").attr("cx", bx + 18).attr("cy", BY + 18).attr("r", 11).attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 2);
+    g.append("text").attr("x", bx + 18).attr("y", BY + 22).attr("text-anchor", "middle")
+      .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", ink).text(s.n);
+    const t1 = g.append("text").attr("x", bx + 36).attr("y", BY + 22).attr("text-anchor", "start")
+      .attr("font-family", CH.MONO).attr("font-size", 11.5).attr("font-weight", 700).attr("fill", ink).text(s.n + " · " + s.name);
+    CH.halo(t1);
+    s.lines.forEach((ln, li) => {
+      const t2 = g.append("text").attr("x", bx + BW / 2).attr("y", BY + 52 + li * 14).attr("text-anchor", "middle")
+        .attr("font-family", CH.MONO).attr("font-size", 7.5).attr("fill", inkLo).text(ln);
+      CH.halo(t2);
+    });
+    CH.drill(g, () => ({ title: `STAGE ${s.n} · ${s.name}`, value: s.lines.join(" · "), sub: s.sub, source: CH.srcLink(s.src) }));
+    g.attr("data-drill-keep", "");
   });
 
-  // Self-fueling H₂ loop branch (as briefed)
+  // ── self-fueling H₂ loop (dashed branch feeding heat to stages 2–3) ──
   const h2 = svg.append("g");
-  h2.append("path").attr("d", `M${x(150)},${y(25)} C ${x(120)},${y(20)} ${x(105)},${y(14)} ${x(105)},${y(9)}`)
-    .attr("fill", "none").attr("stroke", blue).attr("stroke-width", 1.6).attr("stroke-dasharray", "5 4");
-  h2.append("rect").attr("x", x(105) - 34).attr("y", y(9) - 14).attr("width", 68).attr("height", 26)
-    .attr("fill", "none").attr("stroke", blue).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
-  const h2t = h2.append("text").attr("x", x(105)).attr("y", y(9) + 3).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("font-weight", 700).attr("fill", blue).text("SELF-FUELING H₂ LOOP");
+  const hbx = 180, hbw = 470, hby = BY + BH + 66, hbh = 54;
+  h2.append("rect").attr("x", hbx).attr("y", hby).attr("width", hbw).attr("height", hbh)
+    .attr("fill", "none").attr("stroke", blue).attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4");
+  const h2t = h2.append("text").attr("x", hbx + hbw / 2).attr("y", hby + 22).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 9.5).attr("font-weight", 700).attr("fill", blue).text("SELF-FUELING H₂ LOOP — ELECTROLYZER + COMBUSTOR");
   CH.halo(h2t);
-  const h2s = h2.append("text").attr("x", x(105)).attr("y", y(6.6)).attr("text-anchor", "middle")
-    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", blue).text("FUEL ON DEMAND FROM PROCESS WATER");
+  const h2s = h2.append("text").attr("x", hbx + hbw / 2).attr("y", hby + 38).attr("text-anchor", "middle")
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", blue).text("FUEL ON DEMAND FROM PROCESS WATER · GRID COVERS 75–95 KW STARTUP");
   CH.halo(h2s);
+  // dashed heat risers up into the distill + oxidize boxes
+  [xs[1] + BW / 2, xs[2] + BW / 2].forEach(cx => {
+    h2.append("line").attr("x1", cx).attr("y1", hby).attr("x2", cx).attr("y2", BY + BH + 6)
+      .attr("stroke", blue).attr("stroke-width", 1.4).attr("stroke-dasharray", "4 3");
+    h2.append("path").attr("d", "M-4,5 L0,-4 L4,5 Z").attr("fill", blue)
+      .attr("transform", `translate(${cx},${BY + BH + 7})`);
+  });
+  const h2lab = h2.append("text").attr("x", xs[2] + BW + 14).attr("y", BY + BH + 16).attr("text-anchor", "start")
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", blue).text("PROCESS HEAT");
+  CH.halo(h2lab);
   CH.drill(h2, () => ({
     title: "THE SELF-FUELING H₂ LOOP", value: "Negligible net energy in operation",
-    sub: "Per the manufacturer briefing: a portion of the process water is electrolyzed on demand and the clean H₂/O₂ is combusted for SCWO process heat — fuel is generated as needed, never purchased or stored in bulk, at negligible net energy cost once started. A working prototype exists; grid power covers only startup/auxiliary draw (75–95 kW spec).",
+    sub: "Per the manufacturer briefing: a portion of the process water is electrolyzed on demand and the clean H₂/O₂ is combusted to supply the process heat that boils the still and fires the oxidizer — fuel is generated as needed, never purchased or stored in bulk, at negligible net energy cost once started. A working prototype exists; grid power covers only startup/auxiliary draw (75–95 kW spec).",
     source: CH.srcLink(["K1", "K60"]),
   }));
+  h2.attr("data-drill-keep", "");
 
-  // stage nodes
-  const stages = [
-    { n: 1, t: 25, p: 0.6, dx: 16, dy: -18, name: "HIGH-PRESSURE PUMP", note: "250 BAR",
-      sub: "Feed arrives concentrated (≥60–150 g/L COD — COD measures how much organic waste is in the water — or an upstream concentrate). Pressurization to 250 bar is the first of two energy inputs.", src: ["K58", "K1"] },
-    { n: 2, t: 290, p: 25, dx: -10, dy: -34, name: "PREHEAT — H₂/O₂ COMBUSTION", note: "SELF-FUELING LOOP · 75–95 KW STARTUP/AUX SPEC",
-      sub: "Per the briefing: on-demand electrolysis of a portion of the process water → clean H₂/O₂ combustion supplies the preheat. Self-fueling once started, negligible net energy cost in operation; the 75–95 kW grid spec covers startup and auxiliary draw. Feeds strong enough to make their own heat (>~30 g/L organics) carry more of the duty themselves.", src: ["K1", "K59"] },
-    { n: 3, t: 400, p: 25, dx: 26, dy: -12, name: "SCWO REACTOR", note: "ORGANICS → CO₂ + H₂O · SECONDS",
-      sub: "Complete destruction in seconds to minutes: 99.9993% of the PFAS destroyed and removed, federally validated in a US Army Corps of Engineers lab test. Salts precipitate in supercritical water — the failure mode that killed conventional preheater designs — but HCSP combusts hydrogen above 3,000 °F (≈1,650 °C) directly in the reactor, a design intended to prevent salt deposition (manufacturer-stated; independent long-run data pending), consistent with published research on flames burning inside hot pressurized water.", src: ["K2", "K20", "K1"] },
-    { n: 4, t: 90, p: 0.8, dx: 160, dy: -20, lead: [14, -6, 148, -18], name: "SEPARATOR + POLISH", note: "85–95% DISTILLED WATER + INERT SLUDGE OUT",
-      sub: "Cool, separate, let down. The distilled-quality output (conductivity <10 µS/cm — purer than tap water) earns a ~$3.5/m³ byproduct credit; the contained inert sludge is the fully broken-down residue.", src: ["K1", "K31"] },
-  ];
-  const nodes = svg.append("g");
-  const stageEls = [];
-  stages.forEach(s => {
-    const g = nodes.append("g").style("opacity", 0);
-    stageEls.push(g);
-    g.append("circle").attr("cx", x(s.t)).attr("cy", y(s.p)).attr("r", 11).attr("fill", "#fff").attr("stroke", ink).attr("stroke-width", 2);
-    g.append("text").attr("x", x(s.t)).attr("y", y(s.p) + 4).attr("text-anchor", "middle")
-      .attr("font-family", CH.MONO).attr("font-size", 11).attr("font-weight", 700).attr("fill", ink).text(s.n);
-    if (s.lead) g.append("line").attr("x1", x(s.t) + s.lead[0]).attr("y1", y(s.p) + s.lead[1])
-      .attr("x2", x(s.t) + s.lead[2]).attr("y2", y(s.p) + s.lead[3])
-      .attr("stroke", ink).attr("stroke-width", 0.8).attr("opacity", 0.5);
-    const t1 = g.append("text").attr("x", x(s.t) + s.dx).attr("y", y(s.p) + s.dy)
-      .attr("text-anchor", s.n === 2 ? "end" : s.n === 3 ? "start" : "start")
-      .attr("font-family", CH.MONO).attr("font-size", 10.5).attr("font-weight", 700).attr("fill", ink).text(s.n + " · " + s.name);
-    CH.halo(t1);
-    const t2 = g.append("text").attr("x", x(s.t) + s.dx).attr("y", y(s.p) + s.dy + 14)
-      .attr("text-anchor", s.n === 2 ? "end" : "start")
-      .attr("font-family", CH.MONO).attr("font-size", 8.5).attr("fill", "#42566a").text(s.note);
-    CH.halo(t2);
-    CH.drill(g, () => ({ title: `STAGE ${s.n} · ${s.name}`, value: s.note, sub: s.sub, source: CH.srcLink(s.src) }));
-  });
-
-  // feed label
-  const fl = svg.append("text").attr("x", x(25) + 16).attr("y", y(0.6) + 16).attr("text-anchor", "start")
-    .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", "#42566a").text("CONCENTRATED FEED IN · 10 M³/DAY");
+  // feed-in label
+  const fl = svg.append("text").attr("x", xs[0]).attr("y", BY - 16).attr("text-anchor", "start")
+    .attr("font-family", CH.MONO).attr("font-size", 9).attr("fill", inkLo).text("CONCENTRATED FEED IN · 10 M³/DAY");
   CH.halo(fl);
 
+  // comparison strip: what this replaces
+  const cmp = svg.append("g");
+  cmp.append("rect").attr("x", 50).attr("y", H - 92).attr("width", W - 100).attr("height", 56)
+    .attr("fill", "rgba(34,81,255,.05)").attr("stroke", inkLo).attr("stroke-width", 1).attr("stroke-dasharray", "3 3");
+  const c1 = cmp.append("text").attr("x", 66).attr("y", H - 70)
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("font-weight", 700).attr("fill", ink).text("VS CONVENTIONAL SCWO: 374 °C+ · >3,200 PSI · PRESSURE VESSELS — HCSP RUNS UNPRESSURIZED");
+  CH.halo(c1);
+  const c2 = cmp.append("text").attr("x", 66).attr("y", H - 52)
+    .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo).text("DISTILL FIRST → SALTS STAY IN THE STILL · UNPRESSURIZED → NO SUPERCRITICAL CORROSION");
+  CH.halo(c2);
+  CH.drill(cmp, () => ({
+    title: "WHY ATMOSPHERIC PRESSURE MATTERS", value: "The two big SCWO problems, avoided",
+    sub: "Salt precipitation: SCWO cannot hold dissolved inorganic salts, so they scale and plug the pipes; HCSP distills the water out first, so salt management is simple. Supercritical corrosion: SCWO's aggressive environment destroys titanium and nickel-alloy pipes; an unpressurized system can use standard refractory linings or high-temperature stainless steel. (Owner-provided process description, Process Step.docx.)",
+    source: CH.srcLink(["K207", "K20", "K57"]),
+  }));
+  cmp.attr("data-drill-keep", "");
+
   CH.enter(host, () => {
-    [main, cool].forEach((p, pi) => {
-      const len = p.node().getTotalLength();
-      p.attr("stroke-dasharray", `${len} ${len}`).attr("stroke-dashoffset", len)
-        .transition().delay(pi * 600).duration(1400).ease(d3.easeCubicInOut).attr("stroke-dashoffset", 0)
-        .on("end", function () { d3.select(this).attr("stroke-dasharray", null); });
-    });
-    nodes.selectAll("g").transition().delay((d, i) => 500 + i * 380).duration(350).style("opacity", 1);
+    stageEls.forEach((g, i) => g.transition().delay(300 + i * 380).duration(350).style("opacity", 1));
   });
-  if (CH.REDUCE) nodes.selectAll("g").style("opacity", 1);
+  if (CH.REDUCE) stageEls.forEach(g => g.style("opacity", 1));
 
   // ── walkthrough + modal table registration ──
   window.CXT = window.CXT || { table: {}, walk: {} };
   CXT.walk["mechanism-chart"] = {
     title: "The four stages, in plain language",
     steps: [
-      { el: stageEls[0], label: "Stage 1 · HP pump",
-        cap: "The feed — a concentrated liquid waste stream — is pumped to 250 bar, roughly 2,500× atmospheric pressure. Pressure is what keeps the water from boiling in the next step." },
-      { el: stageEls[1], label: "Stage 2 · Preheat (self-fueling H₂ loop)",
-        cap: "The pressurized stream is heated toward 400 °C. Per the manufacturer, the heat comes from combusting hydrogen generated on demand from the process water itself — so grid power covers only startup and auxiliary draw." },
-      { el: stageEls[2], label: "Stage 3 · SCWO reactor",
-        cap: "Past 374 °C and 22.1 MPa, water turns supercritical: organic waste and oxygen mix completely and the waste burns up in seconds. PFAS, solvents, and sludge are completely broken down to CO₂, water, and inert salts." },
-      { el: stageEls[3], label: "Stage 4 · Separator + polish",
-        cap: "The stream cools and depressurizes. What leaves is distilled-quality water (85–95% recovery), CO₂, and a contained inert sludge — nothing but water vapor vents, so no air permit is needed." },
+      { el: stageEls[0], label: "Stage 1 · Feed in",
+        cap: "Concentrated waste arrives and is metered in at ordinary atmospheric pressure — no pressure pumps, no pressure vessels anywhere in the plant." },
+      { el: stageEls[1], label: "Stage 2 · Distill (self-fueling H₂ heat)",
+        cap: "The feed is boiled: the water leaves as steam and the heavy contaminants stay behind. Per the manufacturer the heat comes from combusting hydrogen generated on demand from the process water itself — so grid power covers only startup and auxiliary draw." },
+      { el: stageEls[2], label: "Stage 3 · Oxidize",
+        cap: "The concentrated residues and gases that stayed behind are burned at high temperature in a dry environment — a thermal oxidizer, not a pressurized reactor." },
+      { el: stageEls[3], label: "Stage 4 · Condense",
+        cap: "The steam is condensed back into distilled-quality water (85–95% recovery); a small contained solid residue and usable heat are the other outputs — nothing but water vapor vents, so no air permit is needed." },
     ],
   };
   CXT.table["mechanism-chart"] = {
-    cols: ["Stage", "Name", "Position on the pressure–temperature path", "What happens"],
-    rows: stages.map(s => [String(s.n), s.name, `${s.t} °C · ${s.p} MPa`, s.sub]),
+    cols: ["Stage", "Name", "What it does", "Detail"],
+    rows: stages.map(s => [String(s.n), s.name, s.lines.join(" · "), s.sub]),
   };
 })();
 

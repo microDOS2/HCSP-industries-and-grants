@@ -1,6 +1,6 @@
 // ═══ 3D process flow — "Follow the waste through the plant" (Three.js, vendored r147) ═══
 // Stylized HCSP plant with material/energy flows:
-//   influent wastewater → [electrolyzer → combustion → SCWO reactor → separator]
+//   influent wastewater → [electrolyzer → combustion → distiller + oxidizer → condenser/separator]
 //   → distilled water + inert solids + heat; heat splits to power (turbine),
 //   ammonia closed-loop cooling (chiller), and hot-water reuse.
 // Click any component or flow → drill-style info panel (one plain-English
@@ -22,7 +22,7 @@
   };
   const scA = () => { try { return window.RPT.energy_scenarios[0].diagram; } catch (e) { return {}; } };
   const NUM = {
-    cond: spec("Operating conditions", "380–420 °C · ~25 MPa (250 bar)"),
+    cond: spec("Operating conditions", "High heat · atmospheric pressure"),
     water: spec("Water recovery", "85–95% to distillate; <10 µS/cm"),
     h2: spec("H₂ fuel loop (as briefed)", "~30–40 kg/day by on-demand electrolysis"),
     load: spec("Electrical load (startup/auxiliary)", "~75–95 kW"),
@@ -41,13 +41,13 @@
       role: "It splits a trickle of the process water into hydrogen fuel on demand, so the plant carries no fuel tank and buys no fuel once it is running." },
     combustor: { name: "Combustion chamber",
       specs: "H₂ flame >3,000 °F (≈1,650 °C) · grid power only for the " + NUM.load + " startup/auxiliary load",
-      role: "It burns the electrolyzer's hydrogen to heat the system, which is why the manufacturer calls the loop self-fueling after startup." },
-    reactor: { name: "SCWO reactor — where destruction happens",
-      specs: NUM.cond + " · just above water's critical point (374 °C, 22.1 MPa)",
-      role: "At this heat and pressure water turns supercritical — neither liquid nor gas — and the organic waste mixed into it burns up completely in seconds." },
-    separator: { name: "Separator / condenser",
-      specs: "Splits the reactor output into water, solids, and heat · the only exhaust is water vapor (no air permit claimed)",
-      role: "It cools and depressurizes what leaves the reactor and sorts it into the three things the plant hands back: clean water, inert solids, and usable heat." },
+      role: "It burns the electrolyzer's hydrogen to heat the still and the oxidizer, which is why the manufacturer calls the loop self-fueling after startup." },
+    reactor: { name: "Distiller + oxidizer — where separation and destruction happen",
+      specs: NUM.cond + " · no pressure vessels — atmospheric pressure throughout (K207)",
+      role: "First the waste is boiled: the water rises as steam and the heavy contaminants stay behind. Then the separated toxic residues and gases are burned at high temperature in a dry environment — destruction without a pressurized reactor." },
+    separator: { name: "Condenser / separator",
+      specs: "Condenses the steam and sorts the outputs into water, solids, and heat · the only exhaust is water vapor (no air permit claimed)",
+      role: "It condenses the steam leaving the distiller and sorts what comes out into the three things the plant hands back: clean water, inert solids, and usable heat." },
     waterOut: { name: "Distilled water out",
       specs: NUM.water + " · ≈900 m³/day at the example plant",
       role: "Most of the water that carried the waste comes back distilled-quality — purer than tap water — ready for reuse or discharge." },
@@ -73,12 +73,12 @@
     fH2: { name: "Flow — hydrogen fuel",
       specs: NUM.h2,
       role: "Hydrogen made minutes ago from the plant's own water travels here to be burned for heat — made on demand, never stored." },
-    fHot: { name: "Flow — preheat into the reactor",
+    fHot: { name: "Flow — process heat",
       specs: NUM.cond,
-      role: "Combustion heat rides this line into the reactor, taking the feed past the critical point so destruction can begin." },
-    fReactOut: { name: "Flow — reactor output",
-      specs: "Hot, pressurized, and clean: the waste is already destroyed by this point",
-      role: "What leaves the reactor is hot water carrying broken-down minerals — the destruction is done; only sorting remains." },
+      role: "Combustion heat rides this line into the distiller and oxidizer, boiling the water off the waste and firing the high-heat burn." },
+    fReactOut: { name: "Flow — steam + oxidized residue",
+      specs: "Hot and clean: the waste is already destroyed by this point",
+      role: "What leaves the oxidizer is steam and broken-down minerals — the destruction is done; only condensing and sorting remain." },
     fWater: { name: "Flow — distilled water",
       specs: NUM.water,
       role: "This line carries the recovered distilled-quality water to storage or straight to a buyer." },
@@ -99,7 +99,7 @@
       role: "The simplest destination: heat piped straight to someone who would otherwise burn fuel for it." },
     fVapor: { name: "The only exhaust — water vapor",
       specs: "Sealed system; no air permit claimed (manufacturer)",
-      role: "Because the waste burns inside water in a sealed system, the only thing vented is water vapor — no smokestack, no combustion exhaust." },
+      role: "Because the water is distilled and condensed in a closed loop, the only thing vented is water vapor — the manufacturer claims no smokestack exhaust." },
   };
 
   // ── DOM: canvas + controls (integration supplies only the host div) ──
@@ -206,7 +206,7 @@
   const combBody = mesh(comb, new THREE.CylinderGeometry(0.4, 0.4, 1.5, 24), MAT.heat, -2.5, 0.85, 1.0);
   combBody.rotation.z = Math.PI / 2;
 
-  // SCWO reactor (pressure vessel)
+  // distiller + oxidizer (atmospheric-pressure vessel)
   const reac = comp("reactor", 2.2);
   mesh(reac, new THREE.CylinderGeometry(0.6, 0.6, 2.4, 28), MAT.dark, -0.5, 1.5, 0);
   mesh(reac, new THREE.SphereGeometry(0.6, 28, 14, 0, Math.PI * 2, 0, Math.PI / 2), MAT.dark, -0.5, 2.7, 0);
@@ -305,7 +305,7 @@
     ["influent",  "INFLUENT — WASTE IN", "waste", new THREE.Vector3(-7.6, 2.15, 0), 0, 0, 0],
     ["electrolyzer", "ELECTROLYZER · H₂ FUEL", "accent", new THREE.Vector3(-4.4, 2.4, 1.0), -50, -40, 0],
     ["combustor", "COMBUSTION · >3,000 °F", "heat", new THREE.Vector3(-2.5, 1.4, 1.3), 0, 0, 0],
-    ["reactor",   "SCWO REACTOR · 380–420 °C · 250 BAR", "", new THREE.Vector3(-0.5, 3.6, 0), 0, 0, 46],
+    ["reactor",   "DISTILLER + OXIDIZER · ATM PRESSURE", "", new THREE.Vector3(-0.5, 3.6, 0), 0, 0, 46],
     ["separator", "SEPARATOR", "", new THREE.Vector3(1.6, 1.7, -0.9), -40, 34, 0],
     ["waterOut",  "DISTILLED WATER · 85–95%", "accent", new THREE.Vector3(4.3, 1.9, -2.5), 30, -45, -8],
     ["solidsOut", "INERT SOLIDS", "", new THREE.Vector3(4.7, 1.15, -0.6), -60, 0, 0],
@@ -349,8 +349,8 @@
   const STEPS = [
     { key: "electrolyzer", caption: "First, the plant makes its own fuel: the electrolyzer splits a little of the process water into hydrogen, on demand — nothing is stored or trucked in." },
     { key: "combustor", caption: "Next, that hydrogen burns at over 3,000 °F. The flame supplies the heat; after startup the loop fuels itself, per the manufacturer." },
-    { key: "reactor", caption: "Then the waste meets water heated to 380–420 °C at 250 bar — a state where organics and oxygen mix completely, and the waste is destroyed in seconds." },
-    { key: "separator", caption: "Finally, the separator sorts what comes out: distilled water, a little inert solid, and heat that can become power, cooling, or hot water." },
+    { key: "reactor", caption: "Then the water is boiled off the waste — the steam goes on to be condensed into pure water, while the concentrated residues and gases left behind are burned at high temperature, all at ordinary atmospheric pressure." },
+    { key: "separator", caption: "Finally, the steam is condensed back into distilled water, a little inert solid drops out, and the spare heat can become power, cooling, or hot water." },
   ];
   let walkIdx = -1; // -1 = off
   const walkBtn = ui.querySelector("#flow3d-walk");

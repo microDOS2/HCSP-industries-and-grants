@@ -1,6 +1,6 @@
 // ═══ §2B · "Inside the HCSP" — interactive 3D skid explorer (Three.js, vendored) ═══
-// Stylized but recognizable: base frame, HP pump, electrolyzer (self-fueling H₂ loop),
-// combustion chamber, SCWO reactor (pressure vessel), separator/condenser, piping.
+// Stylized but recognizable: base frame, feed pump, electrolyzer (self-fueling H₂ loop),
+// combustion chamber, distiller + oxidizer (atmospheric-pressure vessel), separator/condenser, piping.
 // Orbit/zoom (mouse + touch) · EXPLODE toggle · clickable components → info panel.
 // Render-on-demand (dirty flag) — reading mode gets a static assembled frame;
 // rendering pauses offscreen via IntersectionObserver.
@@ -12,9 +12,9 @@
 
   const INFO = {
     reactor: {
-      name: "SCWO reactor — pressure vessel",
-      specs: "380–420 °C · 25 MPa (250 bar) · just above the critical point",
-      role: "The core: above 374 °C and 22.1 MPa, water enters a state that is neither liquid nor gas, in which organic waste and oxygen mix completely and the waste burns up in seconds to minutes. Hydrogen burns above 3,000 °F directly in the reactor — a design intended to prevent salt deposition (manufacturer-stated; independent long-run data pending).",
+      name: "Distiller + oxidizer — the core pair",
+      specs: "High heat · atmospheric pressure · no pressure vessel (owner process description, K207)",
+      role: "Two steps in one shell. First the feed is boiled: the water rises as steam and the heavy contaminants stay behind. Then the separated toxic residues and volatile gases are burned at high temperature in a dry environment — gas-phase combustion. Because nothing is pressurized, there are no heavy pressure vessels, and salt handling is simple: salts stay in the still instead of scaling inside a high-pressure reactor.",
     },
     electrolyzer: {
       name: "Electrolyzer — self-fueling H₂ loop",
@@ -23,18 +23,18 @@
     },
     combustor: {
       name: "Combustion chamber",
-      specs: "H₂/O₂ flame >3,000 °F (≈1,650 °C) · drives SCWO preheat",
-      role: "Burns the electrolyzer's hydrogen to preheat the reactor. Grid electricity covers only the 75–95 kW startup power spec — the loop is self-fueling in operation per the manufacturer.",
+      specs: "H₂/O₂ flame >3,000 °F (≈1,650 °C) · supplies distillation + oxidation heat",
+      role: "Burns the electrolyzer's hydrogen to supply the process heat that boils the still and fires the oxidizer. Grid electricity covers only the 75–95 kW startup power spec — the loop is self-fueling in operation per the manufacturer.",
     },
     separator: {
       name: "Separator / condenser",
       specs: "Outputs: 85–95% distilled water (<10 µS/cm conductivity — purer than tap water) · inert sludge",
-      role: "Cools and depressurizes the reactor output. Distilled-quality water and a contained, fully broken-down sludge leave here; on concentrated feeds the train also exports power and cooling. The only gaseous stream is vented water vapor — no air permit.",
+      role: "Condenses the steam leaving the distiller and sorts the outputs. Distilled-quality water and a contained, fully broken-down sludge leave here; on concentrated feeds the train also exports power and cooling. The only gaseous stream is vented water vapor — no air permit.",
     },
     pump: {
-      name: "High-pressure feed pump",
-      specs: "10 m³/day (~2,640 gal/day) · pressurizes to 250 bar",
-      role: "The first of two energy inputs: concentrated feed (≥60–150 g/L COD — a measure of how much organic waste is in the water — or an upstream concentrate) is pressurized so the water cannot boil on its way past the critical point.",
+      name: "Feed pump",
+      specs: "10 m³/day (~2,640 gal/day) · atmospheric-pressure system",
+      role: "Meters the concentrated feed (≥60–150 g/L COD — a measure of how much organic waste is in the water — or an upstream concentrate) into the distiller. There is no high-pressure stage: the process runs at ordinary atmospheric pressure, so no heavy-duty pressurization is needed.",
     },
     skid: {
       name: "Base frame — container-class skid",
@@ -42,9 +42,9 @@
       role: "Indoor-sited and deployable at the point of waste generation, not at a central plant. Module purchase cost is TBD — manufacturer cost model pending; the AirSCWO 6's $5.2M contract is the market reference point, not an HCSP price.",
     },
     piping: {
-      name: "High-pressure piping train",
-      specs: "250 bar rated · heat-recovery loop",
-      role: "Connects pump → preheat → reactor → separator. A well-designed heat-recovery train recovers 70–85% of the reaction heat — 6.5 MW of a hub's gross heat is spoken for before anything can be sold.",
+      name: "Piping train",
+      specs: "Atmospheric pressure · heat-recovery loop",
+      role: "Connects pump → process heat → distiller/oxidizer → condenser. A well-designed heat-recovery train recovers 70–85% of the combustion heat — 6.5 MW of a hub's gross heat is spoken for before anything can be sold.",
     },
   };
 
@@ -117,7 +117,7 @@
   comb.add(mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.5, 24), MAT.hot, 0.55, 0.75, 0.75));
   comb.children[0].rotation.z = Math.PI / 2;
 
-  // ── SCWO reactor (pressure vessel) ──
+  // ── distiller + oxidizer (atmospheric-pressure vessel) ──
   const reac = comp("reactor", 4.3);
   const vessel = mesh(new THREE.CylinderGeometry(0.62, 0.62, 2.5, 28), MAT.reactor, 1.9, 1.55, 0);
   reac.add(vessel);
@@ -157,11 +157,11 @@
 
   // ── labels (HTML overlay, projected) ──
   const LABELS = [
-    ["reactor", "SCWO REACTOR · 380–420 °C · 250 BAR", new THREE.Vector3(1.9, 3.1, 0)],
+    ["reactor", "DISTILLER + OXIDIZER · ATMOSPHERIC", new THREE.Vector3(1.9, 3.1, 0)],
     ["electrolyzer", "ELECTROLYZER · SELF-FUELING H₂ LOOP", new THREE.Vector3(-0.9, 1.95, 0.75)],
     ["combustor", "COMBUSTION CHAMBER · >3,000 °F", new THREE.Vector3(0.55, 1.35, 0.75)],
     ["separator", "SEPARATOR / CONDENSER", new THREE.Vector3(0.9, 1.65, -0.85)],
-    ["pump", "HIGH-PRESSURE FEED PUMP · 250 BAR", new THREE.Vector3(-2.55, 1.5, 0.6)],
+    ["pump", "FEED PUMP · 10 M³/DAY", new THREE.Vector3(-2.55, 1.5, 0.6)],
     ["skid", "CONTAINER-CLASS SKID · 8–10 M²", new THREE.Vector3(-1.2, 0.3, -1.4)],
   ].map(([key, text, v]) => {
     const el = document.createElement("div");

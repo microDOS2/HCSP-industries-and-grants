@@ -6,7 +6,7 @@
   if (!t) return;
   const sp = document.getElementById("spec-src");
   if (sp) { const b = document.createElement("button"); b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", "");
-    b.onclick = e => { e.stopPropagation(); U.showDrill({ title: "SOURCE OF THE SPECIFICATION", value: "HCSP technical briefing", sub: "Submitted to the California State Water Resources Control Board; initially positioned for indoor-agriculture wastewater.", source: CH.srcLink(["K1"]), x: e.clientX, y: e.clientY }); };
+    b.onclick = e => { e.stopPropagation(); U.showDrill({ title: "SOURCE OF THE SPECIFICATION", value: "HCSP technical briefing + owner process description", sub: "Briefing submitted to the California State Water Resources Control Board; initially positioned for indoor-agriculture wastewater. Process description (distillation + high-heat incineration at atmospheric pressure, no pressurization) per the owner-provided Process Step.docx.", source: CH.srcLink(["K1", "K207"]), x: e.clientX, y: e.clientY }); };
     sp.appendChild(b); }
   t.innerHTML = `<thead><tr><th>Parameter</th><th>Value (per briefing)</th><th>Analyst note</th></tr></thead>` +
     "<tbody>" + RPT.spec.map(r => `<tr data-k="${r.src}"><td><b>${r.k}</b></td><td class="num">${r.v}</td><td>${r.note}</td></tr>`).join("") + "</tbody>";
