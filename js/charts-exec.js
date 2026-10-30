@@ -34,7 +34,7 @@
   table.querySelectorAll("tr[data-r]").forEach(tr => {
     const r = ROWS[+tr.dataset.r];
     tr.style.cursor = "pointer";
-    tr.setAttribute("data-drill-keep", "");
+    tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     const dates = r.src.map(id => { const s = window.K && K(id); return s ? s.date : ""; }).filter(Boolean).join(", ");
     tr.onclick = e => {
       e.stopPropagation();
@@ -233,7 +233,7 @@
         tr.appendChild(td);
       });
       tr.style.cursor = "pointer";
-      tr.setAttribute("data-drill-keep", "");
+      tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
       tr.onclick = e => {
         if (e.target.closest("a")) return;
         e.stopPropagation();
@@ -407,7 +407,7 @@
       CH.halo(tv);
       vals.push(tv);
       // hover → exact figures; click → full profile with machine-equivalents + dated sources
-      g.style("cursor", "pointer").attr("data-drill-keep", "");
+      g.style("cursor", "pointer").attr("data-drill-keep", "").attr("tabindex", 0);
       g.on("mousemove", e => U.showTip(
         `<b>${d.name}</b><br>Market: ${d.sam}<br>Machine-equivalents: ${machineTxt(d)}<br>Basis: ${d.basis}`,
         e.clientX, e.clientY));
@@ -489,7 +489,7 @@
         .text(d.sam_lab.toUpperCase() + (c.derived ? " · COST DERIVED" : ""));
       CH.halo(t2);
       // hover → exact figures; click → full profile + dated sources
-      g.style("cursor", "pointer").attr("data-drill-keep", "");
+      g.style("cursor", "pointer").attr("data-drill-keep", "").attr("tabindex", 0);
       g.on("mousemove", e => U.showTip(
         `<b>${d.name}</b><br>Market: ${d.sam}<br>Existing disposal cost: ${c.lab}<br>Machine-equivalents: ${machineTxt(d)}`,
         e.clientX, e.clientY));
@@ -591,7 +591,7 @@
         const el = document.createElement("div");
         el.className = "sizing3d-label" + (showAll ? " mini" : "");
         el.innerHTML = showAll ? `<b>${SHORT[d.key] || d.name}</b> ${d.sam_lab}` : `<b>${d.name}</b><span>${d.sam_lab}</span>`;
-        el.setAttribute("data-drill-keep", "");
+        el.setAttribute("data-drill-keep", ""); el.setAttribute("tabindex", "0");
         el.addEventListener("click", e => {
           e.stopPropagation();
           U.showDrill({ ...drillFor(d), x: e.clientX, y: e.clientY });
@@ -783,7 +783,7 @@
   vTab.querySelectorAll("tr[data-r]").forEach(tr => {
     const d = RPT.sizing[+tr.dataset.r];
     tr.style.cursor = "pointer";
-    tr.setAttribute("data-drill-keep", "");
+    tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => {
       e.stopPropagation();
       U.showDrill({
@@ -797,7 +797,7 @@
   // consolidated note, shown under every view (drillable)
   const note = document.createElement("p");
   note.className = "sizing-note";
-  note.setAttribute("data-drill-keep", "");
+  note.setAttribute("data-drill-keep", ""); note.setAttribute("tabindex", "0");
   note.innerHTML = "<b>CONSOLIDATED REACHABLE DEMAND ≈ $9–20B PER YEAR · 15 INDUSTRIES</b> — PLUS DISTILLERY $2–5B · FACTORY FARMS $1–3B · ISLANDS $0.5–1.5B (ESTIMATE)";
   note.onclick = e => {
     e.stopPropagation();

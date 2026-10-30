@@ -14,7 +14,7 @@
   const gHost = document.getElementById("energy-guardrails");
   if (gHost) {
     gHost.innerHTML = GUARD.map((g, i) => `
-      <article class="term es-guard" tabindex="0" data-gi="${i}">
+      <article class="term es-guard" tabindex="0" data-gi="${i}" data-drill-keep="">
         <h3 class="t-abbr es-guard-t">${g.t}</h3>
         <p class="t-gist">${g.d}</p>
         <p class="t-hint es-guard-src">Source · ${KLINK(g.src)}</p>
@@ -128,7 +128,7 @@
       <p class="es-h">Indicative economics <span class="es-ill">— ALL FIGURES ILLUSTRATIVE, FROM ENGINEERING STUDIES · CLICK A ROW FOR ITS SOURCE</span></p>
       <div class="table-scroll"><table class="dt es-econ">
         <tbody>
-          ${s.econ.map((r, j) => `<tr data-r="${j}" class="es-econ-row"><td>${esc(r.lab)}</td><td class="num">${esc(r.val)}</td></tr>`).join("")}
+          ${s.econ.map((r, j) => `<tr data-r="${j}" class="es-econ-row" tabindex="0" data-drill-keep=""><td>${esc(r.lab)}</td><td class="num">${esc(r.val)}</td></tr>`).join("")}
         </tbody>
       </table></div>
 

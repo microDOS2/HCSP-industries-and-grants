@@ -23,7 +23,7 @@ window.U = (() => {
   const PAL = {
     paper: "#ffffff", hi: "#f7f9fc", ink: "#051c2c", inkMd: "#42566a", inkLo: "#42566a",
     line: "#dbe2ea", lineLo: "#eef1f6", red: "#2251ff", redHi: "#1233b8",
-    blue: "#7a45c9", copper: "#b07a10", green: "#008a6d", gold: "#b07a10",
+    blue: "#7a45c9", copper: "#8f6300", green: "#00806a", gold: "#8f6300",
     neg: "#c22f4e", accent: "#2251ff", navy: "#051c2c",
   };
   const SERIES = [PAL.red, PAL.blue, PAL.copper, PAL.green];
@@ -101,8 +101,14 @@ window.U = (() => {
   // ── Drill-down data card ──
   const drill = document.getElementById("drill-card");
   let drillOpen = false;
+  let drillReturnFocus = null; // element to hand focus back to when the card closes
+  if (drill) {
+    drill.setAttribute("role", "dialog");
+    drill.setAttribute("aria-modal", "true");
+  }
   function showDrill({ title, value, delta, sub, source, x, y }) {
-    drill.innerHTML = `<button class="d-close">✕</button>
+    if (!drillOpen) drillReturnFocus = document.activeElement;
+    drill.innerHTML = `<button class="d-close" aria-label="Close details card">✕</button>
       <div class="d-title">${title}</div>
       <div class="d-val">${value}${delta != null ? ` <span class="${delta >= 0 ? "pos" : "neg"}" style="font-size:15px">${fmt.pct(delta)}</span>` : ""}</div>
       ${sub ? `<div class="d-sub">${sub}</div>` : ""}
@@ -113,15 +119,54 @@ window.U = (() => {
     let top = clamp(y - r.height - 14, 8, window.innerHeight - r.height - 8);
     if (y - r.height - 14 < 8) top = clamp(y + 18, 8, window.innerHeight - r.height - 8);
     drill.style.left = left + "px"; drill.style.top = top + "px";
-    drill.querySelector(".d-close").onclick = hideDrill;
+    const closeBtn = drill.querySelector(".d-close");
+    closeBtn.onclick = () => hideDrill();
+    // move focus into the dialog (keep it if the user is already interacting inside)
+    if (!drill.contains(document.activeElement)) {
+      try { closeBtn.focus({ preventScroll: true }); } catch (e) { closeBtn.focus(); }
+    }
   }
-  function hideDrill() { drill.hidden = true; drillOpen = false; }
+  function hideDrill(restoreFocus = true) {
+    drill.hidden = true; drillOpen = false;
+    if (restoreFocus && drillReturnFocus && document.contains(drillReturnFocus)) {
+      try { drillReturnFocus.focus({ preventScroll: true }); } catch (e) {}
+    }
+    drillReturnFocus = null;
+  }
   document.addEventListener("click", e => {
     if (drillOpen && !drill.contains(e.target)) {
-      // let the triggering element handle it itself
-      if (!e.target.closest("[data-drill-keep]")) hideDrill();
+      // let the triggering element handle it itself (a click elsewhere moves
+      // focus on its own, so do not yank focus back to the old trigger)
+      if (!e.target.closest("[data-drill-keep]")) hideDrill(false);
     }
   }, true);
+  // Escape closes the drill card and returns focus to the triggering element
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && drillOpen) { e.preventDefault(); hideDrill(true); }
+  });
+  // Keyboard activation: Enter/Space on any focused drill trigger (table rows,
+  // SVG shapes, cards — anything marked data-drill-keep that is not natively
+  // keyboard-activatable) opens the same card as a mouse click. The synthetic
+  // click carries the element's center coordinates so the card anchors where
+  // a mouse click would.
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    if (e.defaultPrevented) return;
+    const t = e.target;
+    if (!t || !t.closest) return;
+    const el = t.closest("[data-drill-keep]");
+    if (!el) return;
+    // native interactive elements already activate on Enter/Space
+    if (/^(BUTTON|A|INPUT|SELECT|TEXTAREA|SUMMARY)$/.test(t.tagName)) return;
+    if (t !== el && t.closest("button,a,input,select,textarea,summary")) return;
+    e.preventDefault();
+    const r = el.getBoundingClientRect();
+    el.dispatchEvent(new MouseEvent("click", {
+      bubbles: true, cancelable: true,
+      clientX: r.left + Math.min(r.width / 2, 90),
+      clientY: r.top + Math.min(r.height / 2, 24),
+    }));
+  });
 
   // ── Hover tooltip ──
   const tip = document.createElement("div");

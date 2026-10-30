@@ -440,7 +440,7 @@
           xLo: st.cod[0] !== st.cod[1] ? st.cod[0] : null,
           xHi: st.cod[0] !== st.cod[1] ? st.cod[1] : null,
           r: green ? 0.75 : 0.5,
-          color: green ? "#0e9f6e" : "#c22f4e",
+          color: green ? "#0f7a4c" : "#c22f4e",
           lab: codTxt + " g/L · " + (yv > 0 ? "+" : "") + Math.round(yv) + " kWh/m³",
           tip: "<b>" + esc(st.name) + "</b><br>" + codTxt + " g/L COD · " + (yv > 0 ? "+" : "") + Math.round(yv) + " kWh/m³ net<br>" +
             (green ? "Above the wall — exports power" : "Below the wall — consumes power") + "<br>Click for the story",
@@ -464,8 +464,8 @@
         yFmt: function (v) { return (v > 0 ? "+" : "") + v; },
         zeroY: true,
         vLines: [
-          { x: 37.5, label: "NET-ZERO WALL ≈ 35–40 G/L", color: "#b57a00" },
-          { x: 60, label: "EXPORT ZONE ≥ 60 G/L", color: "#0e9f6e" },
+          { x: 37.5, label: "NET-ZERO WALL ≈ 35–40 G/L", color: "#8f6300" },
+          { x: 60, label: "EXPORT ZONE ≥ 60 G/L", color: "#0f7a4c" },
         ],
         xLabel: "FEED STRENGTH — COD, G/L (LOG)",
         yLabel: "NET ELECTRICITY, KWH/M³ (− = POWER OUT)",

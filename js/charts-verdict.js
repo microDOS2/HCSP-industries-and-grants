@@ -98,6 +98,7 @@
       const row = document.createElement("div");
       row.className = "vb-row";
       row.setAttribute("data-drill-keep", "");
+      row.setAttribute("tabindex", "0");
       const score = document.createElement("span");
       score.className = "vb-score";
       score.textContent = Number.isInteger(d.score) ? d.score.toFixed(1) : String(d.score);
@@ -140,6 +141,7 @@
     const li = document.createElement("li");
     li.textContent = c.t;
     li.setAttribute("data-drill-keep", "");
+    li.setAttribute("tabindex", "0");
     li.addEventListener("click", e => {
       e.stopPropagation();
       U.showDrill({
@@ -178,6 +180,7 @@
       });
       tr.style.cursor = "pointer";
       tr.setAttribute("data-drill-keep", "");
+      tr.setAttribute("tabindex", "0");
       tr.onclick = e => U.showDrill({
         title: r.name.toUpperCase(),
         value: d.score + " / 10 · " + g.head.replace(/^\d · /, ""),
@@ -340,6 +343,7 @@
       });
       tr.style.cursor = "pointer";
       tr.setAttribute("data-drill-keep", "");
+      tr.setAttribute("tabindex", "0");
       tr.onclick = ev => {
         ev.stopPropagation();
         U.showDrill({

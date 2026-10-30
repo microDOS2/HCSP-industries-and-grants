@@ -3029,7 +3029,7 @@ Object.assign(window.RPT, {
     {
       id: "B",
       name: "Cold-chain industrial park",
-      tag: "Heat in, deep cold out — on the refrigerant industry already trusts",
+      tag: "Heat in, deep cold out — the refrigeration technology the food and beverage industry already runs on",
       card: "Dairies, breweries, and cold-storage parks already keep things frozen with ammonia refrigeration driven by electric compressors. An HCSP plant next door makes the same cold from its spare heat instead — in a closed ammonia loop that never touches the product — and the electric compressors drop to backup duty.",
       diagram: {
         feed: "Food, dairy, or brewery waste at hub scale (≥60–100 g/L COD)",

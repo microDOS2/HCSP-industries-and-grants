@@ -15,7 +15,7 @@
       <div class="table-scroll"><table class="dt cust-dt" data-t="${t.id}">
         <thead><tr><th>Customer / site</th><th>Location</th><th>Type</th><th>Value</th><th>Status (late 2026)</th></tr></thead>
         <tbody>${t.rows.map((r, ri) => `
-          <tr data-r="${ri}" class="${r.flag === "largest" ? "hl" : ""}" data-drill-keep="">
+          <tr data-r="${ri}" class="${r.flag === "largest" ? "hl" : ""}" data-drill-keep="" tabindex="0">
             <td><b>${r.cust}</b>${r.flag ? `<span class="flag-chip ${r.flag}">${r.flag === "largest" ? "LARGEST" : "SMALLEST"}</span>` : ""}</td>
             <td>${r.loc}</td><td>${r.type}</td><td class="num">${r.value}</td><td>${r.status}</td>
           </tr>`).join("")}
@@ -63,7 +63,7 @@
         <td class="cmp-dim"><b>${row.co}</b></td>
         ${row.cells.map((cell, ci) => {
           const mk = MARKS[cell.m];
-          return `<td class="gm-cell" data-r="${ri}" data-c="${ci}" data-drill-keep="">
+          return `<td class="gm-cell" data-r="${ri}" data-c="${ci}" data-drill-keep="" tabindex="0">
             <span class="gm ${mk[2]}">${mk[0]}${mk[1] ? " " + mk[1] : ""}</span>${cell.txt !== "—" ? `<span class="gm-txt">${cell.txt}</span>` : ""}
           </td>`;
         }).join("")}

@@ -16,7 +16,7 @@
 
   var CSS = `
 .c3p-root{--ink:#10222f;--ink-md:#42566a;--ink-lo:#6b7f92;--line:#dbe2ea;--bg:#fff;--bg-soft:#f5f7fa;
---blue:#2251ff;--green:#0d8a5f;--red:#c22f4e;--amber:#b57a00;
+--blue:#2251ff;--green:#00806a;--red:#c22f4e;--amber:#8f6300;
 --mono:"SFMono-Regular",ui-monospace,"Roboto Mono",Menlo,Consolas,monospace;
 font-family:"Helvetica Neue",Arial,"Segoe UI",sans-serif;color:var(--ink);max-width:1180px;margin:0 auto}
 .c3p-sec{background:var(--bg);border:1px solid var(--line);border-radius:8px;margin:0 0 28px;padding:18px 20px 16px;box-sizing:border-box}

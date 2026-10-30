@@ -211,11 +211,11 @@ html.reader .f3d-stage canvas{touch-action:auto}
 
     /* status palette — semantic red only for CLOSED/DEAD */
     var ST_COL = {
-      "ACTIVE": 0x2251ff, "OPEN-DEADLINE": 0x0e9f6e, "WATCH": 0xb07a10,
+      "ACTIVE": 0x2251ff, "OPEN-DEADLINE": 0x0f7a4c, "WATCH": 0x8f6300,
       "PAUSED": 0x94a3b8, "CLOSED": 0xc22f4e, "DEAD": 0x8f2438
     };
     var ST_CSS = {
-      "ACTIVE": "#2251ff", "OPEN-DEADLINE": "#0e9f6e", "WATCH": "#b07a10",
+      "ACTIVE": "#2251ff", "OPEN-DEADLINE": "#0f7a4c", "WATCH": "#8f6300",
       "PAUSED": "#94a3b8", "CLOSED": "#c22f4e", "DEAD": "#8f2438"
     };
     var LEVELS = ["Federal", "State", "Municipal-utility", "Private-foundation", "Corporate", "International/NGO", "University"];
@@ -462,7 +462,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
 
     var WALL_COL = {
       hard: 0x2251ff, window: 0x42566a, forming: 0x7a8ea3,
-      demand: 0x008a6d, policy: 0x42566a, risk: 0xb07a10
+      demand: 0x00806a, policy: 0x42566a, risk: 0x8f6300
     };
     var CLOSED_COL = 0xc22f4e;
     var ROW_H = 1.55, ROW_Y0 = 1.2, N_ROWS = 6;
@@ -774,7 +774,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
         : it.cls === "hard" ? "HARD DEADLINE"
         : it.cls === "forming" ? "PROGRAM STILL FORMING — ENGAGE NOW" : "EXPECTED CYCLE";
       var badgeCol = it.closed ? "#c22f4e" : it.kind === "cat"
-        ? (it.cls === "demand" ? "#008a6d" : it.cls === "risk" ? "#b07a10" : "#42566a")
+        ? (it.cls === "demand" ? "#00806a" : it.cls === "risk" ? "#8f6300" : "#42566a")
         : it.cls === "hard" ? "#2251ff" : "#42566a";
       return '<button type="button" class="f3d-close">✕ CLOSE</button>' +
         "<h4>" + esc(String(it.date).toUpperCase()) + " · " + esc(it.label) + "</h4>" +
@@ -1028,7 +1028,8 @@ html.reader .f3d-stage canvas{touch-action:auto}
     } else { inView = true; }
 
     /* ═══ boot ═══ */
-    if (tableBlock) tableBlock.style.display = "none"; // 3D explorer is the primary visual
+    // Keep the fast table visible: hiding it at boot also killed the COLUMNS dropdown mid-interaction.
+    // (3D explorer is the primary visual, but the table and its column toggles must stay usable.)
     applyFilters(true);
     setView("register");
     measureChips();

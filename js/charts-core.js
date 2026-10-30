@@ -72,7 +72,7 @@ window.CH = (() => {
   }
   // Drill binder: any element → dark card, traces to sources.js
   function drill(sel, get) {
-    sel.attr("data-drill-keep", "").style("cursor", "pointer")
+    sel.attr("data-drill-keep", "").attr("tabindex", 0).style("cursor", "pointer")
       .on("click", e => { e.stopPropagation(); const d = get(); U.showDrill({ ...d, x: e.clientX, y: e.clientY }); });
     return sel;
   }
@@ -174,6 +174,7 @@ function datedSrcLinks(ids) {
   function clickable(el, get) {
     el.style.cursor = "pointer";
     el.setAttribute("data-drill-keep", "");
+    el.setAttribute("tabindex", "0");
     el.addEventListener("click", e => { e.stopPropagation(); const d = get(); U.showDrill({ ...d, x: e.clientX, y: e.clientY }); });
   }
 
@@ -396,7 +397,7 @@ function datedSrcLinks(ids) {
       tr.appendChild(td);
     });
     tr.style.cursor = "pointer";
-    tr.setAttribute("data-drill-keep", "");
+    tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => {
       if (e.target.closest("a")) return;
       e.stopPropagation();
@@ -567,7 +568,7 @@ function datedSrcLinks(ids) {
       tr.appendChild(td);
     });
     tr.style.cursor = "pointer";
-    tr.setAttribute("data-drill-keep", "");
+    tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => {
       if (e.target.closest("a")) return;
       e.stopPropagation();

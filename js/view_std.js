@@ -15,7 +15,7 @@
   "use strict";
 
   var INK = "#051c2c", INKMD = "#42566a", INKLO = "#6b7f92", BLUE = "#2251ff",
-      BLUELO = "#b9c9ff", GREEN = "#0e9f6e", RED = "#c22f4e", GRID = "#eef1f6";
+      BLUELO = "#b9c9ff", GREEN = "#0f7a4c", RED = "#c22f4e", GRID = "#eef1f6";
   var MONO = (window.CH && CH.MONO) || "ui-monospace, 'Roboto Mono', Menlo, Consolas, monospace";
 
   function esc(s) {
@@ -120,7 +120,7 @@
 
     rows.forEach(function (d, i) {
       var y0 = padT + i * ROW, barH = 24, barY = y0 + ROW - barH - 6;
-      var g = svg.append("g").style("cursor", "pointer").attr("data-drill-keep", "");
+      var g = svg.append("g").style("cursor", "pointer").attr("data-drill-keep", "").attr("tabindex", 0);
       // rank + name (≤2 lines) + one plain line
       var tn = svg.append("text").attr("x", 8).attr("y", y0 + 14)
         .attr("font-family", MONO).attr("font-size", 11.5).attr("font-weight", 700).attr("fill", INK);
@@ -152,7 +152,7 @@
           .attr("font-weight", 700).attr("fill", BLUE).text(d.lab || "");
         if (d.lowConf) {
           g.append("text").attr("x", Math.min(x1 + 10, W - mR + 4)).attr("y", barY + barH / 2 + 20)
-            .attr("font-family", MONO).attr("font-size", 8).attr("fill", "#b57a00").text("LOW CONFIDENCE");
+            .attr("font-family", MONO).attr("font-size", 8).attr("fill", "#8f6300").text("LOW CONFIDENCE");
         }
         // keep the big label inside the frame
         try {
@@ -225,10 +225,10 @@
     // adjacent lines never print on top of each other
     (cfg.vLines || []).forEach(function (vl, vi) {
       svg.append("line").attr("x1", x(vl.x)).attr("x2", x(vl.x)).attr("y1", padT - 8).attr("y2", H - padB)
-        .attr("stroke", vl.color || "#b57a00").attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4");
+        .attr("stroke", vl.color || "#8f6300").attr("stroke-width", 1.4).attr("stroke-dasharray", "5 4");
       svg.append("text").attr("x", x(vl.x) + (vi % 2 ? 8 : 0)).attr("y", padT - 14 - (vi % 2) * 13)
         .attr("text-anchor", vi % 2 ? "start" : "middle")
-        .attr("font-family", MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", vl.color || "#b57a00")
+        .attr("font-family", MONO).attr("font-size", 9).attr("font-weight", 700).attr("fill", vl.color || "#8f6300")
         .text(vl.label || "");
     });
 
@@ -236,7 +236,7 @@
     cfg.points.forEach(function (d) {
       var cx = x(d.x), cy = y(d.y), rr = r(d.r == null ? 0.5 : d.r);
       var col = d.color || BLUE;
-      var g = svg.append("g").style("cursor", "pointer").attr("data-drill-keep", "");
+      var g = svg.append("g").style("cursor", "pointer").attr("data-drill-keep", "").attr("tabindex", 0);
       // whisker: the documented y band behind the bubble
       if (d.yLo != null && d.yHi != null && d.yHi !== d.yLo) {
         g.append("line").attr("x1", cx).attr("x2", cx).attr("y1", y(d.yLo)).attr("y2", y(d.yHi))

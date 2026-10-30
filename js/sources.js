@@ -115,7 +115,7 @@ window.SRCS = [
     fact: "Mandatory quaternary micropollutant treatment with EPR on pharma/cosmetics; compliance build-out runs to 2045." },
   { k: "K57", ref: "D5-54/D5-40", url: "https://www.sciencedirect.com/science/article/abs/pii/S0263876214003931", cat: "industry", date: "2015", cite: "Chemical Engineering Research and Design (2015); SCWO corrosion literature",
     fact: "Inconel 625 corroded ~0.6 mm/yr at 600 °C/25 MPa with 99.42% COD removal on real pesticide wastewater — vs 16–26 mm/yr for Hastelloy G-30." },
-  { k: "K58", ref: "D5-38", url: "https://www.enviro.wiki/index.php?title=Supercritical_Water_Oxidation_(SCWO",  cat: "industry", date: "2026", cite: "Enviro Wiki (ITRC-associated), 'Supercritical Water Oxidation' (rev. 2026)",
+  { k: "K58", ref: "D5-38", url: "https://www.enviro.wiki/index.php?title=Supercritical_Water_Oxidation_(SCWO)",  cat: "industry", date: "2026", cite: "Enviro Wiki (ITRC-associated), 'Supercritical Water Oxidation' (rev. 2026)",
     fact: "Operation that makes its own heat from the waste needs ≥~2 MJ/kg (~120–150 g/L COD); uneconomic for large dilute volumes." },
   { k: "K59", ref: "D11-35", url: "https://www.osti.gov/servlets/purl/1990108", cat: "industry", date: "2022", cite: "Sharan et al., integrated SCWO-desalination techno-economic analysis (OSTI 1990108)",
     fact: "Making its own heat from the waste above ~30 g/L organics; net power export possible at 53 g/L — pilot energy data is the highest-value making it safer to invest input." },

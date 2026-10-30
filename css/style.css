@@ -16,9 +16,9 @@
   --red-hi: #1233b8;
   --blue: #1233b8;          /* deep blue (links, secondary emphasis) */
   --blue-soft: #7d9bff;     /* light blue (tertiary series) */
-  --copper: #b07a10;
-  --green: #008a6d;
-  --gold: #b07a10;
+  --copper: #8f6300;
+  --green: #00806a;
+  --gold: #8f6300;
   --neg: #c22f4e;           /* semantic negative — declines, risk, missing */
   --serif: "et-book", "Iowan Old Style", Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   /* body text: clean system sans for readability; ET Book reserved for headings/decks/quotes */
@@ -217,7 +217,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
   border-bottom: 1px solid var(--line);
   margin: 30px 0 26px;
   padding: 14px 0 16px;
-  font-size: 13.5px; color: var(--ink-md); line-height: 1.8;
+  font-size: 16px; color: var(--ink-md); line-height: 1.8;
 }
 .note-box::before {
   content: "Analyst note";
@@ -269,7 +269,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 .vb-go .vb-head { color: var(--green); border-color: var(--green); }
 .vb-next .vb-head { color: var(--red); border-color: var(--red); }
 .vb-cond .vb-head { color: var(--ink-md); border-color: var(--ink-md); }
-.vb-note { font-size: 14px; color: var(--ink-md); margin: 0 0 6px; line-height: 1.6; }
+.vb-note { font-size: 16px; color: var(--ink-md); margin: 0 0 6px; line-height: 1.6; }
 .vb-row {
   display: flex; gap: 16px; align-items: flex-start;
   padding: 13px 10px 13px 6px; border-bottom: 1px solid var(--line-lo);
@@ -286,9 +286,9 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 .vb-next .vb-score { color: var(--red); }
 .vb-cond .vb-score { color: var(--ink-md); }
 .vb-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.vb-name { font-size: 15.5px; font-weight: 700; color: var(--ink); line-height: 1.35; }
-.vb-why { font-size: 14px; color: var(--ink-md); line-height: 1.6; }
-.vb-first { font-size: 13px; color: var(--ink-lo); line-height: 1.55; }
+.vb-name { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.35; }
+.vb-why { font-size: 16px; color: var(--ink-md); line-height: 1.6; }
+.vb-first { font-size: 16px; color: var(--ink-lo); line-height: 1.55; }
 .vb-first::before { content: ""; }
 .vb-change {
   border: 1.5px solid var(--ink); border-radius: 6px;
@@ -301,7 +301,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 .vb-change ul { list-style: none; margin: 0; padding: 0; }
 .vb-change li {
   position: relative; padding: 9px 6px 9px 24px; margin: 0;
-  border-top: 1px solid var(--line); font-size: 14px; line-height: 1.65;
+  border-top: 1px solid var(--line); font-size: 16px; line-height: 1.65;
   color: var(--ink-md); cursor: pointer; border-radius: 4px;
 }
 .vb-change li:hover { background: #fff; }
@@ -311,7 +311,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 }
 @media (max-width: 768px) {
   .vb-score { flex-basis: 46px; font-size: 18px; }
-  .vb-name { font-size: 14.5px; }
+  .vb-name { font-size: 16px; }
 }
 
 /* ── Key dates timeline (replaces the catalyst wall chart) ──
@@ -354,8 +354,8 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
   font-family: var(--serif); font-weight: 700; font-size: 17px;
   color: var(--ink); line-height: 1.35; margin: 0 0 4px;
 }
-.tl-mean { font-size: 14px; line-height: 1.65; color: var(--ink-md); margin: 0; }
-.tl-act { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 7px 0 0; }
+.tl-mean { font-size: 16px; line-height: 1.65; color: var(--ink-md); margin: 0; }
+.tl-act { font-size: 16px; line-height: 1.6; color: var(--ink); margin: 7px 0 0; }
 .tl-act b { color: var(--red); font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
 /* CLOSED rows: muted, struck date, uniform grey */
 .tl-closed { opacity: 0.62; }
@@ -419,7 +419,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 }
 .metric-strip .m:hover { background: var(--paper-hi); }
 .metric-strip .m .v { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--red); font-variant-numeric: tabular-nums; }
-.metric-strip .m .k { font-size: 12px; color: var(--ink-md); margin-top: 3px; line-height: 1.5; }
+.metric-strip .m .k { font-size: 16px; color: var(--ink-md); margin-top: 3px; line-height: 1.5; }
 
 /* source button ◆ */
 .src {
@@ -490,7 +490,7 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 .quote-card .q-who b { color: var(--ink); font-weight: 700; }
 .quote-card .q-why {
   margin-top: 14px; padding-top: 12px; border-top: 1px dotted var(--line);
-  font-size: 13px; color: var(--ink-md); line-height: 1.7; display: block;
+  font-size: 16px; color: var(--ink-md); line-height: 1.7; display: block;
 }
 .quote-card .q-lab {
   font-family: var(--mono); font-size: 9.5px; color: var(--ink-lo);
@@ -503,13 +503,13 @@ h3 { font-family: var(--serif); font-size: 23px; font-weight: 700; line-height: 
 #drill-card {
   position: fixed; z-index: 200; min-width: 240px; max-width: 340px;
   background: var(--ink); color: #eef2f6; padding: 14px 18px; border-radius: 6px;
-  box-shadow: 0 12px 40px rgba(5,28,44,.4); font-size: 13px; line-height: 1.65;
+  box-shadow: 0 12px 40px rgba(5,28,44,.4); font-size: 16px; line-height: 1.6;
   border-top: 3px solid var(--red);
 }
 #drill-card .d-title { font-family: var(--mono); font-size: 10.5px; color: #9fb0c0; letter-spacing: .08em; text-transform: uppercase; }
 #drill-card .d-val { font-family: var(--mono); font-size: 25px; font-weight: 700; color: #fff; margin: 2px 0; font-variant-numeric: tabular-nums; }
 #drill-card .d-val .pos { color: #6fd0b2; } #drill-card .d-val .neg { color: #ef9aae; }
-#drill-card .d-sub { color: #c6d1db; font-size: 12.5px; }
+#drill-card .d-sub { color: #d4dee7; font-size: 16px; }
 #drill-card .d-src { font-family: var(--mono); font-size: 10px; color: #8595a6; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.14); }
 #drill-card .d-close { position: absolute; top: 6px; right: 10px; color: #8595a6; cursor: pointer; background: none; border: 0; font-size: 14px; }
 
@@ -597,7 +597,7 @@ table.dt td.vc-contra, .vc-contra { font-family: var(--mono); font-size: 11px; f
   text-transform: uppercase; letter-spacing: .1em; margin: 6px 0 12px;
   padding-bottom: 10px; border-bottom: 1px solid var(--line-lo);
 }
-.term-mag .t-gist { font-size: 14px; color: var(--ink); line-height: 1.65; margin: 0; }
+.term-mag .t-gist { font-size: 16px; color: var(--ink); line-height: 1.65; margin: 0; }
 .term-mag .term { position: relative; }
 .term-mag .t-more {
   /* Desktop: overlay expansion, never pushes content below (QA: hover once made the whole section twitch +217px) */
@@ -612,7 +612,7 @@ table.dt td.vc-contra, .vc-contra { font-family: var(--mono); font-size: 11px; f
 .term-mag .term:first-child .t-more { left: 2px; }
 .term-mag .term:hover .t-more, .term-mag .term:focus-within .t-more,
 .term-mag .term.open .t-more { max-height: 340px; opacity: 1; pointer-events: auto; }
-.term-mag .t-more p { font-size: 13px; color: var(--ink-md); line-height: 1.72; margin: 0; }
+.term-mag .t-more p { font-size: 16px; color: var(--ink-md); line-height: 1.72; margin: 0; }
 .term-mag .t-hint {
   font-family: var(--mono); font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
   color: var(--ink-lo); margin-top: 12px; transition: opacity .25s ease;
@@ -706,7 +706,7 @@ hr.sep { border: 0; height: 1px; background: var(--line); margin: 0 auto; max-wi
 .fate-expanding .fate-head { color: var(--red); }
 .fate-item { padding: 9px 0 10px; border-bottom: 1px solid var(--line-lo); cursor: pointer; }
 .fate-item:hover { background: var(--paper-hi); }
-.fate-item .f-name { font-size: 13.5px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 0; }
+.fate-item .f-name { font-size: 16px; font-weight: 700; color: var(--ink); line-height: 1.45; margin: 0; }
 .fate-item .f-amt { font-family: var(--mono); font-size: 11.5px; font-weight: 700; margin: 2px 0 0; color: var(--ink-md); }
 .fate-died .f-amt { color: var(--neg); }
 .fate-expanding .f-amt { color: var(--red); }
@@ -949,7 +949,7 @@ tr.bad .t15-rank { color: var(--ink-lo); }
 .lg-rank { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--red); min-width: 26px; text-align: right; flex: none; }
 .lg-main { flex: 1; min-width: 0; }
 .lg-top { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
-.lg-name { font-family: var(--serif); font-weight: 700; font-size: 14.5px; color: var(--ink); }
+.lg-name { font-family: var(--serif); font-weight: 700; font-size: 16px; color: var(--ink); }
 .lg-val { font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--ink); white-space: nowrap; }
 .lg-tag {
   font-family: var(--mono); font-size: 10px; letter-spacing: .03em;
@@ -957,7 +957,7 @@ tr.bad .t15-rank { color: var(--ink-lo); }
 }
 .lg-tag.lg-g1 { border-color: var(--red); color: var(--red); }
 .lg-tag.lg-low { border-color: var(--gold); color: var(--gold); }
-.lg-why { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-md); line-height: 1.55; max-width: 90ch; }
+.lg-why { margin: 2px 0 0; font-size: 16px; color: var(--ink-md); line-height: 1.55; max-width: 90ch; }
 .lg-note {
   font-family: var(--mono); font-size: 11px; color: var(--ink-lo);
   border: 1px dashed var(--ink-lo); border-radius: 4px;
@@ -992,7 +992,7 @@ table.lg-table tbody tr { cursor: pointer; }
 }
 .cp-arrow { color: var(--red); opacity: 0; transition: opacity .15s; }
 .cp-row:hover .cp-arrow { opacity: 1; }
-.cp-txt { font-size: 13.5px; line-height: 1.6; color: var(--ink); margin: 0; }
+.cp-txt { font-size: 16px; line-height: 1.6; color: var(--ink); margin: 0; }
 .cp-txt.tone-bad { color: var(--neg); }
 .cp-txt.tone-verdict { font-weight: 600; }
 .cp-txt.tone-verdict::first-letter { color: var(--red); }
@@ -1402,7 +1402,7 @@ html.reader .sizing3d-stage { touch-action: auto; }
   font-family: var(--mono); font-size: 30px; font-weight: 700; letter-spacing: -.01em;
   color: var(--red); line-height: 1.1;
 }
-.sz-card .sz-why { font-size: 13.5px; line-height: 1.55; color: var(--ink); }
+.sz-card .sz-why { font-size: 16px; line-height: 1.55; color: var(--ink); }
 .sz-card .sz-mod {
   font-family: var(--mono); font-size: 10px; letter-spacing: .06em;
   color: var(--ink-lo); border-top: 1px dotted var(--line); padding-top: 8px;

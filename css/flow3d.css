@@ -102,7 +102,7 @@ html.reader .flow3d-stage, html.reader .sc3d-stage { touch-action: auto; }
   font-family: var(--mono, Menlo, Consolas, monospace); font-size: 12px; font-weight: 700;
   letter-spacing: .14em; color: #9fd0ff; white-space: nowrap;
 }
-.flow3d-caption .fc-text { flex: 1; font-size: 14px; line-height: 1.55; color: #eef2f6; }
+.flow3d-caption .fc-text { flex: 1; font-size: 16px; line-height: 1.55; color: #eef2f6; }
 .flow3d-caption .fc-btns { display: flex; gap: 8px; }
 .flow3d-caption .fc-btns button {
   font-family: var(--mono, Menlo, Consolas, monospace); font-size: 12px; font-weight: 700;

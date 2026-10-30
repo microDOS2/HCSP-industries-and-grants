@@ -5,14 +5,14 @@
   const t = document.getElementById("spec-table");
   if (!t) return;
   const sp = document.getElementById("spec-src");
-  if (sp) { const b = document.createElement("button"); b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", "");
+  if (sp) { const b = document.createElement("button"); b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", ""); b.setAttribute("aria-label", "Open source details");
     b.onclick = e => { e.stopPropagation(); U.showDrill({ title: "SOURCE OF THE SPECIFICATION", value: "HCSP technical briefing + owner process description", sub: "Briefing submitted to the California State Water Resources Control Board; initially positioned for indoor-agriculture wastewater. Process description (distillation + high-heat incineration at atmospheric pressure, no pressurization) per the owner-provided Process Step.docx.", source: CH.srcLink(["K1", "K207"]), x: e.clientX, y: e.clientY }); };
     sp.appendChild(b); }
   t.innerHTML = `<thead><tr><th>Parameter</th><th>Value (per briefing)</th><th>Analyst note</th></tr></thead>` +
     "<tbody>" + RPT.spec.map(r => `<tr data-k="${r.src}"${r.feat ? ' class="feat"' : ""}><td><b>${r.k}</b></td><td class="num">${r.v}</td><td>${r.note}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-k]").forEach(tr => {
     const r = RPT.spec.find(s => s.k === tr.cells[0].textContent);
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({ title: r.k.toUpperCase(), value: r.v, sub: r.note + ".", source: CH.srcLink([r.src]), x: e.clientX, y: e.clientY });
   });
 })();
@@ -22,7 +22,7 @@
   const ex = document.getElementById("ex-src");
   if (!ex) return;
   const b = document.createElement("button");
-  b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", "");
+  b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", ""); b.setAttribute("aria-label", "Open source details");
   b.onclick = e => { e.stopPropagation(); U.showDrill({
     title: "WHY HCSP IS DIFFERENT — SOURCES",
     value: "HCSP technical briefing + owner process description",
@@ -40,7 +40,7 @@
       `<tr class="${r.bold ? "hl" : ""}" data-i="${i}"><td>${r.bold ? "<b>" + r.el + "</b>" : r.el}</td><td style="font-size:12px;color:var(--ink-md)">${r.basis}</td><td class="num">${r.yr}</td><td class="num">${r.gal}</td><td class="num">${r.m3}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
     const r = RPT.cost_stack[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({
       title: r.el.toUpperCase(), value: r.gal === "TBD" ? "TBD — pending" : r.gal + " /gal",
       sub: (r.basis ? r.basis + ". " : "") + "Per-module stack on ~0.9M gal/yr throughput. HCSP has no published cost benchmark — every $ figure is TBD pending the manufacturer cost model. The SCWO industry literature's calibration points ($0.04–0.37/gal large scale; $0.5–2.0/gal skid scale) describe the technology class, not HCSP.",
@@ -59,7 +59,7 @@
       `<tr data-i="${i}" class="${d.tier === 1 ? "hl" : ""}"><td class="num">${d.rank}</td><td><b>${d.name}</b></td><td class="num">${d.score}</td><td class="num">${d.tier}</td><td>${calls[d.tier]}</td><td class="num">${d.payback}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
     const d = RPT.league[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({ title: d.name.toUpperCase(), value: d.score + " / 10", sub: d.why + " " + RPT.tiers[d.tier - 1].posture, source: CH.srcLink(d.src), x: e.clientX, y: e.clientY });
   });
 })();
@@ -73,7 +73,7 @@
       `<tr data-i="${i}"><td><b>${r.v}</b></td><td>${r.stream}</td><td>${r.pre}</td><td>${r.mat}</td><td>${r.model}</td><td>${r.first}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
     const r = RPT.variants[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({ title: r.v, value: r.model, sub: r.stream + ". Pre-module: " + r.pre + ". Materials: " + r.mat + ". First customers: " + r.first + ".", source: CH.srcLink(r.src), x: e.clientX, y: e.clientY });
   });
 })();
@@ -89,7 +89,7 @@
     }).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
     const r = RPT.risks[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({ title: "WHAT COULD GO WRONG", value: r.like + " · " + r.impact, sub: r.r + ". Mitigation: " + r.mit + ". Evidence: " + r.ev + ".", source: CH.srcLink(r.src), x: e.clientX, y: e.clientY });
   });
 })();
@@ -108,6 +108,7 @@
     el.innerHTML = `<span class="s-fact"><b>${s.k}</b> · ${s.fact}</span>
       <span class="s-cite"><span class="src-cat ${s.cat}">${catName[s.cat]}</span>${citeHtml} · ${s.date} · report ref ${s.ref}</span>`;
     el.setAttribute("data-drill-keep", "");
+    el.setAttribute("tabindex", "0");
     el.style.cursor = "pointer";
     const a = el.querySelector("a.src-link");
     if (a) a.onclick = ev => ev.stopPropagation();
@@ -129,12 +130,12 @@
       `<tr data-i="${i}" class="${roleCls[r.role]}"><td><b>${r.chem}</b></td><td style="font-size:12px">${r.cycles}</td><td style="font-size:12px">${r.calendar}</td><td class="num">${r.role === "niche" ? '<span class="vc-contra">' + r.selfdis + "</span>" : r.selfdis}</td><td class="num">${r.rte}</td><td class="num">${r.cost}</td><td style="font-size:12px">${r.verdict}</td></tr>`).join("") + "</tbody>";
   t.querySelectorAll("tr[data-i]").forEach(tr => {
     const r = RPT.storage[+tr.dataset.i];
-    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+    tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.onclick = e => U.showDrill({ title: r.chem.toUpperCase(), value: r.verdict.split("—")[0].trim(), sub: r.note, source: CH.srcLink(r.src), x: e.clientX, y: e.clientY });
   });
   const rule = document.getElementById("storage-rule-src");
   if (rule) {
-    const b = document.createElement("button"); b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", "");
+    const b = document.createElement("button"); b.className = "src"; b.textContent = "◆"; b.setAttribute("data-drill-keep", ""); b.setAttribute("aria-label", "Open source details");
     b.onclick = e => { e.stopPropagation(); U.showDrill({ title: "THE DECISION RULE", value: "LFP by default", sub: RPT.storage_rule, source: CH.srcLink(RPT.storage_src), x: e.clientX, y: e.clientY }); };
     rule.appendChild(b);
   }
@@ -176,9 +177,9 @@
     }).join("") + "</tbody>";
     t.querySelectorAll("tr[data-i]").forEach(tr => {
       const m = merged[+tr.dataset.i], s = m.s, c = m.c;
-      tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", "");
+      tr.style.cursor = "pointer"; tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
       tr.onclick = e => U.showDrill({
-        title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase().slice(0, 40),
+        title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase(),
         value: s.na ? "N/A — buyer of the output" : band(s).replace(/<[^>]+>/g, "").replace("LOW CONFIDENCE", "(low confidence)") + " /gal",
         sub: s.note + " Composite lens: #" + c.rank + " (" + c.score + "/10 — " + RPT.league_fit[c.tier] + "). " + c.why + " " + RPT.savings_meta.qualifier + ".",
         source: CH.srcLink(s.src.concat(c.src.filter(k => !s.src.includes(k))).concat(["K150"])),
@@ -222,7 +223,7 @@
           reason: c.plain || c.why || s.note,
           small: bits.join(" · "),
           onClick: e => U.showDrill({
-            title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase().slice(0, 40),
+            title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase(),
             value: s.na ? "N/A — buyer of the output" : bandTxt(s),
             sub: s.note + " Composite lens: #" + c.rank + " (" + c.score + "/10 — " + RPT.league_fit[c.tier] + "). " + c.why + " " + RPT.savings_meta.qualifier + ".",
             source: CH.srcLink(s.src.concat(c.src.filter(k => !s.src.includes(k))).concat(["K150"])),

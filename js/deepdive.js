@@ -14,7 +14,7 @@
       <p class="cp-form">${p.form}</p>
       <div class="cp-rows">
         ${p.rows.map((r, ri) => `
-          <div class="cp-row" data-p="${pi}" data-r="${ri}" data-drill-keep="">
+          <div class="cp-row" data-p="${pi}" data-r="${ri}" data-drill-keep="" tabindex="0">
             <p class="cp-lab">${r.lab.toUpperCase()}<span class="cp-arrow"> →</span></p>
             <p class="cp-txt${r.tone === "bad" ? " tone-bad" : r.tone === "verdict" ? " tone-verdict" : ""}">${r.txt}</p>
           </div>`).join("")}
@@ -86,7 +86,7 @@
     <tbody>
       ${M.rows.map((row, ri) => `<tr>
         <td class="cmp-dim"><b>${row.dim}</b></td>
-        ${row.cells.map((cell, ci) => `<td class="cmp-cell" data-r="${ri}" data-c="${ci}" data-drill-keep="">${cell.txt}</td>`).join("")}
+        ${row.cells.map((cell, ci) => `<td class="cmp-cell" data-r="${ri}" data-c="${ci}" data-drill-keep="" tabindex="0">${cell.txt}</td>`).join("")}
       </tr>`).join("")}
     </tbody>`;
   table.querySelectorAll(".cmp-cell").forEach(td => {
@@ -257,7 +257,7 @@
   const list = document.getElementById("watch-list");
   if (!list) return;
   list.innerHTML = RPT.comp_watch.map((w, i) =>
-    `<li data-i="${i}" data-drill-keep=""><b>${w.item}.</b> ${w.txt}</li>`).join("");
+    `<li data-i="${i}" data-drill-keep="" tabindex="0"><b>${w.item}.</b> ${w.txt}</li>`).join("");
   list.querySelectorAll("li").forEach(li => {
     const w = RPT.comp_watch[+li.dataset.i];
     li.style.cursor = "pointer";

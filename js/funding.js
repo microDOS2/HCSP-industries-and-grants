@@ -17,7 +17,7 @@
     strip.innerHTML = M.map((m, i) => `<div class="m" data-i="${i}"><div class="v"${m.neg ? ' style="color:var(--neg)"' : ""}>${m.v}</div><div class="k">${m.l}</div></div>`).join("");
     strip.querySelectorAll(".m").forEach(el => {
       const m = M[+el.dataset.i];
-      el.style.cursor = "pointer"; el.setAttribute("data-drill-keep", "");
+      el.style.cursor = "pointer"; el.setAttribute("data-drill-keep", ""); el.setAttribute("tabindex", "0");
       el.onclick = e => U.showDrill({ title: "THE 2026 LANDSCAPE", value: m.v, sub: m.d, source: CH.srcLink(m.src), x: e.clientX, y: e.clientY });
     });
   }
@@ -33,7 +33,7 @@
     const items = RPT.funding_landscape.filter(f => f.fate === g.key);
     return `<div class="fate-col ${g.cls}">
       <p class="fate-head">${g.head} <span class="fate-n">${items.length}</span></p>
-      ${items.map((f, i) => `<div class="fate-item" data-g="${g.key}" data-i="${i}" data-drill-keep="">
+      ${items.map((f, i) => `<div class="fate-item" data-g="${g.key}" data-i="${i}" data-drill-keep="" tabindex="0">
         <p class="f-name">${f.name}</p>
         <p class="f-amt">${f.amount}</p>
       </div>`).join("")}
@@ -69,7 +69,7 @@
           tr.appendChild(c);
         });
         tr.style.cursor = "pointer";
-        tr.setAttribute("data-drill-keep", "");
+        tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
         tr.onclick = e => U.showDrill({
           title: f.name.toUpperCase(), value: f.amount,
           sub: f.note, source: CH.srcLink(f.src), x: e.clientX, y: e.clientY,
@@ -253,7 +253,7 @@
         tr.appendChild(td);
       });
       tr.style.cursor = "pointer";
-      tr.setAttribute("data-drill-keep", "");
+      tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
       tr.onclick = e => {
         if (e.target.closest("a")) return;
         e.stopPropagation();
@@ -322,7 +322,7 @@
     const tr = document.createElement("tr");
     tr.dataset.id = r.id;
     tr.className = r.status === "DEAD" || r.status === "CLOSED" ? "bad" : r.match === 5 && (r.status === "ACTIVE" || r.status === "OPEN-DEADLINE") ? "hl" : "";
-    tr.setAttribute("data-drill-keep", "");
+    tr.setAttribute("data-drill-keep", ""); tr.setAttribute("tabindex", "0");
     tr.style.cursor = "pointer";
     tr.innerHTML = `
         <td class="num">${r.id}</td>
@@ -341,7 +341,7 @@
       title: r.id + " · " + r.program.toUpperCase(),
       value: r.award,
       sub: r.notes + " · Access: " + r.access + ". Fit: " + r.fit + " — " + r.vertical + ". Next: " + r.deadline + ".",
-      source: CH.srcLink(r.src) + (r.url ? ` · <a class="src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Program page ↗</a>` : ""),
+      source: datedSrcLinks(r.src) + (r.url ? ` · <a class="src-link" href="${r.url}" target="_blank" rel="noopener noreferrer">Program page ↗</a>` : ""),
       x: e.clientX, y: e.clientY,
     });
     return [r.id, tr];
@@ -397,7 +397,7 @@
   const AC_SHORT = { "Yes": "DIRECT", "No—via utility partner": "VIA UTILITY", "No—via other partner": "VIA PARTNER", "No": "CLOSED" };
   t.innerHTML = `<thead><tr><th>#</th><th>Program</th><th>Award size</th><th>Access</th><th>Deadline / cycle</th><th>Match</th><th>Why now</th></tr></thead>` +
     "<tbody>" + RPT.grants_top15.map((r, i) =>
-      `<tr data-i="${i}" class="${r.rank <= 2 ? "hl" : ""}" data-drill-keep="" style="cursor:pointer">
+      `<tr data-i="${i}" class="${r.rank <= 2 ? "hl" : ""}" data-drill-keep="" tabindex="0" style="cursor:pointer">
         <td class="num t15-rank">${r.rank}</td>
         <td><b>${r.program}</b><br><span class="g-ag">${r.type} · ${r.status}</span></td>
         <td class="num g-award">${r.award}</td>
@@ -412,7 +412,7 @@
       title: "PURSUIT #" + r.rank + " · " + r.program.toUpperCase(),
       value: r.award,
       sub: r.why + " · Type: " + r.type + ". Access: " + r.access + ". Status: " + r.status + ". Next: " + r.deadline + ". Match " + r.match + "/5.",
-      source: CH.srcLink(r.src), x: e.clientX, y: e.clientY,
+      source: datedSrcLinks(r.src), x: e.clientX, y: e.clientY,
     });
   });
 })();

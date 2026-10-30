@@ -327,6 +327,7 @@
       });
       tr.style.cursor = "pointer";
       tr.setAttribute("data-drill-keep", "");
+      tr.setAttribute("tabindex", "0");
       tr.onclick = e => {
         if (e.target.closest("a")) return;
         e.stopPropagation();

@@ -492,7 +492,15 @@
   function resize() {
     const w = wrap.clientWidth, h = canvas.clientHeight || 560;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
+    camera.aspect = w / h;
+    // Keep the whole plant — influent tank to hot-water block — inside the
+    // frame at every width: hold the horizontal field of view constant at its
+    // 1680px design value by widening the vertical fov when the stage gets
+    // narrower (otherwise ~130px of the right side is cropped at 1280/768).
+    const REF_ASPECT = 1.62, BASE_FOV = 38;
+    camera.fov = camera.aspect >= REF_ASPECT ? BASE_FOV
+      : 2 * Math.atan(Math.tan(BASE_FOV * Math.PI / 360) * (REF_ASPECT / camera.aspect)) * 360 / Math.PI;
+    camera.updateProjectionMatrix();
     dirty = true; poke();
   }
   addEventListener("resize", resize, { passive: true });

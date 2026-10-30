@@ -380,6 +380,8 @@ window.Comp3D = (() => {
   function wireGeoMatrix(scope) {
     scope.querySelectorAll(".c3d-geo td[data-r]").forEach(td => {
       td.style.cursor = "pointer";
+      td.setAttribute("data-drill-keep", "");
+      td.tabIndex = 0;
       td.addEventListener("click", e => {
         const d = gmDrill(null, "gm:" + td.dataset.r + ":" + td.dataset.c);
         if (d && window.U && U.showDrill) U.showDrill({ ...d, x: e.clientX, y: e.clientY });
@@ -473,7 +475,10 @@ window.Comp3D = (() => {
     function addLeader(px, py, lx, ly) {
       labLayer.append("line")
         .attr("x1", px).attr("y1", py).attr("x2", lx).attr("y2", ly + 4)
-        .attr("stroke", "#8ea2b5").attr("stroke-width", 0.8).attr("opacity", 0.85);
+        .attr("stroke", "#8ea2b5").attr("stroke-width", 0.8).attr("opacity", 0.85)
+        // leader lines are decoration only — dead-center clicks on a flagged
+        // pin must hit the pin, not the line drawn from the pin to its flag
+        .attr("pointer-events", "none");
     }
     // largest / smallest flags + failed-or-lost status chips, hand-placed in
     // the empty ocean margins (PIN_LAB2D) with leader lines back to the pins
@@ -549,6 +554,8 @@ window.Comp3D = (() => {
     table.querySelectorAll("tbody tr[data-i]").forEach(tr => {
       const { tbl, r } = rows[+tr.dataset.i];
       tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.tabIndex = 0;
       tr.addEventListener("click", e => {
         if (!window.U || !U.showDrill) return;
         U.showDrill({
