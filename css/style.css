@@ -754,7 +754,29 @@ hr.sep { border: 0; height: 1px; background: var(--line); margin: 0 auto; max-wi
   font-family: var(--mono); font-size: 9px; letter-spacing: .18em;
   color: var(--ink-lo); padding: 4px 2px 6px;
 }
-table.grant-dt { min-width: 860px; }
+/* funding registers fit their box at every width instead of forcing a
+   3–4× horizontal scroll: fixed layout + wrapping cells (phones ≤768px keep
+   the sideways-scroll box with its SCROLL ⟷ hint) */
+table.grant-dt { min-width: 0; table-layout: fixed; }
+table.grant-dt th, table.grant-dt td { white-space: normal; overflow-wrap: break-word; }
+table.grant-dt td.num { white-space: normal; }
+#grant-table th:nth-child(1) { width: 34px; }
+#grant-table th:nth-child(3) { width: 60px; }
+#grant-table th:nth-child(4) { width: 84px; }
+#grant-table th:nth-child(5) { width: 106px; }
+#grant-table th:nth-child(6) { width: 76px; }
+#grant-table th:nth-child(7) { width: 88px; }
+#grant-table th:nth-child(8) { width: 104px; }
+#grant-table th:nth-child(9) { width: 62px; }
+#top15-table th:nth-child(1) { width: 30px; }
+#top15-table th:nth-child(3) { width: 100px; }
+#top15-table th:nth-child(4) { width: 76px; }
+#top15-table th:nth-child(5) { width: 104px; }
+#top15-table th:nth-child(6) { width: 62px; }
+@media (max-width: 768px) {
+  table.grant-dt { table-layout: auto; min-width: 720px; }
+  table.grant-dt th, table.grant-dt td { white-space: normal; }
+}
 
 /* ── Featured exhibit: "Why HCSP is different" (§2) + matching spec-table card ── */
 .exhibit {
@@ -868,9 +890,9 @@ html.reader .distill-mini .dst-ui { display: none; }
 .dst-flame { animation: dst-flicker 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
 table.grant-dt td { font-size: 13.5px; }
 table.grant-dt .g-ag { font-size: 10.5px; color: var(--ink-lo); font-family: var(--mono); }
-table.grant-dt .g-award { white-space: normal; min-width: 150px; font-size: 11px; }
-table.grant-dt .g-dl { font-size: 11.5px; color: var(--ink-md); min-width: 130px; }
-table.grant-dt .g-why { font-size: 11.5px; color: var(--ink-md); min-width: 220px; }
+table.grant-dt .g-award { white-space: normal; min-width: 0; font-size: 11px; }
+table.grant-dt .g-dl { font-size: 11.5px; color: var(--ink-md); min-width: 0; }
+table.grant-dt .g-why { font-size: 11.5px; color: var(--ink-md); min-width: 0; }
 th.sortable { cursor: pointer; user-select: none; }
 th.sortable:hover { color: var(--red); }
 th.sortable .sort-ind { color: var(--red); font-size: 8px; }

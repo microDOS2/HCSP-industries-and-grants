@@ -111,6 +111,13 @@ table.dt th[aria-sort="none"]:focus-visible .te-arrow { opacity: .55; }
 .table-scroll.tall { overflow: auto; }
 .table-scroll.tall table.dt thead th { position: sticky; top: 0; z-index: 6; }
 
+/* ── #vendor-table (competitors · five-operator benchmark): sized to fit its
+   box at 1280 so the Sources column never slides under the dashboard rail ── */
+#vendor-table { font-size: 13.5px; }
+#vendor-table th { white-space: normal; padding: 10px 8px 10px 2px; }
+#vendor-table td { padding: 10px 8px 10px 2px; }
+#vendor-table td.num { white-space: normal; }
+
 /* ── Mobile cards ≤768px: labeled blocks instead of sideways scrolling ──
    JS adds .te-cardify only to tables with < 8 columns; wider tables keep the
    horizontal-scroll box + SCROLL ⟷ hint as the fallback. */

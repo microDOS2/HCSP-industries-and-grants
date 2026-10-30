@@ -114,7 +114,7 @@ window.Comp3D = (() => {
       new THREE.MeshBasicMaterial({ color: 0x2251ff, transparent: true, opacity: 0.22 }));
     today.position.set(tlX(2026), 1.7, 0); G.view.add(today);
     G.animated.push({ obj: today, tick: t => { today.material.opacity = 0.16 + 0.08 * Math.sin(t * 2.2); } });
-    G.label("TODAY · 2026", "accent", tlX(2026), 0.15, 4.3);
+    G.label("TODAY · 2026", "accent", tlX(2026), 0.15, 4.3, 0, -36);
     // pillars
     rows.forEach((p, i) => {
       const z = rowsZ[p.cohort] || 0;
@@ -300,7 +300,9 @@ window.Comp3D = (() => {
       const pod = new THREE.Mesh(new THREE.BoxGeometry(3.3, podH, 2.2),
         new THREE.MeshStandardMaterial({ color: 0x8fa0b3, roughness: 0.7, metalness: 0.15 }));
       pod.position.y = podH / 2; g.add(pod);
-      G.label("FLOOR ≈ $" + floor + "M", "", x, podH + 0.32, 1.5);
+      // floor chips alternate between two heights (whole-chip stagger) so
+      // neighbouring podiums can never throw their chips into each other
+      G.label("FLOOR ≈ $" + floor + "M", "", x, podH + 0.32, 1.5, 0, (i % 2) ? -26 : 0);
 
       // the panel itself, gently bobbing
       const card = new THREE.Group(); card.position.y = podH; g.add(card);
@@ -327,9 +329,11 @@ window.Comp3D = (() => {
       // anchors are only ~0.45 apart ≈ half a chip height); short forms match
       // the timeline chips so neighbouring panels cannot collide
       const PANEL_SHORT = { ga: "GA PERSES", rv: "REVIVE", hcsp: "HCSP" };
-      G.label(PANEL_SHORT[p.id] || p.name.toUpperCase(), "", x, podH + 3.85, 0, 0, -16);
+      G.label(PANEL_SHORT[p.id] || p.name.toUpperCase(), "", x, podH + 3.85, 0, 0, -28);
+      // tone chips ride low (clear of the name chips above) and alternate
+      // between two heights so adjacent panels' chips stay separated too
       G.label(TONE_TXT[fin.tone] || "PROFILE", fin.tone === "bad" ? "neg" : fin.tone === "ok" ? "cool" : "heat",
-        x, podH + 3.4, 0, (i % 2) * 30, 14);
+        x, podH + 3.4, 0, (i % 2) * 30, 18 + (i % 2) * 24);
     });
     G.label("PANEL HEIGHT OFF THE FLOOR = WHERE THEIR SMALLEST OFFERING STARTS", "", 0, 0.12, 4.4);
   }
@@ -921,13 +925,43 @@ window.Comp3D = (() => {
         renderer.render(scene, camera);
         (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).comp3d = (window.__HCSP3D_RENDERED.comp3d || 0) + 1;
         const w = stageCol.clientWidth || 800, h = canvas.clientHeight || 600;
+        /* project every chip, then run a screen-space de-collision sweep:
+           chips that would overlap are nudged straight down until clear.
+           Positions are recomputed from scratch every frame, so chips never
+           drift — they only move while they would actually collide. */
+        const vis = [];
         labels.forEach(L => {
           const p = L.v.clone(); p.project(camera);
-          L.el.style.display = (p.z > 1 || tableMode) ? "none" : "";
-          const halfW = L.el.offsetWidth / 2 || 60;
+          if (p.z > 1 || tableMode) { L.el.style.display = "none"; return; }
+          L.el.style.display = "";
+          if (!L.cw) { L.cw = L.el.offsetWidth || 120; L.ch = L.el.offsetHeight || 20; }
+          const halfW = L.cw / 2;
           const px = Math.max(halfW + 4, Math.min(w - halfW - 4, (p.x * 0.5 + 0.5) * w + L.dx));
+          vis.push({ L, px, top: (-p.y * 0.5 + 0.5) * h + L.dy });
+        });
+        vis.sort((a, b) => a.top - b.top);
+        /* chips carry transform:translate(-50%,-115%), so a chip at "top"
+           spans [top-1.15·ch, top-0.15·ch] vertically */
+        for (let pass = 0; pass < 3; pass++) {
+          let moved = false;
+          for (let i = 0; i < vis.length; i++) {
+            const A = vis[i];
+            const ax0 = A.px - A.L.cw / 2, ax1 = A.px + A.L.cw / 2;
+            const atop = A.top - 1.15 * A.L.ch, abot = A.top - 0.15 * A.L.ch;
+            for (let j = i + 1; j < vis.length; j++) {
+              const B = vis[j];
+              const bx0 = B.px - B.L.cw / 2, bx1 = B.px + B.L.cw / 2;
+              if (ax1 <= bx0 + 2 || bx1 <= ax0 + 2) continue;   // clear horizontally
+              const btop = B.top - 1.15 * B.L.ch, bbot = B.top - 0.15 * B.L.ch;
+              const oy = Math.min(abot, bbot) - Math.max(atop, btop);
+              if (oy > 2) { B.top += oy + 3; moved = true; }   // the lower chip slides clear
+            }
+          }
+          if (!moved) break;
+        }
+        vis.forEach(({ L, px, top }) => {
           L.el.style.left = px + "px";
-          L.el.style.top = ((-p.y * 0.5 + 0.5) * h + L.dy) + "px";
+          L.el.style.top = Math.min(top, h - 6) + "px";
         });
         dirty = false;
       }

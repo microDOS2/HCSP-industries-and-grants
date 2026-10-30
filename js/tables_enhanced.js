@@ -141,6 +141,36 @@
   }
 
   /* ── CSV export of the current (filtered) rows and visible columns ── */
+  /* cell text for CSV: drop the decorative chrome (sort arrows, agency-link
+     and status badges that share a cell with the program name) so each column
+     carries only its own value; <br> becomes a space instead of vanishing */
+  function csvCellText(el) {
+    const c = el.cloneNode(true);
+    c.querySelectorAll(".te-arrow, .sort-ind, .g-ag").forEach(n => n.remove());
+    c.querySelectorAll("br").forEach(br => br.replaceWith(document.createTextNode(" ")));
+    return (c.textContent || "").replace(/\s+/g, " ").trim();
+  }
+  /* every table downloads under its own meaningful, collision-free name:
+     the table id where one exists, else its caption / section, slugified */
+  const csvNames = new Map();   // table → assigned filename base
+  function csvName(table) {
+    if (csvNames.has(table)) return csvNames.get(table);
+    let base = table.id || "";
+    if (!base) {
+      const sec = table.closest("[id]");
+      if (sec) base = sec.id + "-table";
+    }
+    if (!base) {
+      const cap = table.querySelector("caption");
+      if (cap && txt(cap)) base = txt(cap).slice(0, 48);
+    }
+    base = base.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "table";
+    let name = base, n = 2;
+    const taken = new Set([...csvNames.values()]);
+    while (taken.has(name)) name = base + "-" + (n++);
+    csvNames.set(table, name);
+    return name;
+  }
   function exportCsv(table) {
     const head = [...table.tHead.rows[0].cells];
     const visCols = head.map((th, i) => ({ i, keep: th.style.display !== "none", lab: headTxt(th) }));
@@ -149,12 +179,12 @@
     const lines = [keep.map(c => esc(c.lab)).join(",")];
     [...table.tBodies[0].rows].forEach(tr => {
       if (tr.style.display === "none") return;
-      lines.push(keep.map(c => esc(txt(tr.cells[c.i]))).join(","));
+      lines.push(keep.map(c => esc(csvCellText(tr.cells[c.i]))).join(","));
     });
     const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = (table.id || "table") + ".csv";
+    a.download = csvName(table) + ".csv";
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
@@ -300,12 +330,17 @@
       if (box.classList.contains("tall")) return;             // vertical registers keep their box
       const t = box.querySelector("table");
       if (!t) return;
+      /* hidden view panels (chart ⇄ table toggles) measure 0×0 and would look
+         like they "fit" — keep them scrollable and re-measure when shown */
+      if (box.hidden || box.offsetParent === null) { box.classList.remove("te-fits"); return; }
       const wasFits = box.classList.contains("te-fits");
       if (wasFits) box.classList.remove("te-fits");           // measure in the constrained state
       const overflows = box.scrollWidth > box.clientWidth + 2;
       if (!overflows) box.classList.add("te-fits");
     });
   }
+  let fitT = 0;
+  function fitScrollsSoon() { clearTimeout(fitT); fitT = setTimeout(fitScrolls, 60); }
 
   /* ── sources register (#source-list): live search + CSV over the K-rows ── */
   function exportSources(host) {
@@ -429,8 +464,13 @@
     addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(fitScrolls, 150); }, { passive: true });
     if (document.body) {
       new MutationObserver(muts => {
-        for (const m of muts) for (const n of m.addedNodes) scanTables(n);
-      }).observe(document.body, { childList: true, subtree: true });
+        let refit = false;
+        for (const m of muts) {
+          if (m.type === "attributes") { refit = true; continue; }   // a view panel was shown/hidden
+          for (const n of m.addedNodes) scanTables(n);
+        }
+        if (refit) fitScrollsSoon();
+      }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
     }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
