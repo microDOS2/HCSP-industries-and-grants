@@ -491,12 +491,36 @@
       lensBtn.textContent = toMoney ? "▲ Switch to fit-score view" : "＄ Switch to $/gal view";
       kick();
     });
-    tableBtn.addEventListener("click", function () {
-      if (!tableBuilt) buildTable();
-      var show = !tablewrap.classList.contains("show");
-      tablewrap.classList.toggle("show", show);
-      tableBtn.setAttribute("aria-pressed", String(show));
-    });
+    var tableOn = false, tableWasPaused = false;
+    function setTableView(on) {
+      if (on && !tableBuilt) buildTable();
+      tableOn = on;
+      tablewrap.classList.toggle("show", on);
+      tableBtn.setAttribute("aria-pressed", String(on));
+      tableBtn.textContent = on ? "▲ Back to chart" : "▦ Table view";
+      // REPLACE the chart with the table (not append below it): hide the stage
+      // visuals + detail panel, keep only the toolbar; restore on toggle back.
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (on) {
+        tableWasPaused = paused;
+        if (!paused) setPaused(true);
+        if (renderer) renderer.domElement.style.display = "none";
+        barsWrap.style.display = "none"; // covers an open 2D bars view too
+        if (lg) lg.style.display = "none";
+        if (ht) ht.style.display = "none";
+        detail.style.display = "none";
+        tip.classList.remove("show");
+      } else {
+        var barsOpen = !barsWrap.hidden;
+        if (renderer) renderer.domElement.style.display = barsOpen ? "none" : "";
+        barsWrap.style.display = "";
+        if (lg) lg.style.display = barsOpen ? "none" : "";
+        if (ht) ht.style.display = barsOpen ? "none" : "";
+        detail.style.display = "";
+        if (!tableWasPaused) setPaused(false);
+      }
+    }
+    tableBtn.addEventListener("click", function () { setTableView(!tableOn); });
 
     /* ── 2D dollar bars (tiered standard: dollar bars for comparisons) — the
        same $/gal disposal ranges as the money lens, as a clean ranked 2D chart ── */
@@ -536,6 +560,7 @@
       barsBuilt = true;
     }
     function setBarsView(on) {
+      if (on && tableOn) setTableView(false); // one view at a time — never stacked
       if (on && !barsBuilt) buildBars();
       if (!barsBuilt) return;
       stage.classList.toggle("c3-2d-on", !!on);

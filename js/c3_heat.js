@@ -415,11 +415,31 @@
       orbitBtn.setAttribute("aria-pressed", String(orbitOn));
       orbitBtn.textContent = orbitOn ? "🔁 Camera drift: on" : "🔁 Camera drift: off";
     });
+    var tableWasPaused = false;
     tableBtn.addEventListener("click", function () {
       if (!tableBuilt) buildTable();
       var show = !tablewrap.classList.contains("show");
       tablewrap.classList.toggle("show", show);
       tableBtn.setAttribute("aria-pressed", String(show));
+      tableBtn.textContent = show ? "▲ Back to chart" : "▦ Table view";
+      // REPLACE the chart with the table (not append below it): hide the stage
+      // visuals + detail panel, keep only the toolbar; restore on toggle back.
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (show) {
+        tableWasPaused = paused;
+        if (!paused) setPaused(true);
+        if (renderer) renderer.domElement.style.display = "none";
+        if (lg) lg.style.display = "none";
+        if (ht) ht.style.display = "none";
+        detail.style.display = "none";
+        tip.classList.remove("show");
+      } else {
+        if (renderer) renderer.domElement.style.display = "";
+        if (lg) lg.style.display = "";
+        if (ht) ht.style.display = "";
+        detail.style.display = "";
+        if (!tableWasPaused) setPaused(false);
+      }
     });
     setPaused(true); // default: one static assembled frame; motion only after the visitor presses Play
 

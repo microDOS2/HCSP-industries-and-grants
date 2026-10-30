@@ -187,7 +187,15 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     sec.appendChild(vtNote);
     var vtLabels = vt.querySelectorAll("label"), vtInputs = vt.querySelectorAll("input");
     vtInputs.forEach(function (inp) {
-      inp.addEventListener("change", function () { if (inp.checked) setView(inp.value, true); });
+      inp.addEventListener("change", function () {
+        if (!inp.checked) return;
+        if (tableWrap.style.display !== "none") { // switching views leaves the table — one view at a time
+          tableWrap.style.display = "none";
+          tableBtn.setAttribute("aria-pressed", "false");
+          tableBtn.textContent = "Table view";
+        }
+        setView(inp.value, true);
+      });
     });
 
     /* ── tools row ── */
@@ -383,11 +391,26 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       tableWrap.innerHTML = ""; tableWrap.appendChild(tbl);
       tableBuilt = true;
     }
+    var tableWasPaused = false;
     tableBtn.addEventListener("click", function () {
       var show = tableWrap.style.display === "none";
+      if (show && !tableBuilt) buildTable();
+      // REPLACE the current view with the table (not append below it): hide
+      // whichever view is active (explorer / bubbles / 3D); restore on toggle back.
       tableWrap.style.display = show ? "" : "none";
       tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
-      if (show && !tableBuilt) buildTable();
+      tableBtn.textContent = show ? "▲ Back to chart" : "Table view";
+      if (show) {
+        tableWasPaused = paused;
+        viewExp.style.display = "none";
+        viewBub.style.display = "none";
+        view3d.style.display = "none";
+        if (!paused) setPaused(true);
+      } else {
+        setView(curView, false); // re-shows the previously active view
+        if (!tableWasPaused) setPaused(false);
+        dirty = true; poke();
+      }
     });
 
     /* ══ View A internals — light 3D scene (created on demand, destroyed on exit) ══ */
@@ -416,6 +439,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     function resize3d() {
       if (!built) return;
       var w = stageCol.clientWidth, h = canvas.clientHeight || 560;
+      if (!w) return; // stage hidden (table view) — keep the last good size
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
       dirty = true; poke();
@@ -681,8 +705,10 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     function poke() { if (built && pokeFrame) pokeFrame(); }
 
     /* ── view switching ── */
+    var curView = "explorer"; // tracked so Table view can restore the active view
     function setView(v, save) {
       if (v === "3d" && !has3D) v = "explorer";
+      curView = v;
       try { if (save) sessionStorage.setItem(VIEW_KEY, v); } catch (e) {}
       vtInputs.forEach(function (inp) { inp.checked = inp.value === v; });
       vtLabels.forEach(function (l) { l.classList.toggle("c3s-vt-on", l.getAttribute("data-v") === v); });

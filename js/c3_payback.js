@@ -5,8 +5,10 @@
 // DOM counters count up to each industry's savings ceiling on load.
 // Plain-words honesty: NET PAYBACK IS NOT CALCULATED YET — manufacturer cost
 // model pending. Click a bar → incumbent baseline + dated sources. Table view
-// for readers. Continuous animation on load (slow orbit + rising particles);
-// PAUSE button · Reading Mode / prefers-reduced-motion → static assembled frame ·
+// for readers. Static assembled frame on load (owner directive); ▶ Resume starts
+// the slow orbit + rising particles, ❚❚ Pause freezes everything (counters too),
+// ↻ Replay counters resets the counters to zero and counts them up again ·
+// Reading Mode / prefers-reduced-motion → static assembled frame ·
 // offscreen rendering paused (IntersectionObserver).
 // Self-contained IIFE: window.C3Payback.render(hostEl). Injects its own CSS.
 // Integration: vendor/three.min.js + vendor/OrbitControls.js + js/data.js +
@@ -148,7 +150,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
         '<h3 class="c3p-title">What each industry already pays to make its waste go away — that is the savings ceiling</h3>' +
         '<p class="c3p-howto">What this shows: each 3D bar is one industry. The bar spans the price range that industry pays ' +
         'existing suppliers today to destroy or dispose of its waste — that whole bill is what a cheaper process could save ' +
-        '(the gross addressable savings). Numbers count up when the chart loads. Units differ by industry, so bars are converted ' +
+        '(the gross addressable savings). Press ↻ Replay counters to watch the numbers count up from zero. Units differ by industry, so bars are converted ' +
         'to rough US dollars per cubic meter on a shared scale; each bar keeps its native units in the detail panel.</p>' +
         '<p class="c3p-srcline">Sources: ' + srcLinks(["K33", "K21", "K37", "K40", "K47", "K43", "K42", "K46", "K61", "K65", "K35"]) + "</p>" +
       "</div>";
@@ -302,8 +304,15 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       return { el: el };
     }
 
-    /* ── count-up counters (gross addressable savings) ── */
-    var countStart = -1, COUNT_MS = 1900;
+    /* ── count-up counters (gross addressable savings) ──
+       The counters run on their own track (countPos ms of progress), separate
+       from the 3D motion pause, so ↻ Replay counters genuinely resets them to
+       zero and counts up again even while the scene itself is paused. A Pause
+       mid-count freezes them (countHold); Resume continues the same count. */
+    var COUNT_MS = 1900;
+    var countPos = -1;      // ms of count-up progress; -1 = idle (static values)
+    var countLast = 0;      // last rAF timestamp used to advance countPos
+    var countHold = false;  // true while Pause freezes an in-progress count-up
     function setCounters(u) { // u in [0,1]
       var e = 1 - Math.pow(1 - u, 3); // ease-out cubic
       counterEls.forEach(function (c) {
@@ -313,8 +322,11 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       topCounter.innerHTML = "Top savings ceiling: <b>" + fmtM3full(maxHi * e) + "</b>";
     }
     function startCounters() {
-      if (stillMode() || paused) { countStart = -2; setCounters(1); }
-      else { countStart = -1; setCounters(0); poke(); }
+      // genuine reset: particle progress back to the bar tops, counters to zero
+      particles.forEach(function (s) { s.userData.t = 0; });
+      if (stillMode()) { countPos = -1; countHold = false; setCounters(1); dirty = true; poke(); return; }
+      countPos = 0; countLast = 0; countHold = false;
+      setCounters(0); poke();
     }
     replayBtn.addEventListener("click", function () { startCounters(); });
 
@@ -398,11 +410,24 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       tableWrap.innerHTML = ""; tableWrap.appendChild(tbl);
       tableBuilt = true;
     }
+    var tableWasPaused = false;
     tableBtn.addEventListener("click", function () {
       var show = tableWrap.style.display === "none";
-      tableWrap.style.display = show ? "" : "none";
-      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
       if (show && !tableBuilt) buildTable();
+      // REPLACE the chart with the table — the whole chart grid (canvas,
+      // labels, hint, detail panel) is hidden; the table takes its place.
+      tableWrap.style.display = show ? "" : "none";
+      grid.style.display = show ? "none" : "";
+      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
+      tableBtn.textContent = show ? "▲ Back to chart" : "Table view";
+      // pause the hidden scene while the table is up; restore on the way back
+      if (show) {
+        tableWasPaused = paused;
+        if (!paused) { paused = true; countHold = countPos >= 0; applyMotionState(); }
+      } else {
+        if (!tableWasPaused) { paused = false; countHold = false; countLast = 0; applyMotionState(); }
+        resize(); // grid was display:none — the canvas may have zero size
+      }
     });
 
     /* ── 2D dollar bars (tiered standard) — the same per-industry savings
@@ -438,6 +463,15 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     }
     barsBtn.addEventListener("click", function () {
       var show = barsWrap.style.display === "none";
+      if (tableWrap.style.display !== "none") { // leave table view — one view at a time
+        tableWrap.style.display = "none";
+        grid.style.display = "";
+        tableBtn.setAttribute("aria-pressed", "false");
+        tableBtn.textContent = "Table view";
+        if (!tableWasPaused && paused) { paused = false; applyMotionState(); }
+        tableWasPaused = false;
+        resize();
+      }
       if (show && !barsBuilt) buildBars();
       if (!barsBuilt) return;
       barsWrap.style.display = show ? "" : "none";
@@ -468,11 +502,19 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var paused = true; // owner directive: static assembled frame on load; motion only after Play
     function applyMotionState() {
       controls.autoRotate = !paused && !stillMode();
+      controls.enableDamping = !paused; // flush leftover inertia — without this the
+      // damped "change" events re-poke the loop forever and Pause never stops motion
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
       pauseBtn.textContent = paused ? "▶ Resume" : "❚❚ Pause";
+      dirty = true;
       poke();
     }
-    pauseBtn.addEventListener("click", function () { paused = !paused; applyMotionState(); });
+    pauseBtn.addEventListener("click", function () {
+      paused = !paused;
+      countHold = paused && countPos >= 0; // freeze an in-progress count-up with the scene
+      if (!paused) countLast = 0;          // ... and continue it cleanly on Resume
+      applyMotionState();
+    });
 
     var ray = new THREE.Raycaster(), ptr = new THREE.Vector2(), downAt = null;
     canvas.addEventListener("pointerdown", function (e) { downAt = [e.clientX, e.clientY]; });
@@ -493,6 +535,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     controls.addEventListener("change", function () { dirty = true; poke(); });
     function resize() {
       var w = stageCol.clientWidth, h = canvas.clientHeight || 560;
+      if (!w) return; // stage hidden (table view) — keep the last good size
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
       dirty = true; poke();
@@ -510,52 +553,56 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       barObjs.forEach(function (b, i) {
         b.mesh.position.y = b.baseY + Math.sin(t * 0.0012 + i * 0.9) * 0.04;
       });
-      if (countStart >= 0 || countStart === -1) {
-        if (countStart === -1) countStart = t;
-        var u = Math.min(1, (t - countStart) / COUNT_MS);
-        setCounters(u);
-        if (u >= 1) countStart = -2; // done
-      }
       dirty = true;
     }
 
     function placeLabels() {
       var w = stageCol.clientWidth, h = canvas.clientHeight || 560;
-      // project all labels, then resolve overlaps top-to-bottom (and back up
-      // if the stack hits the canvas floor) so no two labels ever collide
+      // Project every label, then resolve collisions on the boxes as they are
+      // actually RENDERED: value/dim labels use translate(-50%,-120%) (box sits
+      // above the anchor), name labels use translate(-50%,8px) (box below it).
+      // Resolving on the real boxes (not a doubled half-height model) is what
+      // lets the stack converge without residual overlaps.
       var items = [];
       labels.forEach(function (L) {
         var p = L.v.clone(); p.project(camera);
         if (p.z > 1) { L.el.style.display = "none"; return; }
         L.el.style.display = "";
-        var halfW = L.el.offsetWidth / 2 || 50, halfH = L.el.offsetHeight || 16;
-        var px = Math.max(halfW + 4, Math.min(w - halfW - 4, (p.x * 0.5 + 0.5) * w + L.dx));
-        var py = Math.max(halfH + 2, Math.min(h - halfH - 2, (-p.y * 0.5 + 0.5) * h + L.dy));
-        items.push({ L: L, x: px, y: py, hw: halfW, hh: halfH });
+        var ew = L.el.offsetWidth || 100, eh = L.el.offsetHeight || 16;
+        var isName = L.el.classList.contains("c3p-lb-name");
+        var cx = (p.x * 0.5 + 0.5) * w + L.dx;
+        var ay = (-p.y * 0.5 + 0.5) * h + L.dy;      // anchor = style.top
+        var it = { L: L, w: ew, h: eh, isName: isName,
+                   cx: Math.max(ew / 2 + 4, Math.min(w - ew / 2 - 4, cx)),
+                   top: isName ? ay + 8 : ay - eh * 1.2 };
+        it.top = Math.max(2, Math.min(h - eh - 2, it.top));
+        items.push(it);
       });
       function hits(a, b) {
-        return (Math.min(a.x + a.hw, b.x + b.hw) - Math.max(a.x - a.hw, b.x - b.hw) > 2) &&
-               (Math.min(a.y + a.hh, b.y + b.hh) - Math.max(a.y - a.hh, b.y - b.hh) > 2);
+        return (Math.min(a.cx + a.w / 2, b.cx + b.w / 2) - Math.max(a.cx - a.w / 2, b.cx - b.w / 2) > 2) &&
+               (Math.min(a.top + a.h, b.top + b.h) - Math.max(a.top, b.top) > 2);
       }
-      items.sort(function (a, b) { return a.y - b.y; });
-      for (var pass = 0; pass < 4; pass++) {           // push down
-        for (var i = 1; i < items.length; i++) {
+      items.sort(function (a, b) { return a.top - b.top; });
+      // push down, then back up off the canvas floor — iterate to convergence
+      for (var iter = 0; iter < 40; iter++) {
+        var moved = false;
+        for (var i = 1; i < items.length; i++) {           // push down
           for (var j = 0; j < i; j++) {
-            if (hits(items[i], items[j])) items[i].y = items[j].y + items[j].hh + items[i].hh + 4;
+            if (hits(items[i], items[j])) { items[i].top = items[j].top + items[j].h + 4; moved = true; }
           }
         }
-      }
-      for (var pass2 = 0; pass2 < 4; pass2++) {        // push back up if past the floor
-        for (var i2 = items.length - 2; i2 >= 0; i2--) {
-          if (items[i2 + 1].y + items[i2 + 1].hh > h - 2) items[i2 + 1].y = h - 2 - items[i2 + 1].hh;
-          if (hits(items[i2], items[i2 + 1]) && items[i2 + 1].y + items[i2 + 1].hh >= h - 2) {
-            items[i2].y = items[i2 + 1].y - items[i2 + 1].hh - items[i2].hh - 4;
+        for (var i2 = items.length - 2; i2 >= 0; i2--) {   // push back up if past the floor
+          if (items[i2 + 1].top + items[i2 + 1].h > h - 2) { items[i2 + 1].top = h - 2 - items[i2 + 1].h; moved = true; }
+          if (hits(items[i2], items[i2 + 1]) && items[i2 + 1].top + items[i2 + 1].h >= h - 2) {
+            items[i2].top = items[i2 + 1].top - items[i2].h - 4; moved = true;
           }
-          if (items[i2].y - items[i2].hh < 2) items[i2].y = 2 + items[i2].hh;
+          if (items[i2].top < 2) { items[i2].top = 2; moved = true; }
         }
+        if (!moved) break;
       }
       items.forEach(function (it) {
-        it.L.el.style.left = it.x + "px"; it.L.el.style.top = it.y + "px";
+        it.L.el.style.left = it.cx + "px";
+        it.L.el.style.top = (it.isName ? it.top - 8 : it.top + it.h * 1.2) + "px";
       });
     }
 
@@ -567,13 +614,24 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       var animating = !paused && !stillMode();
       if (animating && t != null) animate(t);
       else if (!counted) { counted = true; setCounters(1); }
+      // count-up runs on its own track: it advances while replaying even if the
+      // 3D scene is paused, and freezes (countHold) when Pause catches it mid-count
+      var counting = countPos >= 0 && !countHold;
+      if (counting && t != null) {
+        if (countLast) countPos += Math.min(100, t - countLast);
+        countLast = t;
+        var u = Math.min(1, countPos / COUNT_MS);
+        setCounters(u);
+        if (u >= 1) { countPos = -1; countLast = 0; counting = false; }
+        dirty = true;
+      }
       if (controls.enableDamping) controls.update();
       if (dirty || animating) {
         renderer.render(scene, camera);
         placeLabels();
         dirty = false;
       }
-      if (animating) raf = requestAnimationFrame(frame);
+      if (animating || counting) raf = requestAnimationFrame(frame);
     }
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
@@ -589,7 +647,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     // re-render once webfonts settle: label metrics change, and a paused scene
     // would otherwise freeze first-paint label positions
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { dirty = true; poke(); });
-    if (stillMode()) { countStart = -2; counted = true; setCounters(1); } // reduced-motion: final values, no count-up
+    if (stillMode()) { countPos = -1; counted = true; setCounters(1); } // reduced-motion: final values, no count-up
   }
 
   window.C3Payback = { render: render };

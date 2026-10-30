@@ -539,11 +539,19 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       tableWrap.innerHTML = ""; tableWrap.appendChild(tbl);
       tableBuilt = true;
     }
+    var tableWasPaused = false;
     tableBtn.addEventListener("click", function () {
       var show = tableWrap.style.display === "none";
-      tableWrap.style.display = show ? "" : "none";
-      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
       if (show && !tableBuilt) buildTable();
+      // REPLACE the chart with the table (not append below it): the whole chart
+      // grid (canvas + detail panel) is hidden; the table takes its place.
+      tableWrap.style.display = show ? "" : "none";
+      grid.style.display = show ? "none" : "";
+      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
+      tableBtn.textContent = show ? "▲ Back to chart" : "Table view";
+      // pause the hidden scene while the table is up; restore on the way back
+      if (show) { tableWasPaused = paused; if (!paused) { paused = true; applyMotionState(); } }
+      else { if (!tableWasPaused) { paused = false; applyMotionState(); } resize(); }
     });
 
     /* ── controls / motion ── */
@@ -597,6 +605,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     controls.addEventListener("change", function () { dirty = true; poke(); });
     function resize() {
       var w = stageCol.clientWidth, h = canvas.clientHeight || 540;
+      if (!w) return; // stage hidden (table view) — keep the last good size
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
       dirty = true; poke();
@@ -1011,11 +1020,19 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       tableWrap.innerHTML = ""; tableWrap.appendChild(tbl);
       tableBuilt = true;
     }
+    var tableWasPaused = false;
     tableBtn.addEventListener("click", function () {
       var show = tableWrap.style.display === "none";
-      tableWrap.style.display = show ? "" : "none";
-      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
       if (show && !tableBuilt) buildTable();
+      // REPLACE the chart with the table (not append below it): the whole chart
+      // grid (canvas + detail panel) is hidden; the table takes its place.
+      tableWrap.style.display = show ? "" : "none";
+      grid.style.display = show ? "none" : "";
+      tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
+      tableBtn.textContent = show ? "▲ Back to chart" : "Table view";
+      // pause the hidden scene while the table is up; restore on the way back
+      if (show) { tableWasPaused = paused; if (!paused) { paused = true; applyMotionState(); } }
+      else { if (!tableWasPaused) { paused = false; applyMotionState(); } resize(); }
     });
 
     /* ── controls / motion ── */
@@ -1073,6 +1090,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     controls.addEventListener("change", function () { dirty = true; poke(); });
     function resize() {
       var w = stageCol.clientWidth, h = canvas.clientHeight || 540;
+      if (!w) return; // stage hidden (table view) — keep the last good size
       renderer.setSize(w, h, false);
       camera.aspect = w / h; camera.updateProjectionMatrix();
       dirty = true; poke();

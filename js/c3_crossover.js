@@ -417,12 +417,36 @@
       orbitBtn.setAttribute("aria-pressed", String(orbitOn));
       orbitBtn.textContent = orbitOn ? "🔁 Auto-rotation: on" : "🔁 Auto-rotation: off";
     });
-    tableBtn.addEventListener("click", function () {
-      if (!tableBuilt) buildTable();
-      var show = !tablewrap.classList.contains("show");
-      tablewrap.classList.toggle("show", show);
-      tableBtn.setAttribute("aria-pressed", String(show));
-    });
+    var tableOn = false, tableWasPaused = false;
+    function setTableView(on) {
+      if (on && !tableBuilt) buildTable();
+      tableOn = on;
+      tablewrap.classList.toggle("show", on);
+      tableBtn.setAttribute("aria-pressed", String(on));
+      tableBtn.textContent = on ? "▲ Back to chart" : "▦ Table view";
+      // REPLACE the chart with the table (not append below it): hide the stage
+      // visuals + detail panel, keep only the toolbar; restore on toggle back.
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (on) {
+        tableWasPaused = paused;
+        if (!paused) setPaused(true);
+        if (renderer) renderer.domElement.style.display = "none";
+        bubWrap.style.display = "none"; // covers an open 2D bubbles view too
+        if (lg) lg.style.display = "none";
+        if (ht) ht.style.display = "none";
+        detail.style.display = "none";
+        tip.classList.remove("show");
+      } else {
+        var bubOpen = !bubWrap.hidden;
+        if (renderer) renderer.domElement.style.display = bubOpen ? "none" : "";
+        bubWrap.style.display = "";
+        if (lg) lg.style.display = bubOpen ? "none" : "";
+        if (ht) ht.style.display = bubOpen ? "none" : "";
+        detail.style.display = "";
+        if (!tableWasPaused) setPaused(false);
+      }
+    }
+    tableBtn.addEventListener("click", function () { setTableView(!tableOn); });
 
     /* ── 2D bubbles (tiered standard: bubbles for 2-variable charts) — feed
        strength (COD) against net energy for the same streams, straight 2D ── */
@@ -475,6 +499,7 @@
       bubBuilt = true;
     }
     function setBubView(on) {
+      if (on && tableOn) setTableView(false); // one view at a time — never stacked
       if (on && !bubBuilt) buildBubbles();
       if (!bubBuilt) return;
       stage.classList.toggle("c3-2d-on", !!on);
