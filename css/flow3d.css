@@ -276,3 +276,15 @@ html.reader .flow3d-stage, html.reader .sc3d-stage { touch-action: auto; }
   border-radius: 3px; padding: 0 5px; white-space: nowrap;
 }
 .c3d-mcell { display: block; padding-left: 8px; line-height: 1.5; }
+
+/* ── table view: hide the 3D stage, labels, caption and info card while the
+   data table is up (toggled by the ▦ TABLE VIEW button in js/flow3d.js) ── */
+.flow3d-wrap.tabmode .flow3d-stage,
+.flow3d-wrap.tabmode .flow3d-label,
+.flow3d-wrap.tabmode .flow3d-caption,
+.flow3d-wrap.tabmode .flow3d-info,
+.flow3d-wrap.tabmode .flow3d-hint { display: none !important; }
+.flow3d-wrap .table-scroll { margin-top: 10px; }
+/* in table mode the floating 3D control bar becomes a normal row so it never
+   overlaps the CSV toolbar or the table */
+.flow3d-wrap.tabmode .flow3d-ui { position: static; margin: 0 0 10px; }

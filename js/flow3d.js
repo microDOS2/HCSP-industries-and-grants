@@ -110,8 +110,10 @@
   const ui = document.createElement("div");
   ui.className = "flow3d-ui";
   ui.innerHTML = `<button type="button" id="flow3d-explode">EXPLODE ⇕</button>
-    <button type="button" id="flow3d-walk">WALK ME THROUGH IT →</button>`;
+    <button type="button" id="flow3d-walk">WALK ME THROUGH IT →</button>
+    <button type="button" id="flow3d-table" aria-pressed="false">▦ TABLE VIEW</button>`;
   wrap.appendChild(ui);
+  const tableBtn = ui.querySelector("#flow3d-table");
   const hint = document.createElement("p");
   hint.className = "flow3d-hint";
   hint.textContent = "DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT OR PIPE";
@@ -122,12 +124,53 @@
     <span class="fc-btns"><button type="button" class="fc-next">NEXT →</button><button type="button" class="fc-skip">SKIP ✕</button></span>`;
   wrap.appendChild(cap);
 
+  /* ── table view: every component and flow with the same key numbers and
+     plain-English role — a sortable, downloadable data table (the shared
+     table layer adds the CSV button). Built before the renderer so the
+     no-WebGL fallback can fall back to it. ── */
+  const tWrap = document.createElement("div");
+  tWrap.className = "table-scroll"; tWrap.hidden = true;
+  const tbl = document.createElement("table");
+  tbl.className = "dt"; tbl.id = "flow3d-table";
+  const tcap = document.createElement("caption");
+  tcap.textContent = "The process flow as a plain table — every component and flow with the same key numbers, sortable and downloadable.";
+  tbl.appendChild(tcap);
+  tbl.innerHTML = "<thead><tr><th>Type</th><th>Item</th><th>Key numbers</th><th>What it does</th></tr></thead>";
+  const tBody = document.createElement("tbody");
+  Object.keys(INFO).forEach(k => {
+    const d = INFO[k];
+    const tr = document.createElement("tr");
+    [
+      { v: /^f[A-Z]/.test(k) ? "Flow" : "Component" },
+      { v: d.name, name: true },
+      { v: d.specs },
+      { v: d.role },
+    ].forEach(c => {
+      const td = document.createElement("td");
+      if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+      else td.textContent = c.v;
+      tr.appendChild(td);
+    });
+    tBody.appendChild(tr);
+  });
+  tbl.appendChild(tBody);
+  tWrap.appendChild(tbl);
+  wrap.appendChild(tWrap);
+
   // ── renderer ──
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   } catch (e) {
-    wrap.innerHTML = "<p style='padding:40px;font-family:var(--mono,Menlo,monospace);font-size:13px'>WebGL is unavailable in this browser — the 3D flow diagram cannot start.</p>";
+    canvas.remove(); hint.remove(); cap.remove();
+    ui.querySelector("#flow3d-explode").remove();
+    ui.querySelector("#flow3d-walk").remove();
+    const p = document.createElement("p");
+    p.style.cssText = "padding:24px 4px;font-family:var(--mono,Menlo,monospace);font-size:13px";
+    p.textContent = "WebGL is unavailable in this browser — the 3D flow diagram cannot start. The same figures are in the table below.";
+    wrap.insertBefore(p, ui);
+    wrap.classList.add("tabmode"); tWrap.hidden = false;
+    tableBtn.textContent = "▦ TABLE"; tableBtn.disabled = true;
     return;
   }
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, window.HCSP_DPR_CAP || 2));
@@ -387,6 +430,21 @@
   capNext.addEventListener("click", () => walkTo(walkIdx + 1));
   capSkip.addEventListener("click", () => walkTo(-1));
 
+  // ── TABLE VIEW toggle: swaps the 3D stage for the data table ──
+  let tableOn = false;
+  function setTable(on) {
+    tableOn = on;
+    wrap.classList.toggle("tabmode", on);
+    tWrap.hidden = !on;
+    tableBtn.classList.toggle("on", on);
+    tableBtn.setAttribute("aria-pressed", String(on));
+    tableBtn.textContent = on ? "◆ 3D VIEW" : "▦ TABLE VIEW";
+    exBtn.disabled = on; walkBtn.disabled = on;
+    if (on && walkIdx >= 0) walkTo(-1);
+    if (!on) { dirty = true; if (inView && !raf) raf = requestAnimationFrame(frame); }
+  }
+  tableBtn.addEventListener("click", () => setTable(!tableOn));
+
   // ── info panel (drill-card pattern, self-contained) ──
   let info = null;
   function showInfo(key) {
@@ -412,7 +470,7 @@
   });
 
   // ── render loop: on-demand; static in reading mode; paused offscreen ──
-  function poke() { if (READER() && inView && !raf) raf = requestAnimationFrame(frame); }
+  function poke() { if (READER() && inView && !raf && !tableOn) raf = requestAnimationFrame(frame); }
   controls.addEventListener("change", () => { dirty = true; poke(); });
   function resize() {
     const w = wrap.clientWidth, h = canvas.clientHeight || 560;
@@ -424,7 +482,7 @@
   let lastT = 0;
   function frame(t) {
     raf = 0;
-    if (!inView) return;
+    if (!inView || tableOn) return;
     // single-active-scene gate (js/lazy3d.js): another 3D scene owns the renderer
     if (window.HCSP3D_ACTIVE && window.HCSP3D_ACTIVE !== "flow3d") return;
     // explode animation (instant, static frame in reading mode)

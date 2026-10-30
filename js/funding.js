@@ -107,7 +107,10 @@
     src: "Industry & official — Orlando/Florida DEP award records, Orange County CA innovation program, Minnesota trust fund, Defense Dept foam program (K114, K115, K143, K144, K133)",
   });
   const W = 880, H = 470;
-  const svg = CH.svg(body, W, H);
+  // diagram view wrapper (the TABLE view swaps it out)
+  const vFlow = document.createElement("div");
+  body.appendChild(vFlow);
+  const svg = CH.svg(vFlow, W, H);
   const ink = "#051c2c", inkMd = "#42566a", inkLo = "#42566a", blue = "#2251ff", lineLo = "#eef1f6";
 
   // ── upper flow: 100% pursuit effort → three access modes ──
@@ -218,6 +221,68 @@
   svg.append("text").attr("x", LX).attr("y", 460)
     .attr("font-family", CH.MONO).attr("font-size", 8).attr("fill", inkLo)
     .text("PROPOSAL WRITTEN BY THE UTILITY");
+
+  /* ── tiered standard: DIAGRAM (default) ⇄ TABLE — the same access modes and
+     Orlando chain steps as a sortable, downloadable data table (CSV via the
+     shared table layer) ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    tWrap.setAttribute("data-drill-keep", ""); // table clicks never open the explore modal
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "access-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The access architecture as a plain table — the same effort split and Orlando chain figures, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Part</th><th>Name</th><th>Figure</th><th>Detail</th><th>Sources (dated)</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    function addRow(part, name, figure, detail, srcs, drill) {
+      const tr = document.createElement("tr");
+      [
+        { v: part },
+        { v: name, name: true },
+        { v: figure, num: true },
+        { v: detail },
+        { html: datedSrcLinks(srcs) },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        if (c.num) td.className = "num";
+        if (c.html) td.innerHTML = c.html;
+        else if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+        else td.textContent = c.v;
+        tr.appendChild(td);
+      });
+      tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.onclick = e => {
+        if (e.target.closest("a")) return;
+        e.stopPropagation();
+        U.showDrill({ ...drill(), x: e.clientX, y: e.clientY });
+      };
+      tb.appendChild(tr);
+    }
+    lanes.forEach(L => addRow("Access mode (" + L.mode + ")", L.name, L.effort + "% of effort", L.gist + " " + L.template, L.src, () => ({
+      title: "ACCESS MODE (" + L.mode + ") — " + L.effort + "% OF EFFORT", value: L.name,
+      sub: L.gist + " " + L.template, source: CH.srcLink(L.src),
+    })));
+    chain.forEach(c => addRow("Orlando chain", c.lab, c.val + " · " + c.date, c.sub, c.src, () => ({
+      title: "ORLANDO TEMPLATE · " + c.lab, value: c.val + " · " + c.date, sub: c.sub, source: CH.srcLink(c.src),
+    })));
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    body.appendChild(tWrap);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["diagram", "Diagram"], ["table", "Table"]],
+      current: "diagram",
+      onPick: v => {
+        const tab = v === "table";
+        vFlow.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    body.insertBefore(vt, vFlow);
+  }
 })();
 
 /* ────────────────────────────────────────────────────────────

@@ -62,7 +62,10 @@
   });
   body.insertBefore(CH.plainLine("What this shows: the four steps of the process — feed in, distill, oxidize, condense — drawn left to right. Nothing on this chart is pressurized."), body.firstChild);
   const W = 880, H = 500;
-  const svg = CH.svg(body, W, H);
+  // diagram view wrapper (the TABLE view swaps it out)
+  const vFlow = document.createElement("div");
+  body.appendChild(vFlow);
+  const svg = CH.svg(vFlow, W, H);
   const ink = "#051c2c", inkLo = "#42566a", blue = "#2251ff", neg = "#c22f4e";
 
   // atmospheric banner
@@ -199,6 +202,60 @@
     cols: ["Stage", "Name", "What it does", "Detail"],
     rows: stages.map(s => [String(s.n), s.name, s.lines.join(" · "), s.sub]),
   };
+
+  /* ── tiered standard: DIAGRAM (default) ⇄ TABLE — the same four stages as
+     a sortable, downloadable data table (CSV via the shared table layer) ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    tWrap.setAttribute("data-drill-keep", ""); // table clicks never open the explore modal
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "mechanism-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The process diagram as a plain table — the same four stages and the self-fueling loop, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Stage</th><th>Name</th><th>What it does</th><th>Detail</th><th>Sources (dated)</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    stages.forEach(s => {
+      const tr = document.createElement("tr");
+      [
+        { v: String(s.n), num: true },
+        { v: s.name, name: true },
+        { v: s.lines.join(" · ") },
+        { v: s.sub },
+        { html: datedSrcLinks(s.src) },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        if (c.num) td.className = "num";
+        if (c.html) td.innerHTML = c.html;
+        else if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+        else td.textContent = c.v;
+        tr.appendChild(td);
+      });
+      tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.onclick = e => {
+        if (e.target.closest("a")) return;
+        e.stopPropagation();
+        U.showDrill({ title: `STAGE ${s.n} · ${s.name}`, value: s.lines.join(" · "), sub: s.sub, source: CH.srcLink(s.src), x: e.clientX, y: e.clientY });
+      };
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    body.appendChild(tWrap);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["diagram", "Diagram"], ["table", "Table"]],
+      current: "diagram",
+      onPick: v => {
+        const tab = v === "table";
+        vFlow.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    body.insertBefore(vt, vFlow);
+  }
 })();
 
 /* ────────────────────────────────────────────────────────────

@@ -90,6 +90,17 @@ window.CH = (() => {
   return { REDUCE, MONO, SERIF, svg, halo, drill, enter, srcStr, srcLink, fitText, fitTextSoon, wrap2, wrapN, plainLine };
 })();
 
+/* Dated source links for the table views: "K23 (2025) ↗" — clickable to the
+   original source where one exists, plain text otherwise. */
+function datedSrcLinks(ids) {
+  return (ids || []).map(id => {
+    const s = window.K && K(id);
+    const lab = id + (s && s.date && s.date !== "n.d." ? " (" + s.date + ")" : "");
+    if (s && s.url) return `<a class="src-link" href="${s.url}" target="_blank" rel="noopener noreferrer">${lab} ↗</a>`;
+    return lab;
+  }).join(" · ");
+}
+
 /* ────────────────────────────────────────────────────────────
    1 · Ranking — fifteen industries as a plain ranked list (DOM, not SVG):
    rank, industry, score /10, one plain sentence on why. The toggle
@@ -260,8 +271,21 @@ window.CH = (() => {
   body.insertBefore(CH.plainLine("What this shows: how local electricity prices change the cost of starting the plant and the value of any power it can sell. These bars are estimates — the manufacturer's own cost model is not set."), body.firstChild);
   const W = 880, rowH = 50, padT = 34, H = padT + rowH * RPT.energy_floor.length + 78;
   const mL = 250, mR = 30;
+
+  /* ── tiered standard: BARS (default) ⇄ TABLE — the same regional figures as
+     a sortable, downloadable data table (CSV via the shared table layer) ── */
+  const viewBar = document.createElement("div");
+  viewBar.className = "unit-toggle";
+  viewBar.setAttribute("aria-label", "View");
+  viewBar.innerHTML = `<span class="ut-lab">VIEW</span>
+    <button type="button" data-view="bars" class="on" aria-pressed="true">BARS</button>
+    <button type="button" data-view="table" aria-pressed="false">TABLE</button>`;
+  body.appendChild(viewBar);
+  const vBars = document.createElement("div");
+  body.appendChild(vBars);
+
   const x = d3.scaleLinear().domain([0, 60]).range([mL, W - mR]);
-  const svg = CH.svg(body, W, H);
+  const svg = CH.svg(vBars, W, H);
   const wv = RPT.water_value.v;
 
   [0, 10, 20, 30, 40, 50, 60].forEach(v => {
@@ -342,6 +366,67 @@ window.CH = (() => {
     barsG.selectAll("rect").attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
     barsG.selectAll("text").style("opacity", 1); gap.style("opacity", 1);
   }
+
+  /* ── table view: the same regional figures, sortable + CSV-downloadable ── */
+  const tWrap = document.createElement("div");
+  tWrap.className = "table-scroll"; tWrap.hidden = true;
+  tWrap.setAttribute("data-drill-keep", ""); // table clicks never open the explore modal
+  const tbl = document.createElement("table");
+  tbl.className = "dt"; tbl.id = "energy-table";
+  const cap = document.createElement("caption");
+  cap.textContent = "The grid power price context chart as a plain table — the same regional price ranges, scores and bases, sortable and downloadable.";
+  tbl.appendChild(cap);
+  tbl.innerHTML = "<thead><tr><th>Region</th><th>Price range $/m³-equiv (estimate)</th><th>Attractiveness score /25</th><th>Basis</th><th>Sources (dated)</th></tr></thead>";
+  const tb = document.createElement("tbody");
+  RPT.energy_floor.forEach(d => {
+    const tr = document.createElement("tr");
+    const cells = [
+      { v: d.region, name: true },
+      { v: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)}`, num: true },
+      { v: d.idx ? d.idx + " / 25" : "—", num: true },
+      { v: d.note },
+      { html: datedSrcLinks(d.src) },
+    ];
+    cells.forEach(c => {
+      const td = document.createElement("td");
+      if (c.num) td.className = "num";
+      if (c.html) td.innerHTML = c.html;
+      else if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+      else td.textContent = c.v;
+      tr.appendChild(td);
+    });
+    tr.style.cursor = "pointer";
+    tr.setAttribute("data-drill-keep", "");
+    tr.onclick = e => {
+      if (e.target.closest("a")) return;
+      e.stopPropagation();
+      U.showDrill({
+        title: d.region.toUpperCase(), value: `$${d.lo.toFixed(1)}–${d.hi.toFixed(1)} /m³-equiv (estimate)`,
+        sub: "Estimate — grid price context, not a measured operating cost: the 75–95 kW startup power spec (180–228 kilowatt-hours per cubic meter, kWh/m³) × the regional industrial power price. HCSP operating energy cost is negligible per the manufacturer (self-fueling loop) — the prices shown matter for the startup draw and for valuing each exported kilowatt-hour on concentrated feeds. " + d.note,
+        source: CH.srcLink(d.src), x: e.clientX, y: e.clientY,
+      });
+    };
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tWrap.appendChild(tbl);
+  body.appendChild(tWrap);
+
+  // water-value reference row note under both views
+  const wvNote = document.createElement("p");
+  wvNote.className = "lg-note";
+  wvNote.textContent = "Reference line on the bars view: recovered-water value ≈ $3.5/m³ (" + RPT.water_value.note + ").";
+  body.appendChild(wvNote);
+
+  viewBar.querySelectorAll("button[data-view]").forEach(b => b.addEventListener("click", () => {
+    const v = b.dataset.view;
+    viewBar.querySelectorAll("button[data-view]").forEach(x => {
+      x.classList.toggle("on", x === b);
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    vBars.hidden = v !== "bars";
+    tWrap.hidden = v !== "table";
+  }));
 })();
 
 /* ────────────────────────────────────────────────────────────
@@ -358,8 +443,22 @@ window.CH = (() => {
   body.insertBefore(CH.plainLine("What this shows: what existing disposal and destruction suppliers charge per gallon, cheapest to most expensive. HCSP's own cost and price are not set yet — the manufacturer has not published a cost model."), body.firstChild);
   const W = 880, rowH = 40, padT = 40, H = padT + rowH * RPT.umbrella.length + 44;
   const mL = 236, mR = 26;
+
+  /* ── tiered standard: BANDS (default) ⇄ TABLE — the same cost ranges and
+     TBD rows as a sortable, downloadable data table (CSV via the shared
+     table layer) ── */
+  const viewBar = document.createElement("div");
+  viewBar.className = "unit-toggle";
+  viewBar.setAttribute("aria-label", "View");
+  viewBar.innerHTML = `<span class="ut-lab">VIEW</span>
+    <button type="button" data-view="bands" class="on" aria-pressed="true">BANDS</button>
+    <button type="button" data-view="table" aria-pressed="false">TABLE</button>`;
+  body.appendChild(viewBar);
+  const vBands = document.createElement("div");
+  body.appendChild(vBands);
+
   const x = d3.scaleLog().domain([0.05, 60]).range([mL, W - mR]);
-  const svg = CH.svg(body, W, H);
+  const svg = CH.svg(vBands, W, H);
 
   [0.1, 0.5, 1, 2, 5, 10, 20, 50].forEach(v => {
     svg.append("line").attr("x1", x(v)).attr("x2", x(v)).attr("y1", padT - 8).attr("y2", H - 40).attr("stroke", "#eef1f6");
@@ -437,6 +536,62 @@ window.CH = (() => {
     rows.selectAll("rect[data-x0]").attr("width", function () { return (+d3.select(this).attr("data-x1")) - (+d3.select(this).attr("data-x0")); });
     rows.selectAll("line.cap, text").style("opacity", 1); rows.selectAll("g.tbd").style("opacity", 1); cm.style("opacity", 1);
   }
+
+  /* ── table view: the same pathways, ranges and TBD rows, sortable +
+     CSV-downloadable ── */
+  const tWrap = document.createElement("div");
+  tWrap.className = "table-scroll"; tWrap.hidden = true;
+  tWrap.setAttribute("data-drill-keep", ""); // table clicks never open the explore modal
+  const tbl = document.createElement("table");
+  tbl.className = "dt"; tbl.id = "umbrella-table";
+  const cap = document.createElement("caption");
+  cap.textContent = "The pricing umbrella as a plain table — the same cost ranges and TBD rows, sortable and downloadable.";
+  tbl.appendChild(cap);
+  tbl.innerHTML = "<thead><tr><th>Pathway</th><th>Cost range $/gal</th><th>Basis</th><th>Sources (dated)</th></tr></thead>";
+  const tb = document.createElement("tbody");
+  RPT.umbrella.forEach(d => {
+    const tr = document.createElement("tr");
+    const range = d.tbd ? "TBD — manufacturer cost model pending"
+      : d.hi >= 50 ? `$${d.lo}–${d.hi}+` : d.hi < 1 ? `$${d.lo.toFixed(2)}–${d.hi.toFixed(2)}` : `$${d.lo}–${d.hi}`;
+    [
+      { v: d.name, name: true },
+      { v: range, num: !d.tbd },
+      { v: d.note },
+      { html: datedSrcLinks(d.src) },
+    ].forEach(c => {
+      const td = document.createElement("td");
+      if (c.num) td.className = "num";
+      if (c.html) td.innerHTML = c.html;
+      else if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+      else td.textContent = c.v;
+      tr.appendChild(td);
+    });
+    tr.style.cursor = "pointer";
+    tr.setAttribute("data-drill-keep", "");
+    tr.onclick = e => {
+      if (e.target.closest("a")) return;
+      e.stopPropagation();
+      U.showDrill({
+        title: d.name.toUpperCase(),
+        value: d.tbd ? "TBD — pending" : `$${d.lo}–${d.hi}${d.hi >= 50 ? "+" : ""} /gal`,
+        sub: d.note, source: CH.srcLink(d.src), x: e.clientX, y: e.clientY,
+      });
+    };
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+  tWrap.appendChild(tbl);
+  body.appendChild(tWrap);
+
+  viewBar.querySelectorAll("button[data-view]").forEach(b => b.addEventListener("click", () => {
+    const v = b.dataset.view;
+    viewBar.querySelectorAll("button[data-view]").forEach(x => {
+      x.classList.toggle("on", x === b);
+      x.setAttribute("aria-pressed", String(x === b));
+    });
+    vBands.hidden = v !== "bands";
+    tWrap.hidden = v !== "table";
+  }));
 })();
 
 /* ────────────────────────────────────────────────────────────

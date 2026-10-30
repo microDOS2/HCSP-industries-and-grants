@@ -192,7 +192,10 @@
     src: "Company disclosure — 374Water 10-K (2026-03-31), General Atomics, Aquarden (2024–25), Revive Environmental · Industry & official — EPA interim guidance, third release (2026-04) · Manufacturer briefing (HCSP, as briefed)",
   });
   const W = 880, H = 392, padT = 22, padB = 8;
-  const svg = CH.svg(body, W, H);
+  // panels view wrapper (the TABLE view swaps it out)
+  const vPanels = document.createElement("div");
+  body.appendChild(vPanels);
+  const svg = CH.svg(vPanels, W, H);
   // plain-English scale note under the chart
   const scaleNote = document.createElement("p");
   scaleNote.className = "chart-sub readiness-note";
@@ -289,5 +292,65 @@
     const t = g.append("text").attr("x", x0).attr("y", y0).attr("font-family", fam).attr("font-size", fs).attr("font-weight", fw).attr("fill", fill).text(t1);
     if (t2) t.append("tspan").attr("x", x0).attr("dy", "1.35em").text(t2);
     if (t3) t.append("tspan").attr("x", x0).attr("dy", "1.35em").text(t3);
+  }
+
+  /* ── tiered standard: PANELS (default) ⇄ TABLE — the same five operators
+     as a sortable, downloadable data table (CSV via the shared table layer) ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    tWrap.setAttribute("data-drill-keep", ""); // table clicks never open the explore modal
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "vendor-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The five-operator benchmark as a plain table — the same readiness ranges, energy, cost and constraint figures, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Operator</th><th>Scale class</th><th>Readiness (1–9)</th><th>Energy</th><th>Cost benchmark</th><th>Key constraint</th><th>Sources (dated)</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    RPT.vendors.forEach(v => {
+      const tr = document.createElement("tr");
+      [
+        { v: v.name, name: true },
+        { v: v.scale },
+        { v: `${v.trl[0]}–${v.trl[1]} / 9`, num: true },
+        { v: v.energy },
+        { v: v.cost },
+        { v: v.constraint },
+        { html: datedSrcLinks(v.src) },
+      ].forEach(c => {
+        const td = document.createElement("td");
+        if (c.num) td.className = "num";
+        if (c.html) td.innerHTML = c.html;
+        else if (c.name) { const b = document.createElement("b"); b.textContent = c.v; td.appendChild(b); }
+        else td.textContent = c.v;
+        tr.appendChild(td);
+      });
+      tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.onclick = e => {
+        if (e.target.closest("a")) return;
+        e.stopPropagation();
+        U.showDrill({
+          title: v.name.toUpperCase(), value: `READINESS ${v.trl[0]}–${v.trl[1]}/9 (how proven the technology is: 1 = lab idea, 9 = proven in the field)`,
+          sub: `Scale: ${v.scale}. Energy: ${v.energy}. Cost: ${v.cost}. Constraint: ${v.constraint}.`,
+          source: CH.srcLink(v.src), x: e.clientX, y: e.clientY,
+        });
+      };
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    body.appendChild(tWrap);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["panels", "Panels"], ["table", "Table"]],
+      current: "panels",
+      onPick: v => {
+        const tab = v === "table";
+        vPanels.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    body.insertBefore(vt, vPanels);
   }
 })();
