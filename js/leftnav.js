@@ -70,6 +70,7 @@
     { name: "Scale Gap",        id: "comp3d", view: "scale" },
     { name: "Vendor Panels",    id: "comp3d", view: "panels" },
     { name: "Customer Map",     id: "comp3d", view: "map" },
+    { name: "Vendor Benchmark (five operators)", id: "vendor-chart" },
     { name: "Grant Register",   id: "grant-table-block" },
     { name: "Sources",          id: "sec-sources" },
   ];

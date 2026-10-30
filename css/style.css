@@ -857,41 +857,72 @@ table.grant-dt td.num { white-space: normal; }
 }
 .distill-mini .dst-ui button:hover { color: var(--red); border-color: var(--red); }
 .distill-mini.paused .dst-anim { animation-play-state: paused; }
-/* reading mode: static frame — particles rest at their mid-path base positions */
-html.reader .distill-mini .dst-anim { animation: none; }
-html.reader .distill-mini .dst-ui { display: none; }
-@keyframes dst-rise {
-  0% { transform: translateY(0); opacity: 0; }
-  20% { opacity: .85; }
-  100% { transform: translateY(-30px); opacity: 0; }
+/* Owner directive: the diagram keeps playing in Reading Mode — restore the real
+   keyframe durations against the global html.reader animation kill, and keep the
+   pause control available so the reader can still stop the motion. */
+html.reader .distill-mini .dst-anim {
+  animation-duration: var(--dur) !important;
+  animation-iteration-count: infinite !important;
 }
-@keyframes dst-pipe {
-  0% { transform: translateX(0); opacity: 0; }
-  12% { opacity: .95; }
-  85% { opacity: .95; }
-  100% { transform: translateX(112px); opacity: 0; }
+/* boiling: bubbles rise through the still water, wobble, and pop at the surface */
+@keyframes dst-boil {
+  0%   { transform: translate(0, 0) scale(.6); opacity: 0; }
+  15%  { opacity: .95; }
+  40%  { transform: translate(2.5px, -18px) scale(.85); }
+  70%  { transform: translate(-2px, -34px) scale(1); opacity: .95; }
+  100% { transform: translate(1px, -46px) scale(1.1); opacity: 0; }
 }
+/* steam: up the riser from the still top, then right along the pipe into the
+   condenser, drifting slightly and fading as it reaches the coil */
+@keyframes dst-flow {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  10%  { opacity: .95; }
+  42%  { transform: translate(2px, -84px); opacity: .95; }
+  55%  { transform: translate(12px, -86px); }
+  85%  { opacity: .9; }
+  100% { transform: translate(126px, -86px); opacity: 0; }
+}
+/* condensation: droplets grow on the cooling coil and slide down */
+@keyframes dst-cond {
+  0%   { transform: translate(0, 0) scale(.3); opacity: 0; }
+  25%  { opacity: 1; }
+  60%  { transform: translate(3px, 6px) scale(1); opacity: 1; }
+  100% { transform: translate(6px, 16px) scale(.85); opacity: 0; }
+}
+/* pure water: drops fall from the coil tip into the beaker */
 @keyframes dst-drip {
-  0% { transform: translateY(0); opacity: 0; }
-  18% { opacity: 1; }
-  82% { opacity: 1; }
-  100% { transform: translateY(52px); opacity: 0; }
+  0%   { transform: translateY(0); opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(74px); opacity: 0; }
 }
+/* residues: carried along the line from the still to the burner */
 @keyframes dst-residue {
-  0% { transform: translateX(0); opacity: 0; }
-  14% { opacity: 1; }
-  86% { opacity: 1; }
-  100% { transform: translateX(70px); opacity: 0; }
+  0%   { transform: translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(206px); opacity: 0; }
 }
+/* embers lifting off the residue burner */
+@keyframes dst-ember {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: .9; }
+  100% { transform: translate(3px, -26px); opacity: 0; }
+}
+/* flame flicker: layered tongues pulsing out of phase */
 @keyframes dst-flicker {
-  0%, 100% { transform: scaleY(1); }
-  50% { transform: scaleY(1.16); }
+  0%, 100% { transform: scale(1, 1); }
+  30%      { transform: scale(1.08, 1.18); }
+  55%      { transform: scale(.94, .9); }
+  80%      { transform: scale(1.05, 1.1); }
 }
-.dst-steam { animation: dst-rise 2.6s linear infinite; }
-.dst-vapor { animation: dst-pipe 3.2s linear infinite; }
-.dst-drip { animation: dst-drip 2.2s ease-in infinite; }
-.dst-residue { animation: dst-residue 3.8s linear infinite; }
-.dst-flame { animation: dst-flicker 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
+.dst-boil { --dur: 2.1s; animation: dst-boil var(--dur) linear infinite; transform-box: fill-box; transform-origin: center; }
+.dst-flow { --dur: 3s; animation: dst-flow var(--dur) linear infinite; }
+.dst-cond { --dur: 2.4s; animation: dst-cond var(--dur) linear infinite; transform-box: fill-box; transform-origin: center; }
+.dst-drip { --dur: 1.6s; animation: dst-drip var(--dur) ease-in infinite; }
+.dst-residue { --dur: 4.2s; animation: dst-residue var(--dur) linear infinite; }
+.dst-ember { --dur: 1.9s; animation: dst-ember var(--dur) linear infinite; }
+.dst-flame { --dur: 1.1s; animation: dst-flicker var(--dur) ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
 table.grant-dt td { font-size: 13.5px; }
 table.grant-dt .g-ag { font-size: 10.5px; color: var(--ink-lo); font-family: var(--mono); }
 table.grant-dt .g-award { white-space: normal; min-width: 0; font-size: 11px; }
