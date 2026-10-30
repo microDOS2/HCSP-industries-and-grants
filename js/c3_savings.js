@@ -121,6 +121,7 @@
     var tip = root.querySelector(".c3-tip");
     var detail = root.querySelector(".c3-detail");
     var tablewrap = root.querySelector(".c3-tablewrap");
+    var tablewrapNext = tablewrap.nextSibling; // restore point — the table moves into the stage in table view
     /* tiered standard: 2D dollar-bars view lives inside the stage, beside the canvas */
     var barsWrap = document.createElement("div");
     barsWrap.className = "c3-2d"; barsWrap.hidden = true;
@@ -443,12 +444,15 @@
       tablewrap.classList.toggle("show", on);
       tableBtn.setAttribute("aria-pressed", String(on));
       tableBtn.textContent = on ? "▲ Back to chart" : "▦ Table view";
-      // REPLACE the chart with the table (not append below it): hide the stage
-      // visuals + detail panel, keep only the toolbar; restore on toggle back.
+      // REPLACE the chart with the table (not append below it): the table moves
+      // INTO the stage and fills the chart's exact frame; the stage keeps its
+      // position and height so no empty chart-sized gap is left above the table.
       var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
       if (on) {
         tableWasPaused = paused;
         if (!paused) setPaused(true);
+        stage.classList.add("c3-table-on");
+        stage.appendChild(tablewrap);
         if (renderer) renderer.domElement.style.display = "none";
         barsWrap.style.display = "none"; // covers an open 2D bars view too
         if (lg) lg.style.display = "none";
@@ -456,6 +460,8 @@
         detail.style.display = "none";
         tip.classList.remove("show");
       } else {
+        stage.classList.remove("c3-table-on");
+        root.insertBefore(tablewrap, tablewrapNext); // back to its place below the stage
         var barsOpen = !barsWrap.hidden;
         if (renderer) renderer.domElement.style.display = barsOpen ? "none" : "";
         barsWrap.style.display = "";
