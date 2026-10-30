@@ -99,5 +99,7 @@
   btn.addEventListener("click", () => setPaused(!host.classList.contains("paused")));
   ui.appendChild(btn);
   host.appendChild(ui);
-  setPaused(document.documentElement.classList.contains("reader"));
+  // Owner directive: animation plays regardless of Reading Mode.
+  // Pause only happens when the user explicitly presses the pause button.
+  setPaused(false);
 })();
