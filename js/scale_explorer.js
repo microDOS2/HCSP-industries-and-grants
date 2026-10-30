@@ -164,21 +164,25 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
         '<p class="c3s-srcline">Sources: ' + srcLinks(["K70", "K18", "K71", "K72", "K76"]) + "</p>" +
       "</div>";
 
-    /* ── view toggle (radio): Scale explorer (default) vs 3D scene ── */
+    /* ── view toggle (radio): Scale explorer (default) vs Bubbles vs 3D scene ── */
     var has3D = !!(window.THREE && THREE.OrbitControls);
     var saved = "explorer";
-    try { saved = sessionStorage.getItem(VIEW_KEY) === "3d" ? "3d" : "explorer"; } catch (e) {}
-    if (!has3D) saved = "explorer";
+    try {
+      var sv = sessionStorage.getItem(VIEW_KEY);
+      if (sv === "3d" || sv === "bubbles") saved = sv;
+    } catch (e) {}
+    if (!has3D && saved === "3d") saved = "explorer";
     var vt = document.createElement("div");
     vt.className = "c3s-viewtoggle"; vt.setAttribute("role", "radiogroup");
     vt.setAttribute("aria-label", "Choose how to view the scale ladder");
     vt.innerHTML =
       '<label data-v="explorer"><input type="radio" name="c3s-view" value="explorer"> Scale explorer</label>' +
+      '<label data-v="bubbles"><input type="radio" name="c3s-view" value="bubbles"> Bubbles</label>' +
       '<label data-v="3d"><input type="radio" name="c3s-view" value="3d"' + (has3D ? "" : " disabled") + '> 3D scene</label>';
     sec.appendChild(vt);
     var vtNote = document.createElement("p"); vtNote.className = "c3s-vt-note";
     vtNote.textContent = has3D
-      ? "Scale explorer is the fast default — no 3D engine · your choice is remembered for this session"
+      ? "Scale explorer is the fast default — no 3D engine · Bubbles plots capacity against energy per m³ · your choice is remembered for this session"
       : "3D engine not available in this browser — Scale explorer shown";
     sec.appendChild(vtNote);
     var vtLabels = vt.querySelectorAll("label"), vtInputs = vt.querySelectorAll("input");
@@ -236,6 +240,45 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     expWarn.style.maxWidth = "72ch";
     expWarn.textContent = "Scale-up caution: " + (M.limit || "");
     viewExp.appendChild(expWarn);
+
+    /* ── View C: Bubbles — the same four rungs as a 2-variable chart
+       (capacity against energy per m³; tiered standard: bubbles for
+       2-variable charts). The detail panel slides in below the chart. ── */
+    var viewBub = document.createElement("div"); viewBub.style.display = "none"; sec.appendChild(viewBub);
+    var bubChartWrap = document.createElement("div"); viewBub.appendChild(bubChartWrap);
+    var bubPanelWrap = document.createElement("div"); viewBub.appendChild(bubPanelWrap);
+    var bubBuilt = false;
+    function buildBubbles() {
+      if (!window.ViewStd) return;
+      var pts = D.map(function (d, i) {
+        return {
+          name: d.name,
+          x: d.m3d,
+          y: (d.kwh[0] + d.kwh[1]) / 2,
+          yLo: d.kwh[0], yHi: d.kwh[1],
+          r: Math.cbrt(d.m3d),
+          color: "#2251ff",
+          lab: d.m3d.toLocaleString("en-US") + " m³/day · " + d.kwh[0] + "–" + d.kwh[1] + " kWh/m³",
+          tip: "<b>" + esc(d.name) + "</b><br>" + d.m3d.toLocaleString("en-US") + " m³/day<br>" +
+            d.kwh[0] + "–" + d.kwh[1] + " kWh/m³<br>Footprint: " + esc(REALWORLD[d.m3d].ref) + "<br>Click for the full story",
+          onClick: function () { select(i); },
+        };
+      });
+      ViewStd.bubbles(bubChartWrap, {
+        points: pts,
+        xLog: true, xDomain: [6, 3000], yDomain: [0, 270],
+        xTicks: [10, 100, 1000, 1900],
+        xFmt: function (v) { return v.toLocaleString("en-US") + " m³/day"; },
+        yTicks: [0, 65, 130, 195, 260],
+        yFmt: function (v) { return v + ""; },
+        xLabel: "CAPACITY, M³/DAY (LOG)",
+        yLabel: "ENERGY INTENSITY, KWH/M³",
+        rDomain: [0, Math.cbrt(1900)], rRange: [14, 38],
+        ariaLabel: "Bubble chart: plant capacity against energy per cubic meter for the four sizes of the machine",
+        note: "The same four rungs as the cards, the 3D scene and the table. Each bubble sits at the middle of its documented energy band (the whisker shows the full band); bubble size follows capacity. The 1,900 m³/day rung is a study, not a plant.",
+      });
+      bubBuilt = true;
+    }
 
     /* ── View A: 3D scene container (renderer created lazily, destroyed on exit) ── */
     var view3d = document.createElement("div"); view3d.style.display = "none"; sec.appendChild(view3d);
@@ -638,16 +681,20 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       vtInputs.forEach(function (inp) { inp.checked = inp.value === v; });
       vtLabels.forEach(function (l) { l.classList.toggle("c3s-vt-on", l.getAttribute("data-v") === v); });
       var show3d = v === "3d";
-      viewExp.style.display = show3d ? "none" : "";
+      var showBub = v === "bubbles";
+      viewExp.style.display = (show3d || showBub) ? "none" : "";
+      viewBub.style.display = showBub ? "" : "none";
       view3d.style.display = show3d ? "" : "none";
       pauseBtn.style.display = show3d ? "" : "none";
       orbitBtn.style.display = show3d ? "" : "none";
-      // the detail panel lives beside the 3D stage, beneath the cards in explorer
-      (show3d ? panelWrap : expPanelWrap).appendChild(panel);
+      // the detail panel lives beside the 3D stage, beneath the chart in the
+      // bubbles view, beneath the cards in explorer
+      (show3d ? panelWrap : showBub ? bubPanelWrap : expPanelWrap).appendChild(panel);
       if (show3d) {
         init3D();
       } else {
         dispose3D(); // hand the GL context back — the explorer must be hang-proof
+        if (showBub && !bubBuilt) buildBubbles();
       }
     }
 

@@ -199,6 +199,31 @@
     return b;
   }
 
+  /* CSV-only toolbar for tables that keep their own interaction layer
+     (3D chart table views, Chart Lab tables) — same download, no re-skinning */
+  function csvOnlyTools(table) {
+    if (table.dataset.teCsv) return;
+    table.dataset.teCsv = "1";
+    const bar = document.createElement("div");
+    bar.className = "te-tools te-tools-csv";
+    const spacer = document.createElement("span");
+    spacer.className = "te-spacer";
+    bar.appendChild(spacer);
+    bar.appendChild(csvButton(table));
+    const wrap = table.closest(".table-scroll");
+    if (wrap) {
+      wrap.parentElement.insertBefore(bar, wrap);
+      // the wrap may be a hidden view (e.g. a chart's table panel) — keep the
+      // toolbar's visibility in lockstep with it
+      const sync = () => { bar.hidden = !!wrap.hidden; };
+      sync();
+      new MutationObserver(sync).observe(wrap, { attributes: true, attributeFilter: ["hidden"] });
+    } else {
+      // inside the view container (c3/ot table wraps) so it hides with the view
+      table.parentElement.insertBefore(bar, table);
+    }
+  }
+
   /* ── toolbar: optional live search + column toggles + CSV ── */
   function buildTools(table, { search = false, host = null } = {}) {
     const colCount = table.tHead ? table.tHead.rows[0].cells.length : 0;
@@ -208,6 +233,13 @@
       bar.className = "te-tools";
       const wrap = table.closest(".table-scroll");
       (wrap || table).parentElement.insertBefore(bar, wrap || table);
+      // if the table lives in a view panel that can be hidden (chart view
+      // toggles), hide the toolbar with it
+      if (wrap) {
+        const sync = () => { bar.hidden = !!wrap.hidden; };
+        sync();
+        new MutationObserver(sync).observe(wrap, { attributes: true, attributeFilter: ["hidden"] });
+      }
     }
     if (search) {
       const inp = document.createElement("input");
@@ -275,7 +307,34 @@
     });
   }
 
-  /* ── sources register (#source-list): live search over the K-rows ── */
+  /* ── sources register (#source-list): live search + CSV over the K-rows ── */
+  function exportSources(host) {
+    const esc = v => (/[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v);
+    const lines = [["Ref", "Backed fact", "Class", "Citation", "Date", "Report ref"].join(",")];
+    host.querySelectorAll(".src-row").forEach(r => {
+      if (r.style.display === "none") return;
+      const factEl = r.querySelector(".s-fact");
+      const ft = txt(factEl);
+      const sep = ft.indexOf(" · ");
+      const ref = sep > 0 ? ft.slice(0, sep) : ft;
+      const fact = sep > 0 ? ft.slice(sep + 3) : "";
+      const citeEl = r.querySelector(".s-cite");
+      const cat = txt(citeEl && citeEl.querySelector(".src-cat"));
+      let rest = txt(citeEl);
+      if (cat && rest.indexOf(cat) === 0) rest = rest.slice(cat.length).trim();
+      const parts = rest.split(" · ");
+      const citation = (parts[0] || "").replace(/\s*↗\s*$/, "");
+      const date = parts.length > 2 ? parts[1] : "";
+      const repRef = parts.length > 2 ? parts.slice(2).join(" · ") : (parts[1] || "");
+      lines.push([ref, fact, cat, citation, date, repRef].map(esc).join(","));
+    });
+    const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "source-register.csv";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
   function enhanceSources() {
     const host = document.getElementById("source-list");
     if (!host) return;
@@ -298,6 +357,14 @@
       count.textContent = q ? shown + " OF " + total + " SOURCES" : "";
     });
     bar.appendChild(inp); bar.appendChild(count);
+    const spacer = document.createElement("span");
+    spacer.className = "te-spacer";
+    bar.appendChild(spacer);
+    const dl = document.createElement("button");
+    dl.type = "button"; dl.className = "te-csv"; dl.textContent = "DOWNLOAD CSV";
+    dl.setAttribute("aria-label", "Download the currently visible sources as CSV");
+    dl.addEventListener("click", () => exportSources(host));
+    bar.appendChild(dl);
     host.parentElement.insertBefore(bar, host);
   }
 
@@ -308,7 +375,8 @@
     const colCount = table.tHead && table.tHead.rows[0] ? table.tHead.rows[0].cells.length : 0;
     if (!colCount || !table.tBodies.length) return;
 
-    const customSort = !!table.querySelector("th.sortable");   // grant register sorts itself
+    const customSort = !!table.querySelector("th.sortable")   // grant register sorts itself
+      || table.classList.contains("c3d-sort");                // the explorer's customer register sorts itself
     labelCells(table);
     wrapChips(table);
     if (colCount <= CARD_MAX_COLS) table.classList.add("te-cardify");
@@ -317,7 +385,9 @@
       buildTools(table, { host: document.getElementById("grant-tools") });
     } else {
       buildTools(table, { search: table.classList.contains("cust-dt") });
-      enableGenericDrill(table);
+      // the explorer's tables wire their own row drills via addEventListener —
+      // a second generic drill would double-open the card
+      if (!table.classList.contains("c3d-dt")) enableGenericDrill(table);
     }
 
     // builders that re-render their own tbody (dual-lens toggle, grant register
@@ -330,13 +400,43 @@
     obs.observe(table, { childList: true });                   // thead/tbody swaps only
   }
 
+  /* ── pick up tables built after load: chart table views (3D modules, Chart
+        Lab panels, the explorer, the chart modal) render on toggle, long after
+        DOMContentLoaded — each gets the same download button (full enhancement
+        for .dt tables, a CSV-only toolbar for self-managed tables) ── */
+  function scanTables(node) {
+    if (node.nodeType !== 1) return;
+    const found = [];
+    if (node.tagName === "TABLE") found.push(node);
+    if (node.querySelectorAll) node.querySelectorAll("table").forEach(t => found.push(t));
+    found.forEach(t => {
+      if (t.dataset.teDone || t.dataset.teCsv) return;
+      const colCount = t.tHead && t.tHead.rows[0] ? t.tHead.rows[0].cells.length : 0;
+      if (!colCount || !t.tBodies.length) return;
+      if (t.classList.contains("dt")) enhanceTable(t);
+      else if (t.tBodies[0].rows.length) csvOnlyTools(t);
+    });
+  }
+
   function init() {
     document.querySelectorAll("table.dt").forEach(enhanceTable);
     enhanceSources();
     fitScrolls();
+    // tables built by earlier scripts that manage their own sorting (Chart Lab
+    // panels etc.) still get the download button
+    scanTables(document.body);
     let rT = 0;
     addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(fitScrolls, 150); }, { passive: true });
+    if (document.body) {
+      new MutationObserver(muts => {
+        for (const m of muts) for (const n of m.addedNodes) scanTables(n);
+      }).observe(document.body, { childList: true, subtree: true });
+    }
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
+
+  /* shared export + button builders for the tiered chart views (js/view_std.js)
+     and any module that needs the same CSV */
+  window.HCSP_TABLES = { exportCsv, csvButton, exportSources };
 })();

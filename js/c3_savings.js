@@ -99,6 +99,7 @@
         '<div class="c3-ui">' +
           '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
           '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Camera drift: on</button>' +
+          '<button type="button" class="c3-btn" data-act="bars" aria-pressed="false">＄ Dollar bars</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
         '</div>' +
         '<div class="c3-hint">drag to orbit · scroll to zoom · click a tower</div>' +
@@ -120,6 +121,10 @@
     var tip = root.querySelector(".c3-tip");
     var detail = root.querySelector(".c3-detail");
     var tablewrap = root.querySelector(".c3-tablewrap");
+    /* tiered standard: 2D dollar-bars view lives inside the stage, beside the canvas */
+    var barsWrap = document.createElement("div");
+    barsWrap.className = "c3-2d"; barsWrap.hidden = true;
+    stage.appendChild(barsWrap);
 
     var renderer;
     try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { renderer = null; }
@@ -432,6 +437,57 @@
       tablewrap.classList.toggle("show", show);
       tableBtn.setAttribute("aria-pressed", String(show));
     });
+
+    /* ── 2D dollar bars (tiered standard: dollar bars for comparisons) — the
+       same $/gal ladder as the 3D towers, as a clean ranked 2D chart ── */
+    var barsBuilt = false, barsWasPaused = false;
+    var barsBtn = root.querySelector('[data-act="bars"]');
+    function buildBars() {
+      if (!window.ViewStd) return;
+      var rows = DATA.map(function (s) {
+        return {
+          name: s.vertical,
+          lo: s.na ? null : s.lo, hi: s.na ? null : s.hi,
+          na: !!s.na, lowConf: !!s.lowConf,
+          lab: s.na ? "N/A — buys the output" : band(s),
+          sub: (cleanNote(s.note).split(". ")[0] + ".").replace("..", "."),
+          tip: "<b>" + esc(s.vertical) + "</b><br>" + (s.na ? "No disposal bill to save — buys the plant\u2019s output" : "Existing suppliers: " + band(s)) + "<br>" + esc(cleanNote(s.note)),
+          onClick: function (e) {
+            U.showDrill({
+              title: ("SAVINGS #" + s.srank + " · " + s.vertical).toUpperCase(),
+              value: s.na ? "N/A — output buyer" : band(s),
+              sub: cleanNote(s.note) + " " + esc(meta.qualifier || ""),
+              source: srcDated(s.src),
+              x: e.clientX, y: e.clientY,
+            });
+          },
+        };
+      });
+      ViewStd.dollarBars(barsWrap, {
+        rows: rows, log: true, domain: [LOGMIN, LOGMAX],
+        ticks: [0.01, 0.1, 1, 10, 50],
+        tickFmt: function (v) { return "$" + fv(v); },
+        axisLabel: "WHAT EXISTING SUPPLIERS CHARGE TO DISPOSE OF IT ($/GAL · LOG)",
+        ariaLabel: "Dollar bars: the savings ladder — what existing suppliers charge per gallon, by industry stream",
+        note: "The same figures as the 3D towers and the table. The HCSP energy floor (~$0.07–0.09/gal) is a spec-derived conservative bound, not pricing — the manufacturer cost model is pending.",
+      });
+      barsBuilt = true;
+    }
+    function setBarsView(on) {
+      if (on && !barsBuilt) buildBars();
+      if (!barsBuilt) return;
+      stage.classList.toggle("c3-2d-on", !!on);
+      if (on) { barsWasPaused = paused; if (!paused) setPaused(true); }
+      else if (!barsWasPaused) setPaused(false);
+      barsWrap.hidden = !on;
+      if (renderer) renderer.domElement.style.display = on ? "none" : "";
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (lg) lg.style.display = on ? "none" : "";
+      if (ht) ht.style.display = on ? "none" : "";
+      barsBtn.setAttribute("aria-pressed", String(on));
+      barsBtn.textContent = on ? "▲ Back to 3D towers" : "＄ Dollar bars";
+    }
+    barsBtn.addEventListener("click", function () { setBarsView(barsWrap.hidden); });
     if (REDUCE) setPaused(true);
 
     function resize() {

@@ -153,6 +153,55 @@
   board.appendChild(box);
 
   body.appendChild(board);
+
+  /* ── tiered standard: the same board as a downloadable data table ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "verdict-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The decision board as a plain table — the same scores, whys and conditions, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Group</th><th>Industry</th><th>Score /10</th><th>Why</th><th>What has to happen first</th><th>Sources</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    GROUPS.forEach(g => g.rows.forEach(r => {
+      const d = byKey[r.key];
+      if (!d) return;
+      const tr = document.createElement("tr");
+      [g.head.replace(/^\d · /, ""), r.name, String(d.score), r.why, r.first || "—", (d.src || []).join(" · ")].forEach((v, ci) => {
+        const c = document.createElement("td");
+        if (ci === 2) c.className = "num";
+        if (ci === 1) { const b = document.createElement("b"); b.textContent = v; c.appendChild(b); }
+        else c.textContent = v;
+        tr.appendChild(c);
+      });
+      tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.onclick = e => U.showDrill({
+        title: r.name.toUpperCase(),
+        value: d.score + " / 10 · " + g.head.replace(/^\d · /, ""),
+        sub: r.why + (r.first ? " What has to happen first: " + r.first : "")
+          + " Full rationale: " + d.why + " " + RPT.tiers[d.tier - 1].posture,
+        source: CH.srcLink(d.src), x: e.clientX, y: e.clientY,
+      });
+      tb.appendChild(tr);
+    }));
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    body.insertBefore(tWrap, null);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["board", "Board"], ["table", "Table"]],
+      current: "board",
+      onPick: v => {
+        const tab = v === "table";
+        board.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    body.insertBefore(vt, board);
+  }
 })();
 
 /* ────────────────────────────────────────────────────────────
@@ -268,4 +317,53 @@
   });
 
   body.appendChild(tl);
+
+  /* ── tiered standard: the same timeline as a downloadable data table ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "horizon-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The timeline as a plain table — every dated event, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Date</th><th>Event</th><th>Type</th><th>What it means</th><th>What to do</th><th>Sources</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    closed.concat(open).forEach(e => {
+      const tr = document.createElement("tr");
+      if (e.closed) tr.className = "tl-closed";
+      [e.date, e.label, e.closed ? "CLOSED" : TAG[e.cls], e.mean || "—", e.act || "—", (e.src || []).join(" · ")].forEach((v, ci) => {
+        const c = document.createElement("td");
+        if (ci === 1) { const b = document.createElement("b"); b.textContent = v; c.appendChild(b); }
+        else c.textContent = v;
+        tr.appendChild(c);
+      });
+      tr.style.cursor = "pointer";
+      tr.setAttribute("data-drill-keep", "");
+      tr.onclick = ev => {
+        ev.stopPropagation();
+        U.showDrill({
+          title: `${e.date} · ${e.label.toUpperCase()}`,
+          value: e.closed ? "CLOSED — ALREADY PASSED" : TAG[e.cls],
+          sub: (e.closed ? "" : (e.mean ? e.mean + " " : "")) + e.ev + "." + (e.act ? " What to do: " + e.act : ""),
+          source: CH.srcLink(e.src), x: ev.clientX, y: ev.clientY,
+        });
+      };
+      tb.appendChild(tr);
+    });
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    body.appendChild(tWrap);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["timeline", "Timeline"], ["table", "Table"]],
+      current: "timeline",
+      onPick: v => {
+        const tab = v === "table";
+        tl.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    body.insertBefore(vt, tl);
+  }
 })();

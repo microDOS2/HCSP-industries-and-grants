@@ -170,6 +170,11 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     tableBtn.type = "button"; tableBtn.className = "c3p-btn";
     tableBtn.setAttribute("aria-pressed", "false"); tableBtn.textContent = "Table view";
     tools.appendChild(tableBtn);
+    /* tiered standard: dollar bars for comparisons — a clean 2D alternative */
+    var barsBtn = document.createElement("button");
+    barsBtn.type = "button"; barsBtn.className = "c3p-btn";
+    barsBtn.setAttribute("aria-pressed", "false"); barsBtn.textContent = "＄ Dollar bars";
+    tools.appendChild(barsBtn);
     var topCounter = document.createElement("span"); topCounter.className = "c3p-counter";
     topCounter.innerHTML = "Top savings ceiling: <b>$0/m³</b>";
     tools.appendChild(topCounter);
@@ -398,6 +403,51 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       tableWrap.style.display = show ? "" : "none";
       tableBtn.setAttribute("aria-pressed", show ? "true" : "false");
       if (show && !tableBuilt) buildTable();
+    });
+
+    /* ── 2D dollar bars (tiered standard) — the same per-industry savings
+       ceilings as the 3D bars, on one clean ranked 2D chart ── */
+    var barsWrap = document.createElement("div");
+    barsWrap.className = "c3p-2d"; barsWrap.style.display = "none";
+    stageCol.appendChild(barsWrap);
+    var barsBuilt = false;
+    function buildBars() {
+      if (!window.ViewStd) return;
+      var rows = ROWS.map(function (r) {
+        return {
+          name: r.name,
+          lo: r.lo, hi: r.hi == null ? r.lo : r.hi, na: r.lo == null,
+          lab: r.lo == null ? "No per-volume price" : (r.hi == null ? "≥" + fmtM3full(r.lo) : fmtM3full(r.lo) + "–" + fmtM3full(r.hi).replace("$", "")),
+          sub: KIND_LABEL[r.kind] || r.kind,
+          tip: "<b>" + esc(r.name) + "</b><br>" + esc(r.native) + "<br>Net payback: not calculated — manufacturer cost model pending",
+          onClick: function () {
+            var bi = bars.findIndex(function (b) { return b.key === r.key; });
+            if (bi >= 0) select(bi);
+          },
+        };
+      }).sort(function (a, b) { return (b.hi || 0) - (a.hi || 0); });
+      ViewStd.dollarBars(barsWrap, {
+        rows: rows, log: true, domain: [5, 8000],
+        ticks: [10, 100, 1000, 5000],
+        tickFmt: function (v) { return "$" + (v >= 1000 ? (v / 1000) + "k" : v); },
+        axisLabel: "WHAT EXISTING SUPPLIERS CHARGE TODAY (≈ $/M³ · LOG · DERIVED CONVERSION)",
+        ariaLabel: "Dollar bars: the savings ceiling per industry — what existing suppliers charge, converted to rough dollars per cubic meter",
+        note: "The same figures as the 3D bars and the table. Native units differ per industry (per gallon, per wet tonne, per 1,000 gallons) and are converted for one shared axis (derived, flagged); each industry's detail panel keeps the native units. Net payback is not calculated — manufacturer cost model pending.",
+      });
+      barsBuilt = true;
+    }
+    barsBtn.addEventListener("click", function () {
+      var show = barsWrap.style.display === "none";
+      if (show && !barsBuilt) buildBars();
+      if (!barsBuilt) return;
+      barsWrap.style.display = show ? "" : "none";
+      canvas.style.display = show ? "none" : "";
+      hint.style.display = show ? "none" : "";
+      stageCol.classList.toggle("c3-2d-on", show);
+      stageCol.querySelectorAll(".c3p-label").forEach(function (el) { el.style.display = show ? "none" : ""; });
+      if (show && !paused) { paused = true; applyMotionState(); }
+      barsBtn.setAttribute("aria-pressed", show ? "true" : "false");
+      barsBtn.textContent = show ? "▲ Back to 3D bars" : "＄ Dollar bars";
     });
 
     /* ── controls / interaction ── */

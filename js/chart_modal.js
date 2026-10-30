@@ -307,7 +307,9 @@
     // single click on the chart frame background → modal (data points keep drill-downs)
     host.addEventListener("click", e => {
       if (e.target.closest("[data-drill-keep]") || e.target.closest(".chart-tools")
-        || e.target.closest(".walk-bar") || e.target.closest(".unit-toggle")) return;
+        || e.target.closest(".walk-bar") || e.target.closest(".unit-toggle")
+        || e.target.closest(".te-tools") || e.target.closest(".vs-panel")
+        || e.target.closest(".sizing-cards")) return;
       openModal(id, host);
     });
   });

@@ -27,6 +27,51 @@
       source: CH.srcLink(r.src), x: e.clientX, y: e.clientY,
     });
   });
+
+  /* ── tiered standard: story cards view — one clean card per company (big
+     figure, one plain-English reason, small print with the smallest deal),
+     as a view toggle alongside the full profiles ── */
+  if (window.ViewStd) {
+    const cardsHost = document.createElement("div");
+    cardsHost.hidden = true;
+    host.parentElement.insertBefore(cardsHost, host.nextSibling);
+    const rowOf = (p, prefix) => p.rows.find(r => r.lab.toLowerCase().indexOf(prefix) === 0);
+    function renderCards() {
+      cardsHost.innerHTML = "";
+      ViewStd.storyCards(cardsHost, RPT.comp_profiles.map(p => {
+        const fin = rowOf(p, "financial");
+        const small = rowOf(p, "smallest");
+        const verdict = rowOf(p, "scale-gap");
+        const reason = verdict ? verdict.txt.split(". ")[0].replace(/\.+$/, "") + "." : p.form;
+        const srcs = [...new Set(p.rows.flatMap(r => r.src || []))];
+        return {
+          name: p.name,
+          big: fin ? fin.drill.value : p.form,
+          reason,
+          small: small ? "Smallest deal: " + small.drill.value : p.form,
+          onClick: e => U.showDrill({
+            title: p.name.toUpperCase(),
+            value: fin ? fin.drill.value : p.form,
+            sub: (verdict ? verdict.txt + " " : "") + (small ? "Smallest deal: " + small.drill.value + " — " + small.txt : ""),
+            source: CH.srcLink(srcs),
+            x: e.clientX, y: e.clientY,
+          }),
+        };
+      }));
+    }
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["profiles", "Full profiles"], ["cards", "Cards"]],
+      current: "profiles",
+      onPick: v => {
+        const cards = v === "cards";
+        host.hidden = cards;
+        cardsHost.hidden = !cards;
+        if (cards) renderCards();
+      },
+    });
+    host.parentElement.insertBefore(vt, host);
+  }
 })();
 
 /* ────────────────────────────────────────────────────────────

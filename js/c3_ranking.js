@@ -170,6 +170,7 @@
           '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
           '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Auto-orbit: on</button>' +
           '<button type="button" class="c3-btn" data-act="lens" aria-pressed="false">＄ Switch to $/gal view</button>' +
+          '<button type="button" class="c3-btn" data-act="bars" aria-pressed="false">＄ Dollar bars</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
         '</div>' +
         '<div class="c3-hint">drag to orbit · scroll to zoom · click a tower</div>' +
@@ -191,6 +192,10 @@
     var tip = root.querySelector(".c3-tip");
     var detail = root.querySelector(".c3-detail");
     var tablewrap = root.querySelector(".c3-tablewrap");
+    /* tiered standard: 2D dollar-bars view lives inside the stage, beside the canvas */
+    var barsWrap = document.createElement("div");
+    barsWrap.className = "c3-2d"; barsWrap.hidden = true;
+    stage.appendChild(barsWrap);
 
     /* ── renderer / scene ── */
     var renderer;
@@ -482,6 +487,59 @@
       tablewrap.classList.toggle("show", show);
       tableBtn.setAttribute("aria-pressed", String(show));
     });
+
+    /* ── 2D dollar bars (tiered standard: dollar bars for comparisons) — the
+       same $/gal disposal ranges as the money lens, as a clean ranked 2D chart ── */
+    var barsBuilt = false, barsWasPaused = false;
+    var barsBtn = root.querySelector('[data-act="bars"]');
+    function buildBars() {
+      if (!window.ViewStd) return;
+      var rows = RECS.map(function (r) {
+        var s = r.sav;
+        return {
+          name: r.name,
+          lo: s && !s.na ? s.lo : null, hi: s && !s.na ? s.hi : null,
+          na: !s || s.na, lowConf: !!(s && s.lowConf),
+          lab: s ? (s.na ? "N/A — buys the output" : band(s)) : "—",
+          sub: r.plain,
+          tip: "<b>" + esc(r.name) + "</b><br>Fit score: " + r.score.toFixed(1) + "/10 · " +
+            (s ? (s.na ? "no disposal bill to save — buys the plant\u2019s output" : "existing disposal " + band(s)) : "no per-gallon figure"),
+          onClick: function (e) {
+            U.showDrill({
+              title: r.name.toUpperCase(),
+              value: r.score.toFixed(1) + " / 10 · " + (s ? (s.na ? "N/A — output buyer" : band(s)) : "—"),
+              sub: r.plain + " " + (TIERS[r.tier] && TIERS[r.tier].posture ? TIERS[r.tier].posture : ""),
+              source: srcDated(uniq((r.src || []).concat(s && s.src ? s.src : []))),
+              x: e.clientX, y: e.clientY,
+            });
+          },
+        };
+      }).sort(function (a, b) { return (b.hi || 0) - (a.hi || 0); });
+      ViewStd.dollarBars(barsWrap, {
+        rows: rows, log: true, domain: [0.005, 100],
+        ticks: [0.01, 0.1, 1, 10, 50],
+        tickFmt: function (v) { return "$" + fv(v); },
+        axisLabel: "WHAT EXISTING SUPPLIERS CHARGE TO DISPOSE OF IT ($/GAL · LOG)",
+        ariaLabel: "Dollar bars: what existing suppliers charge per gallon to dispose of each industry's waste",
+        note: "The same figures as the 3D money view and the table — each bar is the documented existing-supplier price range for that industry\u2019s waste, on a log scale. HCSP\u2019s own price is TBD (manufacturer cost model pending).",
+      });
+      barsBuilt = true;
+    }
+    function setBarsView(on) {
+      if (on && !barsBuilt) buildBars();
+      if (!barsBuilt) return;
+      stage.classList.toggle("c3-2d-on", !!on);
+      if (on) { barsWasPaused = paused; if (!paused) setPaused(true); }
+      else if (!barsWasPaused) setPaused(false);
+      barsWrap.hidden = !on;
+      if (renderer) renderer.domElement.style.display = on ? "none" : "";
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (lg) lg.style.display = on ? "none" : "";
+      if (ht) ht.style.display = on ? "none" : "";
+      barsBtn.setAttribute("aria-pressed", String(on));
+      barsBtn.textContent = on ? "▲ Back to 3D towers" : "＄ Dollar bars";
+    }
+    barsBtn.addEventListener("click", function () { setBarsView(barsWrap.hidden); });
     if (REDUCE) setPaused(true);
 
     /* ── sizing ── */

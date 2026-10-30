@@ -188,4 +188,61 @@
   }
   btns.forEach(b => b.onclick = () => { lens = b.dataset.lens; render(); });
   render();
+
+  /* ── tiered standard: story cards for the industry league — one clean card
+     per industry (big figure, one plain-English reason, small print with the
+     machine count), as a view toggle alongside the existing table ── */
+  if (window.ViewStd) {
+    const fmtNum = n => n.toLocaleString("en-US");
+    const modKey = { pharma: "pharma", textile: "tex", pfas: "pfas", chem: "haz" };
+    const machineTxt = k => {
+      const core = (RPT.sizing || []).find(x => x.key === (modKey[k] || k));
+      if (core && core.mod_lo != null)
+        return "Machines: " + (core.mod_lo === core.mod_hi ? fmtNum(core.mod_lo) : fmtNum(core.mod_lo) + "–" + fmtNum(core.mod_hi)) + " × 50 m³/day modules";
+      const plus = (RPT.sizing_plus || []).find(x => x.key === k);
+      if (plus && plus.mod_lab) return "Machines: " + plus.mod_lab;
+      return "";
+    };
+    const bandTxt = s => s.na ? "N/A — buyer of the output" : "$" + fv(s.lo) + "–" + fv(s.hi) + (s.plus ? "+" : "") + "/gal";
+    const cardsHost = document.createElement("div");
+    cardsHost.hidden = true;
+    const scroll = t.closest(".table-scroll");
+    (scroll || t).parentElement.insertBefore(cardsHost, (scroll || t).nextSibling);
+    function renderCards() {
+      cardsHost.innerHTML = "";
+      const rows = merged.slice().sort((a, b) => lens === "savings" ? a.s.srank - b.s.srank : a.c.rank - b.c.rank);
+      ViewStd.storyCards(cardsHost, rows.map(m => {
+        const s = m.s, c = m.c, bits = [];
+        const mt = machineTxt(c.key);
+        if (mt) bits.push(mt);
+        bits.push("Composite fit #" + c.rank + " · savings #" + s.srank + (s.lowConf ? " · low confidence" : ""));
+        return {
+          name: s.vertical,
+          big: lens === "savings" ? bandTxt(s) : c.score + " / 10",
+          reason: c.plain || c.why || s.note,
+          small: bits.join(" · "),
+          onClick: e => U.showDrill({
+            title: (lens === "savings" ? "SAVINGS #" + s.srank : "RANK " + c.rank) + " · " + s.vertical.toUpperCase().slice(0, 40),
+            value: s.na ? "N/A — buyer of the output" : bandTxt(s),
+            sub: s.note + " Composite lens: #" + c.rank + " (" + c.score + "/10 — " + RPT.league_fit[c.tier] + "). " + c.why + " " + RPT.savings_meta.qualifier + ".",
+            source: CH.srcLink(s.src.concat(c.src.filter(k => !s.src.includes(k))).concat(["K150"])),
+            x: e.clientX, y: e.clientY,
+          }),
+        };
+      }));
+    }
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["table", "Table"], ["cards", "Cards"]],
+      current: "table",
+      onPick: v => {
+        const cards = v === "cards";
+        if (scroll) scroll.hidden = cards; else t.hidden = cards;
+        cardsHost.hidden = !cards;
+        if (cards) renderCards();
+      },
+    });
+    tog.after(vt);
+    btns.forEach(b => b.addEventListener("click", () => { if (!cardsHost.hidden) renderCards(); }));
+  }
 })();

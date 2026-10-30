@@ -101,6 +101,7 @@
           '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
           '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Auto-rotation: on</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
+          '<button type="button" class="c3-btn" data-act="bubbles" aria-pressed="false">◦ Bubbles</button>' +
         '</div>' +
         '<div class="c3-hint">drag to orbit · scroll to zoom · click a pin</div>' +
         '<div class="c3-legend">' +
@@ -121,6 +122,10 @@
     var tip = root.querySelector(".c3-tip");
     var detail = root.querySelector(".c3-detail");
     var tablewrap = root.querySelector(".c3-tablewrap");
+    /* tiered standard: 2D bubble view (2-variable chart) inside the stage */
+    var bubWrap = document.createElement("div");
+    bubWrap.className = "c3-2d"; bubWrap.hidden = true;
+    stage.appendChild(bubWrap);
 
     var renderer;
     try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); } catch (e) { renderer = null; }
@@ -417,6 +422,73 @@
       tablewrap.classList.toggle("show", show);
       tableBtn.setAttribute("aria-pressed", String(show));
     });
+
+    /* ── 2D bubbles (tiered standard: bubbles for 2-variable charts) — feed
+       strength (COD) against net energy for the same streams, straight 2D ── */
+    var bubBuilt = false, bubWasPaused = false;
+    var bubBtn = root.querySelector('[data-act="bubbles"]');
+    function buildBubbles() {
+      if (!window.ViewStd) return;
+      var pts = (CX.streams || []).map(function (st) {
+        var mid = Math.sqrt(st.cod[0] * st.cod[1]);
+        var yv = hubKwh(mid);
+        var green = st.side === "above";
+        var codTxt = st.cod[0] === st.cod[1] ? st.cod[0] + "" : st.cod[0] + "–" + st.cod[1];
+        return {
+          name: st.name, x: mid, y: yv,
+          xLo: st.cod[0] !== st.cod[1] ? st.cod[0] : null,
+          xHi: st.cod[0] !== st.cod[1] ? st.cod[1] : null,
+          r: green ? 0.75 : 0.5,
+          color: green ? "#0e9f6e" : "#c22f4e",
+          lab: codTxt + " g/L · " + (yv > 0 ? "+" : "") + Math.round(yv) + " kWh/m³",
+          tip: "<b>" + esc(st.name) + "</b><br>" + codTxt + " g/L COD · " + (yv > 0 ? "+" : "") + Math.round(yv) + " kWh/m³ net<br>" +
+            (green ? "Above the wall — exports power" : "Below the wall — consumes power") + "<br>Click for the story",
+          onClick: function (e) {
+            U.showDrill({
+              title: st.name.toUpperCase() + " — " + codTxt + " G/L COD",
+              value: (yv > 0 ? "+" : "") + Math.round(yv) + " kWh/m³",
+              sub: esc(st.note) + " Hub line from the Los Alamos lab\u2019s integrated model; " + esc(CX.ceiling || ""),
+              source: srcDated(uniq([].concat(st.src || [], CX.src || []))),
+              x: e.clientX, y: e.clientY,
+            });
+          },
+        };
+      });
+      ViewStd.bubbles(bubWrap, {
+        points: pts,
+        xLog: true, xDomain: [0.4, 320], yDomain: [-70, 25],
+        xTicks: [0.5, 1, 2, 5, 10, 20, 50, 100, 200],
+        xFmt: function (v) { return v + " g/L"; },
+        yTicks: [-60, -40, -20, 0, 20],
+        yFmt: function (v) { return (v > 0 ? "+" : "") + v; },
+        zeroY: true,
+        vLines: [
+          { x: 37.5, label: "NET-ZERO WALL ≈ 35–40 G/L", color: "#b57a00" },
+          { x: 60, label: "EXPORT ZONE ≥ 60 G/L", color: "#0e9f6e" },
+        ],
+        xLabel: "FEED STRENGTH — COD, G/L (LOG)",
+        yLabel: "NET ELECTRICITY, KWH/M³ (− = POWER OUT)",
+        ariaLabel: "Bubble chart: feed strength (COD) against net energy for the studied waste streams",
+        note: "The same streams as the 3D pins and the table. Dashed rings span each stream\u2019s documented COD range; the net-energy figure is the lab\u2019s model value at the middle of that range.",
+      });
+      bubBuilt = true;
+    }
+    function setBubView(on) {
+      if (on && !bubBuilt) buildBubbles();
+      if (!bubBuilt) return;
+      stage.classList.toggle("c3-2d-on", !!on);
+      if (on) { bubWasPaused = paused; if (!paused) setPaused(true); }
+      else if (!bubWasPaused) setPaused(false);
+      bubWrap.hidden = !on;
+      if (renderer) renderer.domElement.style.display = on ? "none" : "";
+      var lg = root.querySelector(".c3-legend"), ht = root.querySelector(".c3-hint");
+      if (lg) lg.style.display = on ? "none" : "";
+      if (ht) ht.style.display = on ? "none" : "";
+      if (on) tip.classList.remove("show");
+      bubBtn.setAttribute("aria-pressed", String(on));
+      bubBtn.textContent = on ? "▲ Back to 3D pins" : "◦ Bubbles";
+    }
+    bubBtn.addEventListener("click", function () { setBubView(bubWrap.hidden); });
     if (REDUCE) setPaused(true);
 
     function resize() {

@@ -47,6 +47,51 @@
       sub: f.note, source: CH.srcLink(f.src), x: e.clientX, y: e.clientY,
     });
   });
+
+  /* ── tiered standard: the same board as a downloadable data table ── */
+  if (window.ViewStd) {
+    const tWrap = document.createElement("div");
+    tWrap.className = "table-scroll"; tWrap.hidden = true;
+    const tbl = document.createElement("table");
+    tbl.className = "dt"; tbl.id = "fate-table";
+    const cap = document.createElement("caption");
+    cap.textContent = "The fate board as a plain table — every program, its fate, its money line, sortable and downloadable.";
+    tbl.appendChild(cap);
+    tbl.innerHTML = "<thead><tr><th>Fate</th><th>Program</th><th>Money line</th><th>What happened</th><th>Sources</th></tr></thead>";
+    const tb = document.createElement("tbody");
+    groups.forEach(g => {
+      RPT.funding_landscape.filter(f => f.fate === g.key).forEach(f => {
+        const tr = document.createElement("tr");
+        [g.head, f.name, f.amount, f.note, (f.src || []).join(" · ")].forEach((v, ci) => {
+          const c = document.createElement("td");
+          if (ci === 1) { const b = document.createElement("b"); b.textContent = v; c.appendChild(b); }
+          else c.textContent = v;
+          tr.appendChild(c);
+        });
+        tr.style.cursor = "pointer";
+        tr.setAttribute("data-drill-keep", "");
+        tr.onclick = e => U.showDrill({
+          title: f.name.toUpperCase(), value: f.amount,
+          sub: f.note, source: CH.srcLink(f.src), x: e.clientX, y: e.clientY,
+        });
+        tb.appendChild(tr);
+      });
+    });
+    tbl.appendChild(tb);
+    tWrap.appendChild(tbl);
+    board.after(tWrap);
+    const vt = ViewStd.makeToggle({
+      label: "VIEW",
+      views: [["board", "Board"], ["table", "Table"]],
+      current: "board",
+      onPick: v => {
+        const tab = v === "table";
+        board.hidden = tab;
+        tWrap.hidden = !tab;
+      },
+    });
+    board.parentElement.insertBefore(vt, board);
+  }
 })();
 
 /* ────────────────────────────────────────────────────────────
