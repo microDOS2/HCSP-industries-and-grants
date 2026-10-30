@@ -194,7 +194,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var tools = document.createElement("div"); tools.className = "c3s-tools"; sec.appendChild(tools);
     var pauseBtn = document.createElement("button");
     pauseBtn.type = "button"; pauseBtn.className = "c3s-btn c3s-pause";
-    pauseBtn.setAttribute("aria-pressed", "false"); pauseBtn.textContent = "❚❚ Pause";
+    pauseBtn.setAttribute("aria-pressed", "true"); pauseBtn.textContent = "▶ Play";
     tools.appendChild(pauseBtn);
     var orbitBtn = document.createElement("button");
     orbitBtn.type = "button"; orbitBtn.className = "c3s-btn";
@@ -393,13 +393,14 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     /* ══ View A internals — light 3D scene (created on demand, destroyed on exit) ══ */
     var built = false, renderer = null, scene = null, camera = null, controls = null;
     var MAT = null, facMeshes = [], bands = [], clickable = [], labels = [];
-    var paused = false, orbitOn = false, dirty = true, inView = false, raf = 0;
+    var paused = true, orbitOn = false, dirty = true, inView = false, raf = 0; // paused on load per owner directive
     var io3d = null, canvas = null, hintEl = null, pokeFrame = null;
     var QA_THROTTLE = /[?&]qa=1\b/.test(location.search), lastRender = 0, lastInteract = 0;
 
     pauseBtn.addEventListener("click", function () { setPaused(!paused); });
     function setPaused(p) {
       paused = p;
+      if (!p && !orbitOn) setOrbit(true); // Play must start visible motion — auto-orbit is this scene's motion
       pauseBtn.setAttribute("aria-pressed", p ? "true" : "false");
       pauseBtn.textContent = p ? "▶ Resume" : "❚❚ Pause";
       dirty = true; poke();
@@ -653,6 +654,11 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       root.c3 = { pause: setPaused };
       resize3d();
       highlight();
+      // re-render once webfonts settle: label metrics change, and a paused
+      // scene would otherwise freeze first-paint label positions
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
+        if (built && pokeFrame) { dirty = true; pokeFrame(); }
+      });
     }
 
     function dispose3D() {

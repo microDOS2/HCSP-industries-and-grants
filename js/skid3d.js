@@ -175,7 +175,7 @@
 
   // ── controls ──
   const controls = new THREE.OrbitControls(camera, canvas);
-  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.enableDamping = false; controls.dampingFactor = 0.08; // damping comes on with ▶ PLAY
   controls.autoRotate = false;                    // static assembled frame; no auto-rotation
   controls.target.set(0.3, 1.3, 0);
   controls.minDistance = 4; controls.maxDistance = 22;
@@ -189,7 +189,21 @@
     exBtn.classList.toggle("on", exploded);
     exBtn.textContent = exploded ? "ASSEMBLE ⇓" : "EXPLODE ⇕";
     dirty = true;
-    if (READER() && inView && !raf) raf = requestAnimationFrame(frame);
+    if ((READER() || paused) && inView && !raf) raf = requestAnimationFrame(frame);
+  });
+
+  // play/pause — owner directive: static assembled frame on load; the live
+  // render loop (damping inertia, explode motion) starts only on ▶ PLAY
+  let paused = true;
+  const playBtn = document.getElementById("skid3d-play");
+  playBtn.addEventListener("click", () => {
+    paused = !paused;
+    controls.enableDamping = !paused; // no inertia while paused — every drag repaints on demand
+    playBtn.textContent = paused ? "▶ PLAY" : "❚❚ PAUSE";
+    playBtn.setAttribute("aria-pressed", String(paused));
+    playBtn.classList.toggle("on", paused);
+    dirty = true;
+    if (inView && !raf) raf = requestAnimationFrame(frame);
   });
 
   // info panel
@@ -225,14 +239,14 @@
   let dirty = true, inView = false, raf = 0;
   controls.addEventListener("change", () => {
     dirty = true;
-    if (READER() && inView && !raf) raf = requestAnimationFrame(frame);
+    if ((READER() || paused) && inView && !raf) raf = requestAnimationFrame(frame);
   });
   function resize() {
     const w = wrap.clientWidth, h = canvas.clientHeight || 560;
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     dirty = true;
-    if (READER() && inView && !raf) raf = requestAnimationFrame(frame);
+    if ((READER() || paused) && inView && !raf) raf = requestAnimationFrame(frame);
   }
   addEventListener("resize", resize, { passive: true });
   function frame() {
@@ -250,7 +264,7 @@
       dirty = true;
     }
     if (controls.enableDamping) controls.update();
-    if (dirty || !READER()) {
+    if (dirty || (!READER() && !paused)) {
       renderer.render(scene, camera);
       (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).skid3d = (window.__HCSP3D_RENDERED.skid3d || 0) + 1;
       // project labels
@@ -283,7 +297,8 @@
       }
       dirty = false;
     }
-    if (!READER()) raf = requestAnimationFrame(frame);
+    // keep looping only while playing, or while a paused explode/assemble is still traveling
+    if (!READER() && (!paused || Math.abs(explodeT - tgt) > 0.002)) raf = requestAnimationFrame(frame);
   }
   const io = new IntersectionObserver(es => es.forEach(e => {
     inView = e.isIntersecting;
@@ -291,6 +306,11 @@
   }), { threshold: 0.05 });
   io.observe(wrap);
   resize();
+  // re-render once webfonts settle: label metrics change, and a paused scene
+  // would otherwise freeze first-paint label positions
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+    dirty = true; if (inView && !raf) raf = requestAnimationFrame(frame);
+  });
 
   // ── lazy3d controller hooks: resume when granted the active slot, announce init ──
   addEventListener("hcsp3d:active", e => {

@@ -167,8 +167,8 @@
       '</div>' +
       '<div class="c3-stage">' +
         '<div class="c3-ui">' +
-          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
-          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Auto-orbit: on</button>' +
+          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="true">▶ Play</button>' +
+          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="false">🔁 Auto-orbit: off</button>' +
           '<button type="button" class="c3-btn" data-act="lens" aria-pressed="false">＄ Switch to $/gal view</button>' +
           '<button type="button" class="c3-btn" data-act="bars" aria-pressed="false">＄ Dollar bars</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
@@ -213,7 +213,7 @@
       controls.enableDamping = true; controls.dampingFactor = 0.08;
       controls.minDistance = 7; controls.maxDistance = 38;
       controls.maxPolarAngle = Math.PI * 0.52;
-      controls.autoRotate = true; controls.autoRotateSpeed = 0.7;
+      controls.autoRotate = false; controls.autoRotateSpeed = 0.7; // orbit stays off until the visitor opts in
     }
     scene.add(new THREE.HemisphereLight(0xffffff, 0xb8c4d0, 0.95));
     var sun = new THREE.DirectionalLight(0xffffff, 0.65);
@@ -403,6 +403,7 @@
     if (renderer) {
       renderer.domElement.addEventListener("pointermove", function (ev) {
         var b = pick(ev);
+        var hoverChanged = b !== hovered;
         if (hovered && hovered !== selected) hovered.mesh.material.emissive.setHex(0x000000);
         hovered = b;
         if (b) {
@@ -420,15 +421,19 @@
           tip.classList.remove("show");
           stage.style.cursor = "";
         }
+        if (paused && hoverChanged) renderFrame(performance.now()); // repaint the highlight without motion
       });
       renderer.domElement.addEventListener("pointerleave", function () {
+        var had = hovered;
         tip.classList.remove("show");
         if (hovered && hovered !== selected) hovered.mesh.material.emissive.setHex(0x000000);
         hovered = null;
+        if (paused && had) renderFrame(performance.now());
       });
       renderer.domElement.addEventListener("click", function (ev) {
         var b = pick(ev);
         if (b) select(b === selected ? null : b);
+        if (paused && b) renderFrame(performance.now());
       });
     }
 
@@ -449,14 +454,19 @@
     }
 
     /* ── buttons ── */
-    var paused = REDUCE;
-    var orbitOn = true;
+    var paused = true; // owner directive: every 3D scene starts paused — static assembled frame until Play
+    var orbitOn = false;
     var pauseBtn = root.querySelector('[data-act="pause"]');
     var orbitBtn = root.querySelector('[data-act="orbit"]');
     var lensBtn = root.querySelector('[data-act="lens"]');
     var tableBtn = root.querySelector('[data-act="table"]');
     function setPaused(p) {
       paused = p;
+      if (!p && !orbitOn) { // Play must start visible motion — auto-orbit is this scene's ambient motion
+        orbitOn = true;
+        orbitBtn.setAttribute("aria-pressed", "true");
+        orbitBtn.textContent = "🔁 Auto-orbit: on";
+      }
       if (controls) {
         controls.autoRotate = orbitOn && !p; // paused frame must stay pixel-static
         controls.enableDamping = !p;         // flush leftover inertia in one final paused render
@@ -540,7 +550,7 @@
       barsBtn.textContent = on ? "▲ Back to 3D towers" : "＄ Dollar bars";
     }
     barsBtn.addEventListener("click", function () { setBarsView(barsWrap.hidden); });
-    if (REDUCE) setPaused(true);
+    setPaused(true); // default: render one static assembled frame; motion only after the visitor presses Play
 
     /* ── sizing ── */
     function resize() {
@@ -567,6 +577,10 @@
       bars.forEach(function (b) {
         var a = b.anim;
         if (!a) return;
+        if (paused) { // paused: snap straight to the assembled frame — no motion on load
+          b.mesh.position.x = a.tx; b.mesh.position.z = a.tz;
+          b.mesh.scale.y = Math.max(a.th, 0.01); b.anim = null; return;
+        }
         any = true;
         a.t += (now - (a.last || now)) / 1000; a.last = now;
         var p = Math.min(Math.max(a.t / a.dur, 0), 1);

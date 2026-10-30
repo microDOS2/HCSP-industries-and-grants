@@ -97,8 +97,8 @@
       '</div>' +
       '<div class="c3-stage">' +
         '<div class="c3-ui">' +
-          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
-          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Camera drift: on</button>' +
+          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="true">▶ Play</button>' +
+          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="false">🔁 Camera drift: off</button>' +
           '<button type="button" class="c3-btn" data-act="bars" aria-pressed="false">＄ Dollar bars</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
         '</div>' +
@@ -140,7 +140,7 @@
       controls.enableDamping = true; controls.dampingFactor = 0.08;
       controls.minDistance = 8; controls.maxDistance = 40;
       controls.maxPolarAngle = Math.PI * 0.52;
-      controls.autoRotate = true; controls.autoRotateSpeed = 0.55;
+      controls.autoRotate = false; controls.autoRotateSpeed = 0.55; // drift stays off until the visitor opts in
     }
     scene.add(new THREE.HemisphereLight(0xffffff, 0xb8c4d0, 0.95));
     var sun = new THREE.DirectionalLight(0xffffff, 0.6);
@@ -360,6 +360,7 @@
     if (renderer) {
       renderer.domElement.addEventListener("pointermove", function (ev) {
         var tw = pick(ev);
+        var hoverChanged = tw !== hovered;
         if (hovered && hovered !== selected) setGlow(hovered, false);
         hovered = tw;
         if (tw) {
@@ -378,15 +379,19 @@
           tip.classList.remove("show");
           stage.style.cursor = "";
         }
+        if (paused && hoverChanged) renderFrame(performance.now()); // repaint highlight without motion
       });
       renderer.domElement.addEventListener("pointerleave", function () {
+        var had = hovered;
         tip.classList.remove("show");
         if (hovered && hovered !== selected) setGlow(hovered, false);
         hovered = null;
+        if (paused && had) renderFrame(performance.now());
       });
       renderer.domElement.addEventListener("click", function (ev) {
         var tw = pick(ev);
         if (tw) select(tw === selected ? null : tw);
+        if (paused && tw) renderFrame(performance.now());
       });
     }
 
@@ -406,8 +411,8 @@
     }
 
     /* buttons */
-    var paused = REDUCE;
-    var orbitOn = true;
+    var paused = true; // owner directive: static assembled frame on load; motion only after Play
+    var orbitOn = false;
     var pausedAt = 0;
     var pauseBtn = root.querySelector('[data-act="pause"]');
     var orbitBtn = root.querySelector('[data-act="orbit"]');
@@ -488,7 +493,7 @@
       barsBtn.textContent = on ? "▲ Back to 3D towers" : "＄ Dollar bars";
     }
     barsBtn.addEventListener("click", function () { setBarsView(barsWrap.hidden); });
-    if (REDUCE) setPaused(true);
+    setPaused(true); // default: render one static assembled frame on load; motion only after Play
 
     function resize() {
       if (!renderer) return;
@@ -513,9 +518,9 @@
       if (paused) now = pausedAt; // frozen clock: identical static frame on any incidental re-render
       var dt = last == null ? 0.016 : Math.min((now - last) / 1000, 0.05);
       last = now;
-      /* grow-in */
+      /* grow-in — snapped to full height while paused so the static frame is fully assembled */
       if (growT < 1) {
-        growT = Math.min(growT + dt * 0.9, 1);
+        growT = paused ? 1 : Math.min(growT + dt * 0.9, 1);
         towers.forEach(function (t) {
           var local = Math.min(Math.max((growT * 1.4 - Math.max(-t.born, 0) * 0.3), 0), 1);
           var e = 1 - Math.pow(1 - local, 3);

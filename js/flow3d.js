@@ -109,14 +109,15 @@
   wrap.appendChild(canvas);
   const ui = document.createElement("div");
   ui.className = "flow3d-ui";
-  ui.innerHTML = `<button type="button" id="flow3d-explode">EXPLODE ⇕</button>
+  ui.innerHTML = `<button type="button" id="flow3d-play" class="on" aria-pressed="true">▶ PLAY</button>
+    <button type="button" id="flow3d-explode">EXPLODE ⇕</button>
     <button type="button" id="flow3d-walk">WALK ME THROUGH IT →</button>
     <button type="button" id="flow3d-table" aria-pressed="false">▦ TABLE VIEW</button>`;
   wrap.appendChild(ui);
   const tableBtn = ui.querySelector("#flow3d-table");
   const hint = document.createElement("p");
   hint.className = "flow3d-hint";
-  hint.textContent = "DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT OR PIPE";
+  hint.textContent = "STATIC UNTIL ▶ PLAY · DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A COMPONENT OR PIPE";
   wrap.appendChild(hint);
   const cap = document.createElement("div");
   cap.className = "flow3d-caption";
@@ -163,6 +164,7 @@
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   } catch (e) {
     canvas.remove(); hint.remove(); cap.remove();
+    ui.querySelector("#flow3d-play").remove();
     ui.querySelector("#flow3d-explode").remove();
     ui.querySelector("#flow3d-walk").remove();
     const p = document.createElement("p");
@@ -351,7 +353,7 @@
     ["reactor",   "DISTILLER + OXIDIZER · ATM PRESSURE", "", new THREE.Vector3(-0.5, 3.6, 0), 0, 0, 46],
     ["separator", "SEPARATOR", "", new THREE.Vector3(1.6, 1.7, -0.9), -40, 34, 0],
     ["waterOut",  "DISTILLED WATER · 85–95%", "accent", new THREE.Vector3(4.3, 1.9, -2.5), 30, -45, -8],
-    ["solidsOut", "INERT SOLIDS", "", new THREE.Vector3(4.7, 1.15, -0.6), -60, 0, 0],
+    ["solidsOut", "INERT SOLIDS", "", new THREE.Vector3(4.7, 1.15, -0.6), -60, 34, 0],
     ["heatHub",   "SURPLUS HEAT · 9.6 MW", "heat", new THREE.Vector3(3.4, 2.8, 1.2), 0, -9, -40],
     ["turbine",   "TURBINE — ≈1.4 MW ELECTRICITY", "accent", new THREE.Vector3(6.3, 2.0, 0.2), 0, -12, 0],
     ["chiller",   "NH₃ CHILLER — ≈4.9 MW COOLING", "cool", new THREE.Vector3(6.3, 2.15, 1.9), 0, 2, 0],
@@ -372,7 +374,7 @@
 
   // ── controls ──
   const controls = new THREE.OrbitControls(camera, canvas);
-  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.enableDamping = false; controls.dampingFactor = 0.08; // damping comes on with ▶ PLAY
   controls.autoRotate = false;
   controls.target.set(0.2, 1.2, 0.4);
   controls.minDistance = 5; controls.maxDistance = 30;
@@ -385,6 +387,19 @@
     exploded = !exploded;
     exBtn.classList.toggle("on", exploded);
     exBtn.textContent = exploded ? "ASSEMBLE ⇓" : "EXPLODE ⇕";
+    dirty = true; poke();
+  });
+
+  // ── play/pause — owner directive: static assembled frame on load; flow
+  // markers, damping inertia, and the live loop start only on ▶ PLAY ──
+  let paused = true;
+  const playBtn = ui.querySelector("#flow3d-play");
+  playBtn.addEventListener("click", () => {
+    paused = !paused;
+    controls.enableDamping = !paused;
+    playBtn.textContent = paused ? "▶ PLAY" : "❚❚ PAUSE";
+    playBtn.setAttribute("aria-pressed", String(paused));
+    playBtn.classList.toggle("on", paused);
     dirty = true; poke();
   });
 
@@ -470,7 +485,9 @@
   });
 
   // ── render loop: on-demand; static in reading mode; paused offscreen ──
-  function poke() { if (READER() && inView && !raf && !tableOn) raf = requestAnimationFrame(frame); }
+  // poke always kicks: frame() renders once and self-terminates when paused /
+  // in reading mode, and keeps looping only while playing
+  function poke() { if (inView && !raf && !tableOn) raf = requestAnimationFrame(frame); }
   controls.addEventListener("change", () => { dirty = true; poke(); });
   function resize() {
     const w = wrap.clientWidth, h = canvas.clientHeight || 560;
@@ -502,8 +519,8 @@
       components.forEach(g => { g.position.y = g.userData.lift * explodeT; });
       dirty = true;
     }
-    // flow markers ride the pipes (frozen in reading mode)
-    if (!READER() && t != null) {
+    // flow markers ride the pipes (frozen in reading mode and while paused)
+    if (!READER() && !paused && t != null) {
       const dt = Math.min(0.05, (t - lastT) / 1000 || 0);
       lastT = t;
       flows.forEach(f => f.markers.forEach(s => {
@@ -514,7 +531,7 @@
       dirty = true;
     }
     if (controls.enableDamping) controls.update();
-    if (dirty || !READER()) {
+    if (dirty || (!READER() && !paused)) {
       renderer.render(scene, camera);
       (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).flow3d = (window.__HCSP3D_RENDERED.flow3d || 0) + 1;
       const w = wrap.clientWidth, h = canvas.clientHeight || 560;
@@ -533,7 +550,8 @@
       });
       dirty = false;
     }
-    if (!READER()) raf = requestAnimationFrame(frame);
+    // keep looping only while playing, or while a paused explode/assemble is still traveling
+    if (!READER() && (!paused || explodeT !== tgt)) raf = requestAnimationFrame(frame);
   }
   const io = new IntersectionObserver(es => es.forEach(e => {
     inView = e.isIntersecting;
@@ -541,6 +559,9 @@
   }), { threshold: 0.05 });
   io.observe(wrap);
   resize();
+  // re-render once webfonts settle: label metrics change, and a paused scene
+  // would otherwise freeze first-paint label positions
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty = true; poke(); });
 
   // ── lazy3d controller hooks: resume when granted the active slot, announce init ──
   addEventListener("hcsp3d:active", e => {

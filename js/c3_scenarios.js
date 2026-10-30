@@ -174,7 +174,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var tools = document.createElement("div"); tools.className = "c3x-tools"; sec.appendChild(tools);
     var pauseBtn = document.createElement("button");
     pauseBtn.type = "button"; pauseBtn.className = "c3x-btn c3x-pause";
-    pauseBtn.setAttribute("aria-pressed", "false"); pauseBtn.textContent = "❚❚ Pause";
+    pauseBtn.setAttribute("aria-pressed", "true"); pauseBtn.textContent = "▶ Play";
     tools.appendChild(pauseBtn);
     var tableBtn = document.createElement("button");
     tableBtn.type = "button"; tableBtn.className = "c3x-btn";
@@ -182,8 +182,8 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     tools.appendChild(tableBtn);
     var orbitBtn = document.createElement("button");
     orbitBtn.type = "button"; orbitBtn.className = "c3x-btn";
-    orbitBtn.setAttribute("aria-pressed", "true");
-    orbitBtn.textContent = "⟳ Auto-orbit: on";
+    orbitBtn.setAttribute("aria-pressed", "false");
+    orbitBtn.textContent = "⟳ Auto-orbit: off";
     orbitBtn.title = "Gently rotate the camera so the site's motion is easy to see — turn off to hold the view still";
     tools.appendChild(orbitBtn);
     var pickerBtns = SC.map(function (s, i) {
@@ -549,7 +549,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     /* ── controls / motion ── */
     var controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true; controls.dampingFactor = 0.08;
-    controls.autoRotate = true; controls.autoRotateSpeed = 1.2;
+    controls.autoRotate = false; controls.autoRotateSpeed = 1.2;
     controls.target.set(0.4, 1.1, 0);
     controls.minDistance = 5; controls.maxDistance = 30;
     controls.maxPolarAngle = Math.PI * 0.52;
@@ -564,7 +564,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var REDUCED = false;
     try { REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
     function stillMode() { return REDUCED || document.documentElement.classList.contains("reader"); }
-    var paused = false, orbitOn = true;
+    var paused = true, orbitOn = false; // owner directive: static frame on load; motion + orbit only after the visitor opts in
     function applyMotionState() {
       controls.autoRotate = orbitOn && !paused && !stillMode();
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
@@ -695,6 +695,9 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     buildScene(0);
     resize();
     applyMotionState();
+    // re-render once webfonts settle: label metrics change, and a paused scene
+    // would otherwise freeze first-paint label positions
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { dirty = true; poke(); });
   }
 
   /* ════════════════════════ PART B — MATERIALS SEPARATION (EXPLODED 3D) ════════════════════════ */
@@ -724,7 +727,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var tools = document.createElement("div"); tools.className = "c3x-tools"; sec.appendChild(tools);
     var pauseBtn = document.createElement("button");
     pauseBtn.type = "button"; pauseBtn.className = "c3x-btn c3x-pause";
-    pauseBtn.setAttribute("aria-pressed", "false"); pauseBtn.textContent = "❚❚ Pause";
+    pauseBtn.setAttribute("aria-pressed", "true"); pauseBtn.textContent = "▶ Play";
     tools.appendChild(pauseBtn);
     var tableBtn = document.createElement("button");
     tableBtn.type = "button"; tableBtn.className = "c3x-btn";
@@ -732,8 +735,8 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     tools.appendChild(tableBtn);
     var orbitBtn = document.createElement("button");
     orbitBtn.type = "button"; orbitBtn.className = "c3x-btn";
-    orbitBtn.setAttribute("aria-pressed", "true");
-    orbitBtn.textContent = "⟳ Auto-orbit: on";
+    orbitBtn.setAttribute("aria-pressed", "false");
+    orbitBtn.textContent = "⟳ Auto-orbit: off";
     orbitBtn.title = "Gently rotate the camera so the motion is easy to see — turn off to hold the view still";
     tools.appendChild(orbitBtn);
 
@@ -891,6 +894,15 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     });
     label("ROADMAP — NOT A SHIPPING FEATURE", "c3x-lb-red", 0, 7.6, 0);
 
+    // place flow markers + feed swirl once so the paused first frame is fully
+    // assembled (animate() owns their motion once the visitor presses Play)
+    placeMarkers();
+    swirls.forEach(function (p) {
+      var u = p.userData;
+      var rr = 0.9 * (1 - u.t * 0.45);
+      p.position.set(Math.sin(u.a + u.t * 9) * rr, 0.5 + u.t * 2.7, Math.cos(u.a + u.t * 9) * rr);
+    });
+
     function label(text, cls, x, y, z, dx, dy) {
       var el = document.createElement("div");
       el.className = "c3x-label" + (cls ? " " + cls : "");
@@ -1009,7 +1021,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     /* ── controls / motion ── */
     var controls = new THREE.OrbitControls(camera, canvas);
     controls.enableDamping = true; controls.dampingFactor = 0.08;
-    controls.autoRotate = true; controls.autoRotateSpeed = 1.0;
+    controls.autoRotate = false; controls.autoRotateSpeed = 1.0;
     controls.target.set(0, 3.4, 0);
     controls.minDistance = 6; controls.maxDistance = 34;
     controls.maxPolarAngle = Math.PI * 0.55;
@@ -1024,7 +1036,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     var REDUCED = false;
     try { REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
     function stillMode() { return REDUCED || document.documentElement.classList.contains("reader"); }
-    var paused = false, orbitOn = true;
+    var paused = true, orbitOn = false; // owner directive: static frame on load; motion + orbit only after the visitor opts in
     function applyMotionState() {
       controls.autoRotate = orbitOn && !paused && !stillMode();
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
@@ -1168,6 +1180,9 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     overviewPanel();
     resize();
     applyMotionState();
+    // re-render once webfonts settle: label metrics change, and a paused scene
+    // would otherwise freeze first-paint label positions
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { dirty = true; poke(); });
   }
 
   /* ── module entry ── */

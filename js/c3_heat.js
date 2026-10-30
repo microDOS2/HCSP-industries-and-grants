@@ -150,8 +150,8 @@
       '</div>' +
       '<div class="c3-stage">' +
         '<div class="c3-ui">' +
-          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
-          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="true">🔁 Camera drift: on</button>' +
+          '<button type="button" class="c3-btn" data-act="pause" aria-pressed="true">▶ Play</button>' +
+          '<button type="button" class="c3-btn" data-act="orbit" aria-pressed="false">🔁 Camera drift: off</button>' +
           '<button type="button" class="c3-btn" data-act="table" aria-pressed="false">▦ Table view</button>' +
         '</div>' +
         '<div class="c3-hint">drag to orbit · scroll to zoom · click a stage</div>' +
@@ -188,7 +188,7 @@
       controls.enableDamping = true; controls.dampingFactor = 0.08;
       controls.minDistance = 7; controls.maxDistance = 36;
       controls.maxPolarAngle = Math.PI * 0.52;
-      controls.autoRotate = true; controls.autoRotateSpeed = 0.5;
+      controls.autoRotate = false; controls.autoRotateSpeed = 0.5; // drift stays off until the visitor opts in
     }
     scene.add(new THREE.HemisphereLight(0xffffff, 0xaab8c6, 1.0));
     var sun = new THREE.DirectionalLight(0xffffff, 0.6);
@@ -367,6 +367,7 @@
       renderer.domElement.addEventListener("click", function (ev) {
         var id = pick(ev);
         if (id) select(id === selected ? null : id);
+        if (paused && id) renderFrame(performance.now()); // repaint the selection without motion
       });
     }
 
@@ -389,8 +390,8 @@
     }
 
     /* buttons */
-    var paused = REDUCE;
-    var orbitOn = true;
+    var paused = true; // owner directive: static assembled frame on load; motion only after Play
+    var orbitOn = false;
     var pausedAt = 0;
     var pauseBtn = root.querySelector('[data-act="pause"]');
     var orbitBtn = root.querySelector('[data-act="orbit"]');
@@ -420,7 +421,7 @@
       tablewrap.classList.toggle("show", show);
       tableBtn.setAttribute("aria-pressed", String(show));
     });
-    if (REDUCE) setPaused(true);
+    setPaused(true); // default: one static assembled frame; motion only after the visitor presses Play
 
     function resize() {
       if (!renderer) return;

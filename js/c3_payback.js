@@ -185,7 +185,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     canvas.setAttribute("aria-label", "Interactive 3D bar chart: one floating range bar per industry showing the cost it pays existing waste-disposal suppliers today");
     stageCol.appendChild(canvas);
     var hint = document.createElement("p"); hint.className = "c3p-hint";
-    hint.textContent = "Scene orbits slowly · drag to look around · scroll to zoom · click a bar for its baseline";
+    hint.textContent = "Static on load — press ▶ Resume to orbit · drag to look around · scroll to zoom · click a bar for its baseline";
     stageCol.appendChild(hint);
     var panel = document.createElement("aside"); panel.className = "c3p-panel";
     panel.setAttribute("aria-live", "polite"); grid.appendChild(panel);
@@ -465,7 +465,7 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
       return { x: r.left + (v.x * 0.5 + 0.5) * r.width, y: r.top + (-v.y * 0.5 + 0.5) * r.height, behind: v.z > 1 };
     };
 
-    var paused = false;
+    var paused = true; // owner directive: static assembled frame on load; motion only after Play
     function applyMotionState() {
       controls.autoRotate = !paused && !stillMode();
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
@@ -586,6 +586,9 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     overviewPanel();
     resize();
     applyMotionState();
+    // re-render once webfonts settle: label metrics change, and a paused scene
+    // would otherwise freeze first-paint label positions
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { dirty = true; poke(); });
     if (stillMode()) { countStart = -2; counted = true; setCounters(1); } // reduced-motion: final values, no count-up
   }
 

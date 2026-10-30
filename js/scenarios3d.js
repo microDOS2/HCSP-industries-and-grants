@@ -105,9 +105,13 @@
   canvas.className = "sc3d-stage"; canvas.id = "scenarios3d-canvas";
   canvas.setAttribute("aria-label", "Interactive 3D scene of the selected energy scenario: host site, HCSP plant, buyer, and the flows between them");
   stageCol.appendChild(canvas);
+  const ui = document.createElement("div");
+  ui.className = "sc3d-ui";
+  ui.innerHTML = '<button type="button" id="scenarios3d-play" class="on" aria-pressed="true">▶ PLAY</button>';
+  stageCol.appendChild(ui);
   const hint = document.createElement("p");
   hint.className = "sc3d-hint";
-  hint.textContent = "DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A BUILDING OR PIPE";
+  hint.textContent = "STATIC UNTIL ▶ PLAY · DRAG TO ORBIT · SCROLL OR PINCH TO ZOOM · CLICK A BUILDING OR PIPE";
   stageCol.appendChild(hint);
   const panel = document.createElement("aside");
   panel.className = "sc3d-panel";
@@ -417,7 +421,7 @@
 
   // ── controls ──
   const controls = new THREE.OrbitControls(camera, canvas);
-  controls.enableDamping = true; controls.dampingFactor = 0.08;
+  controls.enableDamping = false; controls.dampingFactor = 0.08; // damping comes on with ▶ PLAY
   controls.autoRotate = false;
   controls.target.set(0.4, 1.1, 0);
   controls.minDistance = 5; controls.maxDistance = 30;
@@ -446,9 +450,22 @@
     if (hit) showInfo(hit.object.userData.key);
   });
 
-  // ── render loop: on-demand; static in reading mode; paused offscreen ──
+  // ── render loop: on-demand; static in reading mode and until ▶ PLAY; paused offscreen ──
   let dirty = true, inView = false, raf = 0, lastT = 0;
-  function poke() { if (READER() && inView && !raf) raf = requestAnimationFrame(frame); }
+  // owner directive: static assembled frame on load — flow markers start only on ▶ PLAY
+  let paused = true;
+  ui.querySelector("#scenarios3d-play").addEventListener("click", () => {
+    paused = !paused;
+    controls.enableDamping = !paused;
+    const b = ui.querySelector("#scenarios3d-play");
+    b.textContent = paused ? "▶ PLAY" : "❚❚ PAUSE";
+    b.setAttribute("aria-pressed", String(paused));
+    b.classList.toggle("on", paused);
+    dirty = true; poke();
+  });
+  // poke always kicks: frame() renders once and self-terminates while paused /
+  // in reading mode, and keeps looping only while playing
+  function poke() { if (inView && !raf) raf = requestAnimationFrame(frame); }
   controls.addEventListener("change", () => { dirty = true; poke(); });
   function resize() {
     const w = stageCol.clientWidth, h = canvas.clientHeight || 620;
@@ -462,7 +479,7 @@
     if (!inView) return;
     // single-active-scene gate (js/lazy3d.js): another 3D scene owns the renderer
     if (window.HCSP3D_ACTIVE && window.HCSP3D_ACTIVE !== "scenarios3d") return;
-    if (!READER() && t != null) {
+    if (!READER() && !paused && t != null) {
       const dt = Math.min(0.05, (t - lastT) / 1000 || 0);
       lastT = t;
       flows.forEach(f => f.markers.forEach(s => { s.userData.t = (s.userData.t + dt * 0.2) % 1; }));
@@ -470,7 +487,7 @@
       dirty = true;
     }
     if (controls.enableDamping) controls.update();
-    if (dirty || !READER()) {
+    if (dirty || (!READER() && !paused)) {
       renderer.render(scene, camera);
       (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).scenarios3d = (window.__HCSP3D_RENDERED.scenarios3d || 0) + 1;
       const w = stageCol.clientWidth, h = canvas.clientHeight || 620;
@@ -485,7 +502,7 @@
       });
       dirty = false;
     }
-    if (!READER()) raf = requestAnimationFrame(frame);
+    if (!READER() && !paused) raf = requestAnimationFrame(frame);
   }
   const io = new IntersectionObserver(es => es.forEach(e => {
     inView = e.isIntersecting;
@@ -498,6 +515,9 @@
   picker.querySelector("button").setAttribute("aria-selected", "true");
   buildScene(0);
   resize();
+  // re-render once webfonts settle: label metrics change, and a paused scene
+  // would otherwise freeze first-paint label positions
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { dirty = true; poke(); });
 
   // ── lazy3d controller hooks: resume when granted the active slot, announce init ──
   addEventListener("hcsp3d:active", e => {

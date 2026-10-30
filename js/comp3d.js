@@ -667,7 +667,7 @@ window.Comp3D = (() => {
       `<button type="button" role="tab" data-v="${k}" aria-selected="false">${VIEWS[k].tab}</button>`).join("") +
       `<span class="c3d-spacer"></span>
        <button type="button" class="c3d-ctl" data-ctl="view3d" aria-pressed="false" hidden>◈ 3D VIEW</button>
-       <button type="button" class="c3d-ctl" data-ctl="pause" aria-pressed="false">❚❚ PAUSE</button>
+       <button type="button" class="c3d-ctl" data-ctl="pause" aria-pressed="true">▶ PLAY</button>
        <button type="button" class="c3d-ctl" data-ctl="table" aria-pressed="false">▦ TABLE VIEW</button>`;
     hostEl.appendChild(tabs);
 
@@ -771,7 +771,7 @@ window.Comp3D = (() => {
       G.animated = animated;
     }
 
-    let curView = null, paused = false, tableMode = false, domMode = false;
+    let curView = null, paused = true, tableMode = false, domMode = false; // paused on load per owner directive — static frame until ▶ PLAY
     const domBoxes = {};   // view name → its own container (ChartOther.render clears its host)
     const domPref = {};    // view name → false once the owner picks the 3D scene
     const pauseBtn = tabs.querySelector('[data-ctl="pause"]');
@@ -893,7 +893,7 @@ window.Comp3D = (() => {
     // watchdog: if the rAF chain ever dies (transient error, throttled
     // callback while the tab was hidden, …) restart it — otherwise labels
     // freeze mid-view-swap in an unpositioned pile
-    setInterval(() => { if (inView && !raf && !document.hidden && !domMode) { dirty = true; raf = requestAnimationFrame(frame); } }, 800);
+    setInterval(() => { if (inView && !raf && !document.hidden && !domMode && (running() || dirty)) { dirty = true; raf = requestAnimationFrame(frame); } }, 800);
     controls.addEventListener("change", () => { dirty = true; poke(); });
     function resize() {
       const w = stageCol.clientWidth || 800, h = canvas.clientHeight || 600;
@@ -979,6 +979,11 @@ window.Comp3D = (() => {
 
     showView("timeline");
     resize();
+    // re-render once webfonts settle: label chip metrics (L.cw/L.ch) are cached
+    // per chip, so invalidate them or a paused scene freezes first-paint metrics
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+      labels.forEach(L => { L.cw = 0; }); dirty = true; poke();
+    });
 
     addEventListener("hcsp3d:active", e => {
       if (e.detail === "comp3d" && inView && !raf) { dirty = true; raf = requestAnimationFrame(frame); }

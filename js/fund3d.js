@@ -242,8 +242,8 @@ html.reader .f3d-stage canvas{touch-action:auto}
         '<button type="button" class="f3d-btn" data-view="wall" role="tab" aria-selected="false">▮▮ 3D DEADLINE WALL</button>' +
         '<button type="button" class="f3d-btn" data-view="table" role="tab" aria-selected="false">▦ FAST TABLE</button>' +
         '<span class="f3d-spacer"></span>' +
-        '<button type="button" class="f3d-btn" data-act="orbit" aria-pressed="true">🔁 Auto-orbit: on</button>' +
-        '<button type="button" class="f3d-btn" data-act="pause" aria-pressed="false">⏸ Pause</button>' +
+        '<button type="button" class="f3d-btn" data-act="orbit" aria-pressed="false">🔁 Auto-orbit: off</button>' +
+        '<button type="button" class="f3d-btn" data-act="pause" aria-pressed="true">▶ Play</button>' +
       '</div>' +
       '<div class="f3d-tools">' +
         '<input type="search" class="f3d-q" placeholder="Search program, agency, notes…" aria-label="Search the 3D register">' +
@@ -885,7 +885,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
 
     /* ═══ views, pause, orbit ═══ */
     var view = "register";
-    var paused = false, orbitOn = true;
+    var paused = true, orbitOn = false; // owner directive: static assembled frame on load; motion + orbit only after the visitor opts in
     var viewBtns = root.querySelectorAll("[data-view]");
     var pauseBtn = root.querySelector('[data-act="pause"]');
     var orbitBtn = root.querySelector('[data-act="orbit"]');
@@ -1037,9 +1037,9 @@ html.reader .f3d-stage canvas{touch-action:auto}
       measureChips(); relayoutWall(); if (paused) poke();
     });
     resize();
-    if (REDUCE) setPaused(true); else kick();
-    /* grow-in for the field (instant in reading mode) */
-    if (!REDUCE) cards.forEach(function (c) { c.mesh.scale.y = 0.02; });
+    setPaused(true); // default: one static assembled frame on load; motion only after the visitor presses Play
+    /* grow-in only once the visitor has pressed Play — the paused frame is fully assembled */
+    if (!paused) cards.forEach(function (c) { c.mesh.scale.y = 0.02; });
 
     /* ── QA / integration hooks ── */
     function labelRects() {

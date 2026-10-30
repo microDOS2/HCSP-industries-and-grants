@@ -518,7 +518,7 @@
     init3d = true;
     v3d.innerHTML = `<canvas class="sizing3d-stage" aria-label="3D bars: market size in dollars by industry"></canvas>
       <div class="sizing3d-ui">
-        <button type="button" id="sizing3d-pause" aria-pressed="false">❚❚ PAUSE</button>
+        <button type="button" id="sizing3d-pause" class="on" aria-pressed="true">▶ PLAY</button>
         <button type="button" id="sizing3d-all" aria-pressed="false">SHOW ALL 15</button>
       </div>
       <p class="sizing3d-hint">DRAG TO ORBIT · CLICK A BAR FOR DETAIL + SOURCES</p>`;
@@ -555,13 +555,13 @@
     scene.add(ground);
 
     const controls = new THREE.OrbitControls(camera, canvas);
-    controls.enableDamping = !READER(); controls.dampingFactor = 0.08;
+    controls.enableDamping = false; controls.dampingFactor = 0.08; // damping comes on with ▶ PLAY
     controls.autoRotate = false;                    // manual orbit only — no auto-orbit
     controls.target.set(0, 1.7, 0);
     controls.minDistance = 5; controls.maxDistance = 30;
     controls.maxPolarAngle = Math.PI * 0.52;
 
-    let showAll = false, paused = false;
+    let showAll = false, paused = true; // paused on load per owner directive — static frame until ▶ PLAY
     let bars = [], labels = [], curData = RPT.sizing;
     // short chip names for the dense all-15 labeling mode
     const SHORT = { pharma: "Pharma", tex: "Textiles", pfas: "PFAS", haz: "Hazardous liquids", ref: "Refinery",
@@ -608,11 +608,12 @@
       dirty = true; poke();
     }
 
-    // pause/resume — freezes interaction and the render loop (manual orbit only)
+    // pause/resume — pauses the live loop (drag-settle inertia); picking and
+    // on-demand repaints still work while paused so the static frame stays explorable
     const pauseBtn = v3d.querySelector("#sizing3d-pause");
     pauseBtn.addEventListener("click", () => {
       paused = !paused;
-      controls.enabled = !paused;
+      controls.enableDamping = !paused && !READER(); // inertia only while playing
       pauseBtn.setAttribute("aria-pressed", paused ? "true" : "false");
       pauseBtn.classList.toggle("on", paused);
       pauseBtn.textContent = paused ? "▶ RESUME" : "❚❚ PAUSE";
@@ -634,7 +635,6 @@
     let downAt = null;
     canvas.addEventListener("pointerdown", e => { downAt = [e.clientX, e.clientY]; });
     canvas.addEventListener("pointerup", e => {
-      if (paused) { downAt = null; return; }
       if (!downAt || Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) { downAt = null; return; }
       downAt = null;
       const rct = canvas.getBoundingClientRect();
@@ -705,7 +705,7 @@
     // the loop itself runs only while a drag settles — never while paused,
     // never in reading mode (static frame), never while offscreen
     let dirty = true, inView = false, raf = 0, settleUntil = 0;
-    function poke() { if (inView && !raf && !paused) raf = requestAnimationFrame(frame); }
+    function poke() { if (inView && !raf) raf = requestAnimationFrame(frame); }
     controls.addEventListener("change", () => { dirty = true; poke(); });
     controls.addEventListener("start", () => { settleUntil = Infinity; poke(); });
     controls.addEventListener("end", () => { settleUntil = performance.now() + 350; poke(); });
@@ -718,7 +718,7 @@
     addEventListener("resize", resize, { passive: true });
     function frame() {
       raf = 0;
-      if (!inView || paused) return;
+      if (!inView) return;
       if (controls.enableDamping) controls.update();
       if (dirty) {
         renderer.render(scene, camera);
@@ -726,7 +726,7 @@
         (window.__HCSP3D_RENDERED = window.__HCSP3D_RENDERED || {}).sizing3d = (window.__HCSP3D_RENDERED.sizing3d || 0) + 1;
         dirty = false;
       }
-      if (READER()) return; // static frame
+      if (READER() || paused) return; // static frame — no live loop until ▶ PLAY
       if (!raf && performance.now() < settleUntil) raf = requestAnimationFrame(frame);
     }
     const io = new IntersectionObserver(es => es.forEach(e => {
