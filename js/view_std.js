@@ -321,10 +321,13 @@
       card.type = "button";
       card.className = "sz-card";
       card.setAttribute("data-drill-keep", "");
+      /* small print: one line, or several labeled lines (c.smallLines) */
+      var small = c.smallLines
+        ? c.smallLines.map(function (l) { return '<span class="sz-mod">' + esc(l) + "</span>"; }).join("")
+        : '<span class="sz-mod">' + esc(c.small || "") + "</span>";
       card.innerHTML = '<span class="sz-name">' + esc(c.name) + "</span>" +
         '<span class="sz-amt">' + esc(c.big) + "</span>" +
-        '<span class="sz-why">' + esc(c.reason) + "</span>" +
-        '<span class="sz-mod">' + esc(c.small) + "</span>";
+        '<span class="sz-why">' + esc(c.reason) + "</span>" + small;
       if (c.onClick) card.addEventListener("click", function (e) { e.stopPropagation(); c.onClick(e, c); });
       grid.appendChild(card);
     });

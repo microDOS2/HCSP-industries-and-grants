@@ -197,17 +197,19 @@ html.reader .f3d-stage canvas{touch-action:auto}
   };
 
   /* ═══ render(hostEl) ═══ */
-  function render(hostEl) {
+  function render(hostEl, opts) {
     if (!hostEl || hostEl._f3d) return;
     hostEl._f3d = true;
     injectCSS();
+    var wallOnly = !!(opts && opts.wallOnly); /* §10 calendar's in-place 3D WALL view */
 
     var ROWS = grants();
     var CAL = calendar();
     var CATS = catalystsInWindow();
     var REDUCE = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
       || document.documentElement.classList.contains("reader");
-    var tableBlock = document.getElementById("grant-table-block");
+    /* the wall-only instance embedded in §10 must never touch §9's fast table */
+    var tableBlock = wallOnly ? null : document.getElementById("grant-table-block");
 
     /* status palette — semantic red only for CLOSED/DEAD */
     var ST_COL = {
@@ -228,14 +230,18 @@ html.reader .f3d-stage canvas{touch-action:auto}
 
     /* ── DOM skeleton ── */
     var root = document.createElement("div");
-    root.className = "f3d-root";
+    root.className = "f3d-root" + (wallOnly ? " f3d-wall-only" : "");
     root.innerHTML =
       '<div class="f3d-head">' +
-        '<h3 class="f3d-title">The register in 3D — 92 programs as a field, twelve months as a wall</h3>' +
-        '<p class="f3d-sub">The 3D field groups every screened program by level; card color is the 2026 status and card height is the HCSP match score (taller = better fit). ' +
-        'The deadline wall lays the dated pursuits along a timeline — the two September federal plaques are CLOSED in red. ' +
-        'Search and filters reshape the field instantly; click any card or plaque for the full record with dated sources. ' +
-        'Ninety-two programs are often easier as a table — the fast table is one click away.</p>' +
+        (wallOnly
+          ? '<h3 class="f3d-title">The deadline wall in 3D — all 25 dated events, Sep 2026 → 2027</h3>' +
+            '<p class="f3d-sub">The same twelve funding deadlines and thirteen regulatory catalysts as the readable timeline, laid along a 3D time rail — the two September federal plaques are CLOSED in red. ' +
+            'Drag to orbit, scroll to zoom, hover any plaque for the date, click it for what it means and what to do next.</p>'
+          : '<h3 class="f3d-title">The register in 3D — 92 programs as a field, twelve months as a wall</h3>' +
+            '<p class="f3d-sub">The 3D field groups every screened program by level; card color is the 2026 status and card height is the HCSP match score (taller = better fit). ' +
+            'The deadline wall lays the dated pursuits along a timeline — the two September federal plaques are CLOSED in red. ' +
+            'Search and filters reshape the field instantly; click any card or plaque for the full record with dated sources. ' +
+            'Ninety-two programs are often easier as a table — the fast table is one click away.</p>') +
       '</div>' +
       '<div class="f3d-bar" role="tablist" aria-label="Funding views">' +
         '<button type="button" class="f3d-btn on" data-view="register" role="tab" aria-selected="true">◆ 3D GRANT FIELD</button>' +
@@ -272,6 +278,15 @@ html.reader .f3d-stage canvas{touch-action:auto}
     var detail = root.querySelector(".f3d-detail");
     var tools = root.querySelector(".f3d-tools");
     var countEl = root.querySelector(".f3d-count");
+
+    /* wall-only embed (§10 deadline calendar): just the wall — the register and
+       table tabs and the register filter tools do not apply in this slot */
+    if (wallOnly) {
+      root.querySelector('[data-view="register"]').style.display = "none";
+      root.querySelector('[data-view="table"]').style.display = "none";
+      root.querySelector('[data-act="orbit"]').style.display = "none";
+      tools.style.display = "none";
+    }
 
     /* populate level/type filter options from the data */
     ["level", "type"].forEach(function (f) {
@@ -413,27 +428,37 @@ html.reader .f3d-stage canvas{touch-action:auto}
     var wallGroup = new THREE.Group();   // sways gently = the animated camera drift
     sceneWall.add(wallGroup);
 
-    /* piecewise time → world x (same shape as the 2D wall chart, with the
-       Sep 2026 – Feb 2027 pile-up expanded so plaque labels clear each other) */
+    /* piecewise time → world x. The dense Sep 2026 – Feb 2027 pile-up stays
+       expanded (the main window, unchanged); earlier catalysts (2023 – mid-2026)
+       and the far-future ones (2031, 2045) sit in compressed edge zones so ALL
+       25 dated events are on the wall — none parked off-camera with its label
+       clamped onto the screen edge. */
+    var EARLY_X0 = -14.6, EARLY_X1 = -11.3;   /* compressed 2023 → mid-2026 zone */
+    var LATE_X0 = 9.2, LATE_X1 = 11.2;        /* compressed 2028 → 2045 zone */
     function wx(v) {
-      return v <= 2027.15 ? -11 + (v - 2026.6) / 0.55 * 17 : 6 + (v - 2027.15) / 0.65 * 4;
+      if (v < 2026.6) return EARLY_X0 + (v - 2023) / (2026.6 - 2023) * (EARLY_X1 - EARLY_X0);
+      if (v <= 2027.15) return -11 + (v - 2026.6) / 0.55 * 17;
+      if (v <= 2027.6) return 6 + (v - 2027.15) / 0.65 * 4;
+      return LATE_X0 + (Math.min(v, 2045) - 2027.6) / (2045 - 2027.6) * (LATE_X1 - LATE_X0);
     }
     var NOW_Y = 2026.75; // compiled September 2026
-    var WALL_X0 = wx(2026.62), WALL_X1 = wx(2027.6);
+    var WALL_X0 = wx(2026.62), WALL_X1 = wx(2027.6);   /* main-window span */
+    var SPAN_X0 = wx(2023) - 0.7, SPAN_X1 = wx(2045) + 0.7; /* full wall span incl. edge zones */
 
     /* backdrop + timeline rail */
     var floorW = new THREE.Mesh(new THREE.CircleGeometry(19, 56),
       new THREE.MeshBasicMaterial({ color: 0xeef1f6, transparent: true, opacity: 0.85 }));
-    floorW.rotation.x = -Math.PI / 2; floorW.position.y = -0.12;
+    floorW.rotation.x = -Math.PI / 2; floorW.position.set(-1.5, -0.12, 0);
     wallGroup.add(floorW);
-    var rail = new THREE.Mesh(new THREE.BoxGeometry(WALL_X1 - WALL_X0 + 6.4, 0.1, 0.1),
+    var rail = new THREE.Mesh(new THREE.BoxGeometry(SPAN_X1 - SPAN_X0 + 1.6, 0.1, 0.1),
       new THREE.MeshLambertMaterial({ color: 0x051c2c }));
-    rail.position.set((WALL_X0 + WALL_X1) / 2 + 1.4, 0.05, 0);
+    rail.position.set((SPAN_X0 + SPAN_X1) / 2, 0.05, 0);
     wallGroup.add(rail);
 
-    /* month ticks */
+    /* month ticks (+ zone ticks marking the compressed earlier/later spans) */
     var TICKS = [[2026.75, "OCT 26"], [2026.92, "DEC 26"], [2027.05, "JAN 27"],
-                 [2027.2, "MAR 27"], [2027.45, "JUN 27"]];
+                 [2027.2, "MAR 27"], [2027.45, "JUN 27"],
+                 [2024.4, "2023–25 EARLIER"], [2031.0, "2031–45 LATER"]];
     var tickChips = [];
     TICKS.forEach(function (tk) {
       var tx = wx(tk[0]);
@@ -483,7 +508,17 @@ html.reader .f3d-stage canvas{touch-action:auto}
       "Elemental DCII window": "2027 · ELEMENTAL",
       "Firefighting foam (AFFF) must be phased out": "OCT 26 · FOAM BAN",
       "Netherlands near-zero nitrogen rule": "2027 · NL NITROGEN BAN",
-      "Landfill PFAS limits expected to finalize": "26–28 · LANDFILL ELG"
+      "Landfill PFAS limits expected to finalize": "26–28 · LANDFILL ELG",
+      "EPA commits to landfill PFAS rules": "2023 · LANDFILL ELG VOW",
+      "India orders ~270 distilleries to zero discharge": "JAN 23 · INDIA ZLD",
+      "First US drinking-water PFAS limits": "2024 · PFAS WATER LIMITS",
+      "PFAS becomes a hazardous substance": "2024 · HAZARDOUS SUBSTANCE",
+      "WHO issues antibiotic-waste guidance": "2024 · WHO PHARMA WASTE",
+      "US keeps the hazardous-substance rule": "2025 · HAZARD RULE KEPT",
+      "Defense Department re-opens PFAS incineration": "EARLY 26 · INCINERATION REOPEN",
+      "EPA still calls SCWO 'unproven at scale'": "APR 26 · EPA GUIDANCE",
+      "Drinking-water compliance deadline": "2031 · WATER DEADLINE",
+      "EU wastewater build-out runs to 2045": "2045 · EU BUILD-OUT"
     };
     /* width-aware row packing with horizontal nudge slots (the same idea as the
        2D wall's lead lines): a plaque may sit off its true date, with a slanted
@@ -558,7 +593,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
           }
         }
         if (!pick) pick = { row: N_ROWS - 1, x: P.xTrue }; /* overflow — the de-overlap pass catches it */
-        pick.x = Math.max(WALL_X0 + 1.5, Math.min(WALL_X1 + 2.4, pick.x));
+        pick.x = Math.max(SPAN_X0 + 1.2, Math.min(SPAN_X1 - 1.2, pick.x));
         (rowBoxes[pick.row] = rowBoxes[pick.row] || []).push([pick.x - half, pick.x + half]);
         var py = ROW_Y0 + pick.row * ROW_H;
         P.baseY = py;
@@ -573,7 +608,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
        stage aspect — narrow stages pull the camera back instead of clipping */
     function wallHalfV() {
       var w = stage.clientWidth || 1200, h = stage.clientHeight || 620;
-      return Math.max(5.9, 15.0 / (w / h));
+      return Math.max(5.9, 17.5 / (w / h)); /* frames the full span incl. edge zones + chip room */
     }
     function fitWallCamera() {
       var halfV = wallHalfV();
@@ -660,23 +695,29 @@ html.reader .f3d-stage canvas{touch-action:auto}
         c.px = (projV.x * 0.5 + 0.5) * W + c.ox;
         c.py = (-projV.y * 0.5 + 0.5) * H + c.oy;
       });
-      /* deterministic screen-space de-overlap (push-down, from scratch each frame) */
-      for (var pass = 0; pass < 8; pass++) {
+      /* deterministic screen-space de-overlap (push-down, from scratch each frame).
+         Full pairwise passes, re-sorted each pass — with 30+ chips (25 events +
+         ticks + the NOW marker) an adjacent-pairs-only pass can leave a chip
+         resting on a non-adjacent one; pairwise passes converge monotonically. */
+      for (var pass = 0; pass < 60; pass++) {
         var moved = false;
         var sorted = act.filter(function (c) { return !c.behind; })
           .sort(function (a, b) { return (a.py + a.push) - (b.py + b.push); });
-        for (var i = 1; i < sorted.length; i++) {
-          var a = sorted[i - 1], b = sorted[i];
-          var ax = a.px, ay = a.py + a.push, bx = b.px, by = b.py + b.push;
-          var overlapX = Math.abs(ax - bx) < (a.w + b.w) / 2 + 6;
-          /* chips are anchored translate(-50%,-100%): the box extends UP from py.
-             tick-class chips extend DOWN (translate(-50%,0)). Compare boxes explicitly. */
-          var aTick = a.cls.indexOf("tick") !== -1, bTick = b.cls.indexOf("tick") !== -1;
-          var aTop = aTick ? ay : ay - a.h, aBot = aTick ? ay + a.h : ay;
-          var bTop = bTick ? by : by - b.h, bBot = bTick ? by + b.h : by;
-          if (overlapX && bTop < aBot + 4 && bBot > aTop - 4) {
-            var need = (aBot + 4) - bTop;
-            b.push += need; moved = true;
+        for (var i = 0; i < sorted.length; i++) {
+          for (var j = i + 1; j < sorted.length; j++) {
+            var a = sorted[i], b = sorted[j];
+            var ax = a.px, ay = a.py + a.push, bx = b.px, by = b.py + b.push;
+            var overlapX = Math.abs(ax - bx) < (a.w + b.w) / 2 + 6;
+            if (!overlapX) continue;
+            /* chips are anchored translate(-50%,-100%): the box extends UP from py.
+               tick-class chips extend DOWN (translate(-50%,0)). Compare boxes explicitly. */
+            var aTick = a.cls.indexOf("tick") !== -1, bTick = b.cls.indexOf("tick") !== -1;
+            var aTop = aTick ? ay : ay - a.h, aBot = aTick ? ay + a.h : ay;
+            var bTop = bTick ? by : by - b.h, bBot = bTick ? by + b.h : by;
+            if (bTop < aBot + 4 && bBot > aTop - 4) {
+              var need = (aBot + 4) - bTop;
+              b.push += need; moved = true;
+            }
           }
         }
         if (!moved) break;
@@ -993,8 +1034,8 @@ html.reader .f3d-stage canvas{touch-action:auto}
         beamMat.opacity = 0.2 + 0.16 * Math.sin(t * 2.4);
         var rs = 1 + 0.25 * Math.sin(t * 2.4);
         ring.scale.set(rs, rs, 1);
-        var span = WALL_X1 - WALL_X0 + 3;
-        scan.position.x = WALL_X0 - 1.5 + ((t * 1.15) % span);
+        var span = SPAN_X1 - SPAN_X0 + 3;
+        scan.position.x = SPAN_X0 - 1.5 + ((t * 1.15) % span);
         scanMat.opacity = 0.07 + 0.05 * Math.sin(t * 2.4);
         for (var pi = 0; pi < plaques.length; pi++) {
           var pl = plaques[pi];
@@ -1031,7 +1072,7 @@ html.reader .f3d-stage canvas{touch-action:auto}
     // Keep the fast table visible: hiding it at boot also killed the COLUMNS dropdown mid-interaction.
     // (3D explorer is the primary visual, but the table and its column toggles must stay usable.)
     applyFilters(true);
-    setView("register");
+    setView(wallOnly ? "wall" : "register");
     measureChips();
     relayoutWall();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
@@ -1079,7 +1120,15 @@ html.reader .f3d-stage canvas{touch-action:auto}
     };
   }
 
-  window.Fund3D = { render: render };
+  window.Fund3D = {
+    render: render,
+    /* wall-only instance for the §10 deadline calendar's in-place 3D WALL
+       toggle — lazily loads the 3D vendor, then renders just the deadline
+       wall (all 25 dated events) into the given host element */
+    renderWall: function (hostEl) {
+      return ensureVendor().then(function () { render(hostEl, { wallOnly: true }); });
+    }
+  };
 
   /* ── self-boot: lazy vendor + render when #fund3d approaches the viewport ── */
   (function boot() {

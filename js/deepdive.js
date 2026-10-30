@@ -7,8 +7,13 @@
 (function () {
   const host = document.getElementById("comp-profiles");
   if (!host) return;
-  host.className = "cp-grid";
-  host.innerHTML = RPT.comp_profiles.map((p, pi) => `
+  /* #comp-profiles is the view container; the two views (full profiles grid ⇄
+     story cards) swap inside it, in place — the Cards view is never appended
+     below the grid and exactly one view is visible at a time. */
+  host.className = "comp-views";
+  const profPane = document.createElement("div");
+  profPane.className = "cp-grid";
+  profPane.innerHTML = RPT.comp_profiles.map((p, pi) => `
     <article class="comp-prof">
       <p class="cp-name">${p.name}</p>
       <p class="cp-form">${p.form}</p>
@@ -20,7 +25,8 @@
           </div>`).join("")}
       </div>
     </article>`).join("");
-  host.querySelectorAll(".cp-row").forEach(el => {
+  host.appendChild(profPane);
+  profPane.querySelectorAll(".cp-row").forEach(el => {
     const r = RPT.comp_profiles[+el.dataset.p].rows[+el.dataset.r];
     el.onclick = e => U.showDrill({
       title: r.drill.title, value: r.drill.value, sub: r.drill.sub,
@@ -28,31 +34,41 @@
     });
   });
 
-  /* ── tiered standard: story cards view — one clean card per company (big
-     figure, one plain-English reason, small print with the smallest deal),
-     as a view toggle alongside the full profiles ── */
+  /* ── tiered standard: story cards view — one clean card per operator (all
+     five, HCSP included): big figure, one plain-English reason, small print
+     with financial health, real vs pipeline customers, smallest offering and
+     target customers — replacing the profiles grid in place ── */
   if (window.ViewStd) {
     const cardsHost = document.createElement("div");
+    cardsHost.className = "comp-cards-view";
     cardsHost.hidden = true;
-    host.parentElement.insertBefore(cardsHost, host.nextSibling);
+    host.appendChild(cardsHost);
     const rowOf = (p, prefix) => p.rows.find(r => r.lab.toLowerCase().indexOf(prefix) === 0);
     function renderCards() {
       cardsHost.innerHTML = "";
       ViewStd.storyCards(cardsHost, RPT.comp_profiles.map(p => {
         const fin = rowOf(p, "financial");
+        const real = rowOf(p, "real vs");
         const small = rowOf(p, "smallest");
+        const target = rowOf(p, "target");
         const verdict = rowOf(p, "scale-gap");
         const reason = verdict ? verdict.txt.split(". ")[0].replace(/\.+$/, "") + "." : p.form;
         const srcs = [...new Set(p.rows.flatMap(r => r.src || []))];
+        const line = (lab, r) => r ? lab + ": " + r.drill.value : null;
         return {
           name: p.name,
-          big: fin ? fin.drill.value : p.form,
+          big: verdict ? verdict.drill.value : (fin ? fin.drill.value : p.form),
           reason,
-          small: small ? "Smallest deal: " + small.drill.value : p.form,
+          smallLines: [
+            line("Financial health", fin),
+            line("Real vs pipeline", real),
+            line("Smallest offering", small),
+            line("Target customers", target),
+          ].filter(Boolean),
           onClick: e => U.showDrill({
             title: p.name.toUpperCase(),
             value: fin ? fin.drill.value : p.form,
-            sub: (verdict ? verdict.txt + " " : "") + (small ? "Smallest deal: " + small.drill.value + " — " + small.txt : ""),
+            sub: (verdict ? verdict.txt + " " : "") + (small ? "Smallest offering: " + small.drill.value + " — " + small.txt : ""),
             source: CH.srcLink(srcs),
             x: e.clientX, y: e.clientY,
           }),
@@ -65,7 +81,7 @@
       current: "profiles",
       onPick: v => {
         const cards = v === "cards";
-        host.hidden = cards;
+        profPane.hidden = cards;
         cardsHost.hidden = !cards;
         if (cards) renderCards();
       },
