@@ -1,8 +1,8 @@
 // ═══ Left-hand section navigator — ☰ hamburger menu + scrollspy ═══
 // A hamburger button fixed at the top-left (just under the top nav) opens a
 // slide-in panel from the left with two tabs — "Sections" (the page's section
-// list) and "Charts" (a searchable index of every chart on the site) — plus a
-// close ✕ and a back-to-top button. The panel auto-closes on selection.
+// list) and "Charts" (a searchable index of the charts on the current page) —
+// plus a close ✕ and a back-to-top button. The panel auto-closes on selection.
 // Active section is tracked with an IntersectionObserver on each band (same
 // reading zone as the main scroll engine). Visible from page load (navigation,
 // not decoration) and kept available in reading mode — only the panel's slide
@@ -44,26 +44,42 @@
     return FALLBACK[sec.id] || sec.id.replace(/^sec-/, "").replace(/-/g, " ");
   }
 
-  /* ── chart index: every chart on the site, with the page it lives on, the
-     element to scroll to, and (for multi-view explorers) the view to select ── */
+  /* ── chart index: the charts on the CURRENT page only. A small static map
+     of known chart element IDs → plain-English names (and, for the multi-view
+     §4 explorer, the view to select); entries whose element is absent from
+     this page are dropped, so the tab lists exactly this page's charts ── */
   const CHARTS = [
-    { name: "Ranking",          page: "index.html",       id: "host-c3-ranking",   sec: "§0 · Executive summary" },
-    { name: "Savings Ladder",   page: "index.html",       id: "host-c3-savings",   sec: "§3 · The economics" },
-    { name: "Energy Crossover", page: "index.html",       id: "host-c3-crossover", sec: "§3B · Scale & energy" },
-    { name: "Heat Flow",        page: "index.html",       id: "host-c3-heat",      sec: "§3B · Scale & energy" },
-    { name: "Scale Ladder",     page: "index.html",       id: "host-scale-3d",     sec: "§3B · Scale & energy" },
-    { name: "Market Size",      page: "index.html",       id: "sizing-chart",      sec: "§3 · The economics" },
-    { name: "Verdict",          page: "index.html",       id: "verdict-chart",     sec: "§5 · The verdict" },
-    { name: "Deadline Calendar", page: "funding.html",    id: "deadline-timeline", sec: "§10 · The Top-15 pursuits" },
-    { name: "Destiny",          page: "competitors.html", id: "comp3d", view: "timeline", sec: "§4 · The field" },
-    { name: "Scale Gap",        page: "competitors.html", id: "comp3d", view: "scale",    sec: "§4 · The field" },
-    { name: "Vendor Panels",    page: "competitors.html", id: "comp3d", view: "panels",   sec: "§4 · The field" },
-    { name: "Customer Map",     page: "competitors.html", id: "comp3d", view: "map",      sec: "§4C · Customers & footprint" },
-    { name: "Grant Register",   page: "funding.html",     id: "grant-table-block", sec: "§9 · The grant register" },
-    { name: "Sources",          page: "index.html",       id: "sec-sources",       sec: "Sources & method" },
+    { name: "Ranking",          id: "host-c3-ranking" },
+    { name: "Savings Ladder",   id: "host-c3-savings" },
+    { name: "Energy Crossover", id: "host-c3-crossover" },
+    { name: "Heat Flow",        id: "host-c3-heat" },
+    { name: "Scale Ladder",     id: "host-scale-3d" },
+    { name: "Market Size",      id: "sizing-chart" },
+    { name: "Verdict",          id: "verdict-chart" },
+    { name: "Deadline Calendar", id: "deadline-timeline" },
+    { name: "Destiny",          id: "comp3d", view: "timeline" },
+    { name: "Scale Gap",        id: "comp3d", view: "scale" },
+    { name: "Vendor Panels",    id: "comp3d", view: "panels" },
+    { name: "Customer Map",     id: "comp3d", view: "map" },
+    { name: "Grant Register",   id: "grant-table-block" },
+    { name: "Sources",          id: "sec-sources" },
   ];
-  const PAGE_FILE = (location.pathname.split("/").pop() || "index.html");
-  const DIST = PAGE_FILE.indexOf("dist-") === 0;
+  // keep the charts actually present on this page, in page (DOM) order,
+  // each with the section it lives in (for its label and scrollspy highlight)
+  const pageCharts = [];
+  CHARTS.forEach(c => {
+    const el = document.getElementById(c.id);
+    if (!el) return;
+    const band = el.matches("section.band[id]") ? el : el.closest("section.band[id]");
+    const sec = band || (el.id === "sec-sources" ? el : null);
+    pageCharts.push({ name: c.name, id: c.id, view: c.view || null, el: el,
+      secId: sec ? sec.id : null, sec: sec ? labelFor(sec) : "" });
+  });
+  pageCharts.sort((a, b) => {
+    if (a.el === b.el) return 0; // same host, different views — keep listed order
+    const pos = a.el.compareDocumentPosition(b.el);
+    return pos & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+  });
 
   // select a chart's view where the target chart has one (the §4 explorer tabs)
   function applyChartView(c) {
@@ -73,17 +89,11 @@
   }
 
   function gotoChart(c) {
-    const el = document.getElementById(c.id);
-    if (el) {
-      // same page: set the view (if any), scroll straight to the chart
-      applyChartView(c);
-      el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-      setOpen(false); // auto-close on selection
-    } else {
-      // different page: hand the jump over via sessionStorage, then navigate
-      try { sessionStorage.setItem("hcsp-goto-chart", JSON.stringify({ id: c.id, view: c.view || null })); } catch (e) {}
-      location.href = (DIST ? "dist-" : "") + c.page + "#" + c.id;
-    }
+    // same page: set the view (if any), scroll to the chart, mark its section
+    applyChartView(c);
+    c.el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    if (c.secId) setActive(c.secId);
+    setOpen(false); // auto-close on selection
   }
 
   // ── DOM ──
@@ -146,7 +156,7 @@
   paneSections.appendChild(list);
   panel.appendChild(paneSections);
 
-  // ── pane 2: Charts (search box + filterable chart index) ──
+  // ── pane 2: Charts (search box + this page's charts, filterable) ──
   const paneCharts = document.createElement("div");
   paneCharts.className = "ln-pane ln-pane-charts";
   paneCharts.hidden = true;
@@ -158,10 +168,11 @@
   paneCharts.appendChild(search);
   const clist = document.createElement("ol");
   clist.className = "ln-list ln-clist";
-  CHARTS.forEach(c => {
+  const clinks = []; // chart link + its section, for the scrollspy highlight
+  pageCharts.forEach(c => {
     const li = document.createElement("li");
     const a = document.createElement("a");
-    a.href = (DIST ? "dist-" : "") + c.page + "#" + c.id;
+    a.href = "#" + c.id;
     a.innerHTML = '<span class="ln-cname"></span><span class="ln-csec"></span>';
     a.querySelector(".ln-cname").textContent = c.name;
     a.querySelector(".ln-csec").textContent = c.sec;
@@ -171,6 +182,7 @@
     });
     li.appendChild(a);
     clist.appendChild(li);
+    clinks.push({ a: a, secId: c.secId });
   });
   paneCharts.appendChild(clist);
   const noHit = document.createElement("p");
@@ -182,7 +194,7 @@
     const q = search.value.trim().toLowerCase();
     let shown = 0;
     clist.querySelectorAll("li").forEach((li, i) => {
-      const c = CHARTS[i];
+      const c = pageCharts[i];
       const on = !q || c.name.toLowerCase().includes(q) || c.sec.toLowerCase().includes(q);
       li.style.display = on ? "" : "none";
       if (on) shown++;
@@ -235,27 +247,13 @@
   // ── visible from page load on every page (navigation, not decoration) ──
   nav.classList.add("on");
 
-  // ── a chart jump handed over from another page: set its view, scroll to it ──
-  let pending = null;
-  try {
-    pending = JSON.parse(sessionStorage.getItem("hcsp-goto-chart") || "null");
-    sessionStorage.removeItem("hcsp-goto-chart");
-  } catch (e) {}
-  if (pending && pending.id) {
-    setTimeout(() => {
-      const el = document.getElementById(pending.id);
-      if (!el) return;
-      applyChartView(pending);
-      el.scrollIntoView({ behavior: "auto", block: "start" });
-    }, 400);
-  }
-
-  // ── scrollspy: highlight the section in the reading zone ──
+  // ── scrollspy: highlight the section (and its charts) in the reading zone ──
   let current = null;
   function setActive(id) {
     if (current === id) return;
     current = id;
     links.forEach((a, k) => a.classList.toggle("active", k === id));
+    clinks.forEach(cl => cl.a.classList.toggle("active", cl.secId === id));
   }
   const io = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) setActive(e.target.id); });
