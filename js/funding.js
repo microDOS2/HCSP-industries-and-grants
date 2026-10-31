@@ -87,9 +87,10 @@
       onPick: v => {
         const tab = v === "table";
         board.hidden = tab;
-        // Force the table wrapper's display directly so Board shows only the board,
-        // regardless of any CSS rules that would otherwise keep the table visible.
-        tWrap.style.display = tab ? "table" : "none";
+        // The hidden attribute must be cleared as well as setting display;
+        // the site's [hidden] rule otherwise keeps the table container hidden.
+        tWrap.hidden = !tab;
+        tWrap.style.display = tab ? "block" : "none";
       },
     });
     board.parentElement.insertBefore(vt, board);
