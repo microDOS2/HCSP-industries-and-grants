@@ -324,7 +324,8 @@ background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:4px;
     function startCounters() {
       // genuine reset: particle progress back to the bar tops, counters to zero
       particles.forEach(function (s) { s.userData.t = 0; });
-      if (stillMode()) { countPos = -1; countHold = false; setCounters(1); dirty = true; poke(); return; }
+      // Always reset to zero and restart the count-up, even when the scene is paused.
+      // (Previously Replay only worked when the scene was running, so Pause made it a no-op.)
       countPos = 0; countLast = 0; countHold = false;
       setCounters(0); poke();
     }
