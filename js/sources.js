@@ -35,7 +35,7 @@ window.SRCS = [
     fact: "Revive operates the PFAS Annihilator as a per-gallon service — North America's first fully permitted commercial-scale SCWO PFAS destruction system." },
   { k: "K17", ref: "D11-10/D5-45", url: "https://finance.yahoo.com/news/general-atomics-introduces-perses-waste-140000324.html", cat: "company", date: "2023–2025", cite: "General Atomics press releases + US EPA waste-office report (PERSES / iSCWO)",
     fact: ">6M gallons destroyed across ~200 waste types at >99.99%, EPA-verified for PFAS; commercial since ~2012; Tooele unit sidelined on capacity/reliability." },
-  { k: "K18", ref: "D11-14", url: "https://www.ocsan.gov/wp-content/uploads/2024/03/SCWO-Presentation.pdf", cat: "industry", date: "2024", cite: "Orange County Sanitation District board presentation & project flyers",
+  { k: "K18", ref: "D11-14", url: "https://ocsan.gov/wp-content/uploads/2024/08/SCWO-Presentation.pdf", cat: "industry", date: "2024", cite: "Orange County Sanitation District board presentation & project flyers",
     fact: "AirSCWO 6 contract $5,207,595 (equipment + operation) within a $7,941,029 total project — the only verifiable commercial SCWO transaction of its class." },
   { k: "K19", ref: "D11-11", url: "https://aquarden.com/superox-scwo/", cat: "company",  date: "2024", cite: "Aquarden SuperOx product page / State of Green",
     fact: "5 t/day modular SCWO; 'operates solely on electricity — no fossil co-fuels required'; industrial units in Denmark and France (ArianeGroup)." },
